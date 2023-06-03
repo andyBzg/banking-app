@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "transactions_table")
+@Table(name = "transactions")
 public class Transaction {
 
     @Id
