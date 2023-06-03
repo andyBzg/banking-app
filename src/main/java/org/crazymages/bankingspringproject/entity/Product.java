@@ -28,8 +28,8 @@ public class Product {
     @Column(name = "interest_rate", precision = 6, scale = 4)
     private BigDecimal interestRate;
 
-    @Column(name = "limit", precision = 15, scale = 2)
-    private BigDecimal limit;
+    @Column(name = "limitation", precision = 15, scale = 2)
+    private BigDecimal limitation;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
