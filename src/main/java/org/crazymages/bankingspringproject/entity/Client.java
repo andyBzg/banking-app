@@ -2,8 +2,10 @@ package org.crazymages.bankingspringproject.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -11,15 +13,21 @@ import java.sql.Timestamp;
 public class Client {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "uuid")
+    private UUID uuid;
 
-    @Column(name = "manager_id")
-    private Integer managerId;
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
+    @Column(name = "manager_uuid")
+    private UUID managerUuid;
 
     @Column(name = "status")
-    private Integer status;
+    private ClientStatus status;
 
     @Column(name = "tax_code", length = 20)
     private String taxCode;
@@ -39,9 +47,4 @@ public class Client {
     @Column(name = "phone", length = 20)
     private String phone;
 
-    @Column(name = "created_at")
-    private Timestamp createdAt;
-
-    @Column(name = "updated_at")
-    private Timestamp updatedAt;
 }
