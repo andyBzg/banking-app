@@ -3,6 +3,8 @@ package org.crazymages.bankingspringproject.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -17,10 +19,12 @@ public class Client {
     @Column(name = "uuid")
     private UUID uuid;
 
-    @Column(name = "created_at")
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
-    @Column(name = "updated_at")
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
     @Column(name = "manager_uuid")

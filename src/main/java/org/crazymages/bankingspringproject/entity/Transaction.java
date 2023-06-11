@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.TransactionType;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,7 +20,8 @@ public class Transaction {
     @Column(name = "uuid")
     private UUID uuid;
 
-    @Column(name = "created_at")
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
     @Column(name = "debit_account_uuid")
