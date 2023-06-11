@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -21,6 +22,10 @@ public class Manager {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Timestamp updatedAt;
 
     @Column(name = "first_name", length = 50)
     private String firstName;
