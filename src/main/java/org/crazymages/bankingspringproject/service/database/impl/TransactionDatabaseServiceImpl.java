@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.crazymages.bankingspringproject.entity.Transaction;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     @Override
     public Transaction findById(UUID uuid) {
         Optional<Transaction> transactionOptional = transactionRepository.findById(uuid);
-        return transactionOptional.orElse(null);
+        return transactionOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override

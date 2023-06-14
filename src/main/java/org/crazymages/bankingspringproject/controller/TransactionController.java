@@ -36,7 +36,7 @@ public class TransactionController {
     @GetMapping(value = "/transaction/find/{uuid}")
     public ResponseEntity<Transaction> findTransactionByUuid(@PathVariable UUID uuid) {
         Transaction transaction = transactionDatabaseService.findById(uuid);
-        return transaction != null ? ResponseEntity.ok(transaction) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(transaction);
     }
 
     @DeleteMapping(value ="/transaction/delete/{uuid}")

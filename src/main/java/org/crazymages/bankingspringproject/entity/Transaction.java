@@ -24,11 +24,13 @@ public class Transaction {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
-    @Column(name = "debit_account_uuid")
-    private UUID debitAccountUuid;
+    @ManyToOne
+    @JoinColumn(name = "debit_account_uuid")
+    private Account debitAccount;
 
-    @Column(name = "credit_account_uuid")
-    private UUID creditAccountUuid;
+    @ManyToOne
+    @JoinColumn(name = "credit_account_uuid")
+    private Account creditAccount;
 
     @Column(name = "type")
     private TransactionType type;

@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     @Override
     public Account findById(UUID uuid) {
         Optional<Account> accountOptional = accountRepository.findById(uuid);
-        return accountOptional.orElse(null);
+        return accountOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override
@@ -46,7 +47,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         Optional<Account> accountOptional = accountRepository.findById(uuid);
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
-            account.setClientUuid(accountUpdate.getClientUuid());
+            account.setClient(accountUpdate.getClient());
             account.setName(accountUpdate.getName());
             account.setType(accountUpdate.getType());
             account.setStatus(accountUpdate.getStatus());
@@ -54,7 +55,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
             account.setCurrencyCode(accountUpdate.getCurrencyCode());
             accountRepository.save(account);
         }
-        return accountOptional.orElse(null);
+        return accountOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override

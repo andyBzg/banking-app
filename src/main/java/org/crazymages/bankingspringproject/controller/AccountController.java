@@ -36,7 +36,7 @@ public class AccountController {
     @GetMapping(value = "/account/find/{uuid}")
     public ResponseEntity<Account> findAccountByUuid(@PathVariable UUID uuid) {
         Account account = accountDatabaseService.findById(uuid);
-        return account != null ? ResponseEntity.ok(account) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(account);
     }
 
     @GetMapping(value = "/account/find/all/by-status/{status}")
@@ -52,7 +52,7 @@ public class AccountController {
     @PutMapping(value = "/account/update/{uuid}")
     public ResponseEntity<Account> updateAccount(@PathVariable UUID uuid, @RequestBody Account account) {
         Account accountUpdate = accountDatabaseService.update(uuid, account);
-        return accountUpdate != null ? ResponseEntity.ok(accountUpdate) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(accountUpdate);
     }
 
     @DeleteMapping(value ="/account/delete/{uuid}")

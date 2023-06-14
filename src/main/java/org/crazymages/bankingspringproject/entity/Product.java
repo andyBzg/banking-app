@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -29,8 +30,9 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @Column(name = "manager_uuid")
-    private UUID managerUuid;
+    @ManyToOne
+    @JoinColumn(name = "manager_uuid")
+    private Manager manager;
 
     @Column(name = "name", length = 70)
     private String name;
@@ -46,5 +48,9 @@ public class Product {
 
     @Column(name = "limitation", precision = 15, scale = 2)
     private BigDecimal limitation;
+
+
+    @OneToMany(mappedBy = "product")
+    private List<Agreement> agreements;
 
 }

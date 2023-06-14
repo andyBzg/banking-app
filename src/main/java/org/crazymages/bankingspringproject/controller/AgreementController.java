@@ -36,13 +36,13 @@ public class AgreementController {
     @GetMapping(value = "/agreement/find/{uuid}")
     public ResponseEntity<Agreement> findAgreementByUuid(@PathVariable UUID uuid) {
         Agreement agreement = agreementDatabaseService.findById(uuid);
-        return agreement != null ? ResponseEntity.ok(agreement) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(agreement);
     }
 
     @PutMapping(value = "/agreement/update/{uuid}")
     public ResponseEntity<Agreement> updateAgreement(@PathVariable UUID uuid, @RequestBody Agreement agreement) {
         Agreement agreementUpdate = agreementDatabaseService.update(uuid, agreement);
-        return agreementUpdate != null ? ResponseEntity.ok(agreementUpdate) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(agreementUpdate);
     }
 
     @DeleteMapping(value ="/agreement/delete/{uuid}")

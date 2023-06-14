@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.crazymages.bankingspringproject.entity.Product;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     @Override
     public Product findById(UUID uuid) {
         Optional<Product> productOptional = productRepository.findById(uuid);
-        return productOptional.orElse(null);
+        return productOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override
@@ -39,7 +40,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         Optional<Product> productOptional = productRepository.findById(uuid);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
-            product.setManagerUuid(productUpdate.getManagerUuid());
+            product.setManager(productUpdate.getManager());
             product.setName(productUpdate.getName());
             product.setStatus(productUpdate.getStatus());
             product.setCurrencyCode(productUpdate.getCurrencyCode());
@@ -47,7 +48,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
             product.setLimitation(productUpdate.getLimitation());
             productRepository.save(product);
         }
-        return productOptional.orElse(null);
+        return productOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override

@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.crazymages.bankingspringproject.entity.Client;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     @Override
     public Client findById(UUID uuid) {
         Optional<Client> clientOptional = clientRepository.findById(uuid);
-        return clientOptional.orElse(null);
+        return clientOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override
@@ -39,7 +40,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
         Optional<Client> clientOptional = clientRepository.findById(uuid);
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get();
-            client.setManagerUuid(clientUpdate.getManagerUuid());
+            client.setManager(clientUpdate.getManager());
             client.setStatus(clientUpdate.getStatus());
             client.setTaxCode(clientUpdate.getTaxCode());
             client.setFirstName(clientUpdate.getFirstName());
@@ -49,7 +50,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
             client.setPhone(clientUpdate.getPhone());
             clientRepository.save(client);
         }
-        return clientOptional.orElse(null);
+        return clientOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override

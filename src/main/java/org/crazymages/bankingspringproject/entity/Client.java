@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -27,8 +28,9 @@ public class Client {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @Column(name = "manager_uuid")
-    private UUID managerUuid;
+    @ManyToOne
+    @JoinColumn(name = "manager_uuid")
+    private Manager manager;
 
     @Column(name = "status")
     private ClientStatus status;
@@ -51,4 +53,7 @@ public class Client {
     @Column(name = "phone", length = 20)
     private String phone;
 
+
+    @OneToMany(mappedBy = "client")
+    private List<Account> accounts;
 }

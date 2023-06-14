@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -27,26 +28,39 @@ public class Account {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
-    @UpdateTimestamp
+    @UpdateTimestamp //рассмотреть обычный способ создания временной метки
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @Column(name = "client_uuid")
-    private UUID clientUuid;
+    @ManyToOne
+    @JoinColumn(name = "client_uuid")
+    private Client client;
 
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type") //@Enumerated(EnumType.STRING)
     private AccountType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private AccountStatus status;
 
     @Column(name = "balance", precision = 15, scale = 2)
     private BigDecimal balance;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
 
+
+    @OneToMany(mappedBy = "account")
+    private List<Agreement> agreements;
+
+    @OneToMany(mappedBy = "debitAccount")
+    private List<Transaction> debitTransactions;
+
+    @OneToMany(mappedBy = "creditAccount")
+    private List<Transaction> creditTransactions;
 }

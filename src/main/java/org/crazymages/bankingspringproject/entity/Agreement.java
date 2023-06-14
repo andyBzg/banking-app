@@ -28,11 +28,13 @@ public class Agreement {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @Column(name = "account_uuid")
-    private UUID accountUuid;
+    @ManyToOne
+    @JoinColumn(name = "account_uuid")
+    private Account account;
 
-    @Column(name = "product_uuid")
-    private UUID productUuid;
+    @ManyToOne
+    @JoinColumn(name = "product_uuid")
+    private Product product;
 
     @Column(name = "interest_rate", precision = 6, scale = 4)
     private BigDecimal interestRate;

@@ -36,13 +36,13 @@ public class ClientController {
     @GetMapping(value = "/client/find/{uuid}")
     public ResponseEntity<Client> findClientByUuid(@PathVariable UUID uuid) {
         Client client = clientDatabaseService.findById(uuid);
-        return client != null ? ResponseEntity.ok(client) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(client);
     }
 
     @PutMapping(value = "/client/update/{uuid}")
     public ResponseEntity<Client> updateClient(@PathVariable UUID uuid, @RequestBody Client client) {
         Client clientUpdate = clientDatabaseService.update(uuid, client);
-        return clientUpdate != null ? ResponseEntity.ok(clientUpdate) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(clientUpdate);
     }
 
     @DeleteMapping(value ="/client/delete/{uuid}")

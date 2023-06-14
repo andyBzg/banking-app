@@ -36,13 +36,13 @@ public class ProductController {
     @GetMapping(value = "/product/find/{uuid}")
     public ResponseEntity<Product> findProductByUuid(@PathVariable UUID uuid) {
         Product product = productDatabaseService.findById(uuid);
-        return product != null ? ResponseEntity.ok(product) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(product);
     }
 
     @PutMapping(value = "/product/update/{uuid}")
     public ResponseEntity<Product> updateProduct(@PathVariable UUID uuid, @RequestBody Product product) {
         Product productUpdate = productDatabaseService.update(uuid, product);
-        return productUpdate != null ? ResponseEntity.ok(productUpdate) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(productUpdate);
     }
 
     @DeleteMapping(value ="/product/delete/{uuid}")

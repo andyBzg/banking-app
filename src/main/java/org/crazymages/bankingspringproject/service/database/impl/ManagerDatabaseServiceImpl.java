@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.crazymages.bankingspringproject.entity.Manager;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     @Override
     public Manager findById(UUID uuid) {
         Optional<Manager> managerOptional = managerRepository.findById(uuid);
-        return managerOptional.orElse(null);
+        return managerOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override
@@ -45,7 +46,7 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
             manager.setDescription(managerUpdate.getDescription());
             managerRepository.save(manager);
         }
-        return managerOptional.orElse(null);
+        return managerOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override

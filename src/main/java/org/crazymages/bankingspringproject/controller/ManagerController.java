@@ -36,13 +36,13 @@ public class ManagerController {
     @GetMapping(value = "/manager/find/{uuid}")
     public ResponseEntity<Manager> findManagerByUuid(@PathVariable UUID uuid) {
         Manager manager = managerDatabaseService.findById(uuid);
-        return manager != null ? ResponseEntity.ok(manager) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(manager);
     }
 
     @PutMapping(value = "/manager/update/{uuid}")
     public ResponseEntity<Manager> updateManager(@PathVariable UUID uuid, @RequestBody Manager manager) {
         Manager managerUpdate = managerDatabaseService.update(uuid, manager);
-        return managerUpdate != null ? ResponseEntity.ok(managerUpdate) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(managerUpdate);
     }
 
     @DeleteMapping(value ="/manager/delete/{uuid}")
