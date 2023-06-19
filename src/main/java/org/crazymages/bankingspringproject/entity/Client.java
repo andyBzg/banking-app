@@ -28,10 +28,14 @@ public class Client {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "manager_uuid")
-    private Manager manager;
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
 
+//    @ManyToOne
+    @JoinColumn(name = "manager_uuid")
+    private UUID managerUuid;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ClientStatus status;
 
@@ -54,6 +58,6 @@ public class Client {
     private String phone;
 
 
-    @OneToMany(mappedBy = "client")
-    private List<Account> accounts;
+//    @OneToMany(mappedBy = "client")
+//    private List<Account> accounts;
 }

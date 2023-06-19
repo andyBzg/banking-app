@@ -13,7 +13,7 @@ public interface ProductDatabaseService {
 
     Product findById(UUID uuid);
 
-    Product update(UUID uuid, Product product);
+    void update(UUID uuid, Product product);
 
     void delete(UUID uuid);
 }

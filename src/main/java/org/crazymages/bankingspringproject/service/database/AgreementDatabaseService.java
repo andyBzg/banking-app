@@ -13,7 +13,11 @@ public interface AgreementDatabaseService {
 
     Agreement findById(UUID uuid);
 
-    Agreement update(UUID uuid, Agreement agreement);
+    void update(UUID uuid, Agreement agreement);
 
     void delete(UUID uuid);
+
+    List<Agreement> findAgreementsByManagerUuid(UUID uuid);
+
+    List<Agreement> findAgreementsByClientUuid(UUID uuid);
 }

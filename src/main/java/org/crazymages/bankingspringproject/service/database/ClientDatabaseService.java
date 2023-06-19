@@ -13,7 +13,9 @@ public interface ClientDatabaseService {
 
     Client findById(UUID uuid);
 
-    Client update(UUID uuid, Client client);
+    void update(UUID uuid, Client client);
 
     void delete(UUID uuid);
+
+    List<Client> findActiveClients();
 }

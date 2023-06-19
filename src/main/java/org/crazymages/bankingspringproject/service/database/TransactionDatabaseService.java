@@ -13,5 +13,10 @@ public interface TransactionDatabaseService {
 
     Transaction findById(UUID uuid);
 
-    void delete(UUID uuid);
+    List<Transaction> findOutgoingTransactions(UUID uuid);
+
+    List<Transaction> findIncomingTransactions(UUID uuid);
+
+    void transferFunds(Transaction transaction);
+
 }

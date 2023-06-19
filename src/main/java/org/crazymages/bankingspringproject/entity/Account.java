@@ -11,7 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -32,15 +31,18 @@ public class Account {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @ManyToOne
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
+
+//    @ManyToOne
     @JoinColumn(name = "client_uuid")
-    private Client client;
+    private UUID clientUuid;
 
     @Column(name = "name", length = 100)
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type") //@Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private AccountType type;
 
     @Enumerated(EnumType.STRING)
@@ -55,12 +57,12 @@ public class Account {
     private CurrencyCode currencyCode;
 
 
-    @OneToMany(mappedBy = "account")
-    private List<Agreement> agreements;
-
-    @OneToMany(mappedBy = "debitAccount")
-    private List<Transaction> debitTransactions;
-
-    @OneToMany(mappedBy = "creditAccount")
-    private List<Transaction> creditTransactions;
+//    @OneToMany(mappedBy = "account")
+//    private List<Agreement> agreements;
+//
+//    @OneToMany(mappedBy = "debitAccount")
+//    private List<Transaction> debitTransactions;
+//
+//    @OneToMany(mappedBy = "creditAccount")
+//    private List<Transaction> creditTransactions;
 }

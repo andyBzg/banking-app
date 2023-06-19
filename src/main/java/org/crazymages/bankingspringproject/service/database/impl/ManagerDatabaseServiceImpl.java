@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
@@ -9,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     private final ManagerRepository managerRepository;
@@ -21,36 +22,50 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     @Override
     public void create(Manager manager) {
         managerRepository.save(manager);
+        log.info("manager created");
     }
 
     @Override
     public List<Manager> findAll() {
+        log.info("retrieving list of managers");
         return managerRepository.findAll();
     }
 
     @Override
     public Manager findById(UUID uuid) {
-        Optional<Manager> managerOptional = managerRepository.findById(uuid);
-        return managerOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        log.info("retrieving manager by id {}", uuid);
+        return managerRepository.findById(uuid)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
     @Override
     @Transactional
-    public Manager update(UUID uuid, Manager managerUpdate) {
-        Optional<Manager> managerOptional = managerRepository.findById(uuid);
-        if (managerOptional.isPresent()) {
-            Manager manager = managerOptional.get();
+    public void update(UUID uuid, Manager managerUpdate) {
+        Manager manager = managerRepository.findById(uuid)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        if (managerUpdate.getFirstName() != null) {
             manager.setFirstName(managerUpdate.getFirstName());
-            manager.setFirstName(managerUpdate.getFirstName());
-            manager.setStatus(managerUpdate.getStatus());
-            manager.setDescription(managerUpdate.getDescription());
-            managerRepository.save(manager);
         }
-        return managerOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        if (managerUpdate.getFirstName() != null) {
+            manager.setFirstName(managerUpdate.getFirstName());
+        }
+        if (managerUpdate.getStatus() != null) {
+            manager.setStatus(managerUpdate.getStatus());
+        }
+        if (managerUpdate.getDescription() != null) {
+            manager.setDescription(managerUpdate.getDescription());
+        }
+        managerRepository.save(manager);
+        log.info("updated manager id {}", uuid);
     }
 
     @Override
+    @Transactional
     public void delete(UUID uuid) {
-        managerRepository.deleteById(uuid);
+        Manager manager = managerRepository.findById(uuid)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        manager.setDeleted(true);
+        managerRepository.save(manager);
+        log.info("deleted manager id {}", uuid);
     }
 }

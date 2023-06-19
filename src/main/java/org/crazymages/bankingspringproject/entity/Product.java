@@ -30,16 +30,21 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @ManyToOne
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
+
+//    @ManyToOne
     @JoinColumn(name = "manager_uuid")
-    private Manager manager;
+    private UUID managerUuid;
 
     @Column(name = "name", length = 70)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProductStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
 
@@ -50,7 +55,6 @@ public class Product {
     private BigDecimal limitation;
 
 
-    @OneToMany(mappedBy = "product")
-    private List<Agreement> agreements;
-
+//    @OneToMany(mappedBy = "product")
+//    private List<Agreement> agreements;
 }

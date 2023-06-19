@@ -28,21 +28,24 @@ public class Agreement {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "account_uuid")
-    private Account account;
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
 
-    @ManyToOne
+//    @ManyToOne
+    @JoinColumn(name = "account_uuid")
+    private UUID accountUuid;
+
+//    @ManyToOne
     @JoinColumn(name = "product_uuid")
-    private Product product;
+    private UUID productUuid;
 
     @Column(name = "interest_rate", precision = 6, scale = 4)
     private BigDecimal interestRate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private AgreementStatus status;
 
     @Column(name = "sum", precision = 15, scale = 2)
     private BigDecimal sum;
-
 }

@@ -40,14 +40,36 @@ public class AgreementController {
     }
 
     @PutMapping(value = "/agreement/update/{uuid}")
-    public ResponseEntity<Agreement> updateAgreement(@PathVariable UUID uuid, @RequestBody Agreement agreement) {
-        Agreement agreementUpdate = agreementDatabaseService.update(uuid, agreement);
-        return ResponseEntity.ok(agreementUpdate);
+    public ResponseEntity<Agreement> updateAgreement(@PathVariable UUID uuid, @RequestBody Agreement udatedAgreement) {
+        agreementDatabaseService.update(uuid, udatedAgreement);
+        return ResponseEntity.ok(udatedAgreement);
     }
 
     @DeleteMapping(value ="/agreement/delete/{uuid}")
     public ResponseEntity<String> deleteAccount(@PathVariable UUID uuid) {
         agreementDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
+    }
+
+    //TODO лог, тесты, postman
+    @GetMapping(value = "/agreement/find/all-by-manager/{uuid}")
+    public ResponseEntity<List<Agreement>> findAgreementsByManagerId(@PathVariable UUID uuid) {
+        List<Agreement> agreementList = agreementDatabaseService.findAgreementsByManagerUuid(uuid);
+        if (agreementList != null && !agreementList.isEmpty()) {
+            return ResponseEntity.ok(agreementList);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    //TODO лог, тесты, postman
+    @GetMapping(value = "/agreement/find/all-by-client/{uuid}")
+    public ResponseEntity<List<Agreement>> findAgreementsByClientId(@PathVariable UUID uuid) {
+        List<Agreement> agreementList = agreementDatabaseService.findAgreementsByClientUuid(uuid);
+        if (agreementList != null && !agreementList.isEmpty()) {
+            return ResponseEntity.ok(agreementList);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 }

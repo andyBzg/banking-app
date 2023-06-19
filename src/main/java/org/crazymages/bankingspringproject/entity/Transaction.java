@@ -24,17 +24,18 @@ public class Transaction {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
-    @ManyToOne
+//    @ManyToOne
     @JoinColumn(name = "debit_account_uuid")
-    private Account debitAccount;
+    private UUID debitAccountUuid; //Sender
 
-    @ManyToOne
+//    @ManyToOne
     @JoinColumn(name = "credit_account_uuid")
-    private Account creditAccount;
+    private UUID creditAccountUuid; //Recipient
 
     @Column(name = "type")
     private TransactionType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
 
@@ -43,5 +44,4 @@ public class Transaction {
 
     @Column(name = "description")
     private String description;
-
 }

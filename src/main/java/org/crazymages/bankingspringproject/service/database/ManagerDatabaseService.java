@@ -13,7 +13,7 @@ public interface ManagerDatabaseService {
 
     Manager findById(UUID uuid);
 
-    Manager update(UUID uuid, Manager manager);
+    void update(UUID uuid, Manager manager);
 
     void delete(UUID uuid);
 }

@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.entity.Account;
+import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,8 +16,13 @@ public interface AccountDatabaseService {
 
     List<Account> findAllByStatus(String status);
 
-    Account update(UUID uuid, Account account);
+    void update(UUID uuid, Account updatedAccount);
 
     void delete(UUID uuid);
 
+    void blockAccountsByClientUuid(UUID uuid);
+
+    List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status);
+
+//    void updateAccountStatusByUuid(UUID uuid, AccountStatus status);
 }

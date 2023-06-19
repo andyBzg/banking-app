@@ -28,12 +28,16 @@ public class Manager {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
+
     @Column(name = "first_name", length = 50)
     private String firstName;
 
     @Column(name = "last_name", length = 50)
     private String lastName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ManagerStatus status;
 
@@ -41,10 +45,9 @@ public class Manager {
     private String description;
 
 
-    @OneToMany(mappedBy = "manager")
-    private List<Product> products;
-
-    @OneToMany(mappedBy = "manager")
-    private List<Client> clients;
-
+//    @OneToMany(mappedBy = "manager")
+//    private List<Product> products;
+//
+//    @OneToMany(mappedBy = "manager")
+//    private List<Client> clients;
 }

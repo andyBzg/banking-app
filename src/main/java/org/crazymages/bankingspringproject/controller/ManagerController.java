@@ -40,9 +40,9 @@ public class ManagerController {
     }
 
     @PutMapping(value = "/manager/update/{uuid}")
-    public ResponseEntity<Manager> updateManager(@PathVariable UUID uuid, @RequestBody Manager manager) {
-        Manager managerUpdate = managerDatabaseService.update(uuid, manager);
-        return ResponseEntity.ok(managerUpdate);
+    public ResponseEntity<Manager> updateManager(@PathVariable UUID uuid, @RequestBody Manager updatedManager) {
+        managerDatabaseService.update(uuid, updatedManager);
+        return ResponseEntity.ok(updatedManager);
     }
 
     @DeleteMapping(value ="/manager/delete/{uuid}")

@@ -1,16 +1,34 @@
 package org.crazymages.bankingspringproject.repository;
 
 import org.crazymages.bankingspringproject.entity.Transaction;
+import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
-    /*
-    findAllTransactionsWhereClientIdIs(clientId: String): List<Transaction>
-    findAllTransactionsWhereAccountCurrencyIs(currency: String): List<Transaction>
-    */
+    List<Transaction> findTransactionsByDebitAccountUuid(UUID uuid);
+
+    List<Transaction> findTransactionsByCreditAccountUuid(UUID uuid);
+
+    @Query("SELECT tr FROM Transaction tr " +
+            "JOIN Account ac ON ac.uuid = tr.debitAccountUuid " +
+            // OR ac.uuid = tr.creditAccountUuid
+            "JOIN Client cl ON cl.uuid = ac.clientUuid " +
+            "WHERE cl.uuid = :clientUuid")
+    List<Transaction> findAllTransactionsWhereClientIdIs(@Param("clientUuid") UUID clientUuid);
+
+    @Query("SELECT tr FROM Transaction tr " +
+            "JOIN Account ac ON ac.uuid = tr.debitAccountUuid " +
+            "WHERE ac.currencyCode = :currencyCode")
+    List<Transaction> findAllTransactionsWhereAccountCurrencyIs(@Param("currencyCode")CurrencyCode currencyCode);
+
+
+    //TODO List<Transaction> findTransactionsByCreatedAtBetween(Timestamp createdAt, Timestamp createdAt2);
 }

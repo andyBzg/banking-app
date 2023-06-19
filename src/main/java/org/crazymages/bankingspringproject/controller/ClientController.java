@@ -40,14 +40,24 @@ public class ClientController {
     }
 
     @PutMapping(value = "/client/update/{uuid}")
-    public ResponseEntity<Client> updateClient(@PathVariable UUID uuid, @RequestBody Client client) {
-        Client clientUpdate = clientDatabaseService.update(uuid, client);
-        return ResponseEntity.ok(clientUpdate);
+    public ResponseEntity<Client> updateClient(@PathVariable UUID uuid, @RequestBody Client updatedClient) {
+        clientDatabaseService.update(uuid, updatedClient);
+        return ResponseEntity.ok(updatedClient);
     }
 
     @DeleteMapping(value ="/client/delete/{uuid}")
     public ResponseEntity<String> deleteClient(@PathVariable UUID uuid) {
         clientDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/client/find/active-clients")
+    public ResponseEntity<List<Client>> findActiveClients() {
+        List<Client> clientList = clientDatabaseService.findActiveClients();
+        if (clientList != null && !clientList.isEmpty()) {
+            return ResponseEntity.ok(clientList);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 }
