@@ -7,6 +7,7 @@ import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     private final ClientRepository clientRepository;
+    private final EntityUpdateService<Client> clientUpdateService;
 
     @Override
     public void create(Client client) {
@@ -44,30 +46,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public void update(UUID uuid, Client clientUpdate) {
         Client client = clientRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        if (clientUpdate.getManagerUuid() != null) {
-            client.setManagerUuid(clientUpdate.getManagerUuid());
-        }
-        if (clientUpdate.getStatus() != null) {
-            client.setStatus(clientUpdate.getStatus());
-        }
-        if (clientUpdate.getTaxCode() != null) {
-            client.setTaxCode(clientUpdate.getTaxCode());
-        }
-        if (clientUpdate.getFirstName() != null) {
-            client.setFirstName(clientUpdate.getFirstName());
-        }
-        if (clientUpdate.getLastName() != null) {
-            client.setLastName(clientUpdate.getLastName());
-        }
-        if (clientUpdate.getEmail() != null) {
-            client.setEmail(clientUpdate.getEmail());
-        }
-        if (clientUpdate.getAddress() != null) {
-            client.setAddress(clientUpdate.getAddress());
-        }
-        if (clientUpdate.getPhone() != null) {
-            client.setPhone(clientUpdate.getPhone());
-        }
+        client = clientUpdateService.update(client, clientUpdate);
         clientRepository.save(client);
         log.info("updated client id {}", uuid);
     }

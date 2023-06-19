@@ -2,10 +2,13 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.database.updater.impl.AgreementUpdateServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     private final AgreementRepository agreementRepository;
+    private final EntityUpdateService<Agreement> agreementUpdateService;
 
 
     @Override
@@ -44,21 +48,7 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     public void update(UUID uuid, Agreement agreementUpdate) {
         Agreement agreement = agreementRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        if (agreementUpdate.getAccountUuid() != null) {
-            agreement.setAccountUuid(agreementUpdate.getAccountUuid());
-        }
-        if (agreementUpdate.getProductUuid() != null) {
-            agreement.setProductUuid(agreementUpdate.getProductUuid());
-        }
-        if (agreementUpdate.getInterestRate() != null) {
-            agreement.setInterestRate(agreementUpdate.getInterestRate());
-        }
-        if (agreementUpdate.getStatus() != null) {
-            agreement.setStatus(agreementUpdate.getStatus());
-        }
-        if (agreementUpdate.getSum() != null) {
-            agreement.setSum(agreementUpdate.getSum());
-        }
+        agreement = agreementUpdateService.update(agreement, agreementUpdate);
         agreementRepository.save(agreement);
         log.info("updated agreement id {}", uuid);
     }
