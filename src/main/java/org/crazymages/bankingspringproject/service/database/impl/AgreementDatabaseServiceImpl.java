@@ -76,12 +76,14 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     @Override
     @Transactional
     public List<Agreement> findAgreementsByManagerUuid(UUID uuid) {
+        log.info("retrieving agreements by manager id {}", uuid);
         return agreementRepository.findAgreementsWhereManagerIdIs(uuid);
     }
 
     @Override
     @Transactional
     public List<Agreement> findAgreementsByClientUuid(UUID uuid) {
+        log.info("retrieving agreements client id {}", uuid);
         return agreementRepository.findAgreementsWhereClientIdIs(uuid);
     }
 }

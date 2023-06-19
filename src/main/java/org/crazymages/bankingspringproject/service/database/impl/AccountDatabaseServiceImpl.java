@@ -97,9 +97,4 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
     }
 
-//    @Override
-//    @Transactional
-//    public void updateAccountStatusByUuid(UUID uuid, AccountStatus status) {
-//        accountRepository.updateAccountStatusByUuid(uuid, status);
-//    }
 }

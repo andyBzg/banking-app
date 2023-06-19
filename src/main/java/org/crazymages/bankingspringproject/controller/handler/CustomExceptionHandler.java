@@ -31,4 +31,5 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+    //Сообщения можно убрать в файл .properties
 }
