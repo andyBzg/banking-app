@@ -4,5 +4,5 @@ public enum ClientStatus {
 
     ACTIVE,
     BLOCKED,
-    DELETED
+    VIP
 }

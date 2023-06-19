@@ -5,7 +5,5 @@ public enum AccountStatus {
     ACTIVE,
     BLOCKED,
     CLOSED,
-    REMOVED,
     OVERDUE
-
 }
