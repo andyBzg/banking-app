@@ -31,5 +31,10 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException() {
+        log.error("One or more fields are 'null'");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
     //Сообщения можно убрать в файл .properties
 }
