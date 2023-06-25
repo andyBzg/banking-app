@@ -17,12 +17,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     List<Account> findAccountsByStatus(AccountStatus status);
 
-//    List<Account> findAccountsByUuid(UUID uuid);
-
-//    @Modifying
-//    @Query("UPDATE Account a SET a.status = :newStatus WHERE a.clientUuid = :clientUuid")
-//    void updateAccountStatusByUuid(@Param("clientUuid") UUID clientUuid, @Param("newStatus") AccountStatus newStatus);
-
     @Modifying
     @Query("UPDATE Account ac SET ac.status = 'BLOCKED' WHERE ac.clientUuid = :clientUuid")
     void blockAccountsByClientUuid(@Param("clientUuid") UUID clientUuid);
@@ -35,4 +29,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findAccountsWhereProductIdAndStatusIs(
             @Param("productUuid") UUID productUuid,
             @Param("status") ProductStatus status);
+
+    List<Account> findAccountsByClientUuid(UUID uuid);
 }
