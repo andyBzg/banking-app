@@ -30,11 +30,7 @@ public class TransactionController {
     public ResponseEntity<List<Transaction>> findAllTransactions() {
         log.info("endpoint request: find all transactions");
         List<Transaction> transactionList = transactionDatabaseService.findAll();
-        if (transactionList != null && !transactionList.isEmpty()) {
-            return ResponseEntity.ok(transactionList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(transactionList);
     }
 
     @GetMapping(value = "/transaction/find/{uuid}")
@@ -48,22 +44,14 @@ public class TransactionController {
     public ResponseEntity<List<Transaction>> findOutgoingTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
         List<Transaction> transactionList = transactionDatabaseService.findOutgoingTransactions(uuid);
-        if (transactionList != null && !transactionList.isEmpty()) {
-            return ResponseEntity.ok(transactionList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(transactionList);
     }
 
     @GetMapping(value = "/transaction/find/incoming/{uuid}")
     public ResponseEntity<List<Transaction>> findIncomingTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
         List<Transaction> transactionList = transactionDatabaseService.findIncomingTransactions(uuid);
-        if (transactionList != null && !transactionList.isEmpty()) {
-            return ResponseEntity.ok(transactionList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(transactionList);
     }
 
     /**
@@ -71,10 +59,25 @@ public class TransactionController {
      **/
     @PostMapping(value = "/transaction/transfer/")
     public ResponseEntity<String> transferFunds(@RequestBody Transaction transaction) {
+        log.info("endpoint request: execute money transfer");
         transactionDatabaseService.transferFunds(transaction);
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(value = "/transaction/find-all-by-client/{uuid}")
+    public ResponseEntity<List<Transaction>> findAllTransactions(@PathVariable UUID uuid) {
+        log.info("endpoint request: find all transactions by client id {} ", uuid);
+        List<Transaction> transactionList = transactionDatabaseService.findAllTransactionsByClientId(uuid);
+        return createResponseEntity(transactionList);
+    }
+
+    private ResponseEntity<List<Transaction>> createResponseEntity(List<Transaction> transactionList) {
+        if (transactionList != null && !transactionList.isEmpty()) {
+            return ResponseEntity.ok(transactionList);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 
 //    GET /transactions/get/statement?startDate=2022-01-01&endDate=2022-12-31
 //    @GetMapping(value = "/transaction/get/statement")
