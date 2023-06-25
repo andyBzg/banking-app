@@ -19,7 +19,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query("SELECT tr FROM Transaction tr " +
             "JOIN Account ac ON ac.uuid = tr.debitAccountUuid " +
-            // OR ac.uuid = tr.creditAccountUuid
+            "OR ac.uuid = tr.creditAccountUuid " +
             "JOIN Client cl ON cl.uuid = ac.clientUuid " +
             "WHERE cl.uuid = :clientUuid")
     List<Transaction> findAllTransactionsWhereClientIdIs(@Param("clientUuid") UUID clientUuid);
