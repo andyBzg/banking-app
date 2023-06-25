@@ -44,6 +44,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     }
 
     @Override
+    @Transactional
     public List<Account> findAllByStatus(String status) {
         log.info("retrieving list of accounts by status {}", status);
         return accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
@@ -77,9 +78,17 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     }
 
     @Override
+    @Transactional
     public List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
         log.info("retrieving list of accounts by product id {} and product status {}", uuid, status);
         return accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
+    }
+
+    @Override
+    @Transactional
+    public List<Account> findAllByClientId(UUID uuid) {
+        log.info("retrieving list of accounts by client id {}", uuid);
+        return accountRepository.findAccountsByClientUuid(uuid);
     }
 
 }
