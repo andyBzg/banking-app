@@ -10,6 +10,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.exception.InsufficientFundsException;
 import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
+import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     private final TransactionRepository transactionRepository;
     private final AccountDatabaseService accountDatabaseService;
+    private final ClientDatabaseService clientDatabaseService;
 
     @Override
     public void create(Transaction transaction) {
@@ -62,27 +64,40 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
+    public List<Transaction> findAllTransactionsByClientId(UUID uuid) {
+        log.info("retrieving list of transactions by client id {} ", uuid);
+        return transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
+    }
+
+    @Override
+    @Transactional
     public void transferFunds(Transaction transaction) {
         BigDecimal amount = transaction.getAmount();
-        Account sender = accountDatabaseService.findById(transaction.getDebitAccountUuid());
-        Account recipient = accountDatabaseService.findById(transaction.getCreditAccountUuid());
+        Account senderAccount = accountDatabaseService.findById(transaction.getDebitAccountUuid());
+        Account recipientAccount = accountDatabaseService.findById(transaction.getCreditAccountUuid());
+        boolean senderStatus = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
+        boolean recipientStatus = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
 
-        if (sender.getBalance() == null || sender.getStatus() == null ||
-                recipient.getBalance() == null || recipient.getStatus() == null) {
+        if (senderAccount.getBalance() == null || senderAccount.getStatus() == null ||
+                recipientAccount.getBalance() == null || recipientAccount.getStatus() == null) {
             throw new IllegalArgumentException();
         }
-        if (sender.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(String.valueOf(sender.getUuid()));
+        if (senderAccount.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException(String.valueOf(senderAccount.getUuid()));
         }
-        if (!sender.getStatus().equals(AccountStatus.ACTIVE) || !recipient.getStatus().equals(AccountStatus.ACTIVE)) {
+        if (!senderAccount.getStatus().equals(AccountStatus.ACTIVE) ||
+                !recipientAccount.getStatus().equals(AccountStatus.ACTIVE)) {
+            throw new TransactionNotAllowedException();
+        }
+        if (senderStatus || recipientStatus) {
             throw new TransactionNotAllowedException();
         }
 
-        sender.setBalance(sender.getBalance().subtract(amount));
-        recipient.setBalance(recipient.getBalance().add(amount));
+        senderAccount.setBalance(senderAccount.getBalance().subtract(amount));
+        recipientAccount.setBalance(recipientAccount.getBalance().add(amount));
 
-        accountDatabaseService.update(sender.getUuid(), sender);
-        accountDatabaseService.update(recipient.getUuid(), recipient);
+        accountDatabaseService.update(senderAccount.getUuid(), senderAccount);
+        accountDatabaseService.update(recipientAccount.getUuid(), recipientAccount);
         transactionRepository.save(transaction);
         log.info("transfer saved to db");
     }
