@@ -11,6 +11,7 @@ import org.crazymages.bankingspringproject.service.database.updater.EntityUpdate
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,5 +67,33 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<Client> findActiveClients() {
         log.info("retrieving list of active clients");
         return clientRepository.findClientsByStatusIs(ClientStatus.ACTIVE);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findClientsWhereBalanceMoreThan(BigDecimal balance) {
+        log.info("retrieving list of clients where balance is more than {}", balance);
+        return clientRepository.findAllClientsWhereBalanceMoreThan(balance);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findClientsWhereTransactionMoreThan(Integer count) {
+        log.info("retrieving list of clients where transaction count is more than {}", count);
+        return clientRepository.findAllClientsWhereTransactionMoreThan(count);
+    }
+
+    @Override
+    @Transactional
+    public BigDecimal calculateTotalBalanceByClientUuid(UUID uuid) {
+        log.info("calculating total balance for client id {}", uuid);
+        return clientRepository.calculateTotalBalanceByClientUuid(uuid);
+    }
+
+    @Override
+    @Transactional
+    public boolean isClientStatusActive(UUID uuid) {
+        log.info("checking status for client id {}", uuid);
+        return clientRepository.isClientStatusBlocked(uuid);
     }
 }
