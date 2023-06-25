@@ -28,4 +28,11 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
             "HAVING COUNT(tr) > :count")
     List<Client> findAllClientsWhereTransactionMoreThan(@Param("count") Integer count);
 
+    @Query("SELECT SUM(a.balance) FROM Account a " +
+            "JOIN Client c ON c.uuid = a.clientUuid " +
+            "WHERE c.uuid = :uuid")
+    BigDecimal calculateTotalBalanceByClientUuid(@Param("uuid") UUID uuid);
+
+    @Query("SELECT CASE WHEN cl.status = 'BLOCKED' THEN TRUE ELSE FALSE END FROM Client cl WHERE cl.uuid = :uuid")
+    Boolean isClientStatusBlocked(@Param("uuid") UUID uuid);
 }
