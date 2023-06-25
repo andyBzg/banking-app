@@ -4,6 +4,7 @@ import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +24,8 @@ class AccountDatabaseServiceImplTest {
 
     @Mock
     AccountRepository accountRepository;
+    @Mock
+    EntityUpdateService<Account> accountUpdateService;
 
     @InjectMocks
     AccountDatabaseServiceImpl accountDatabaseService;
@@ -80,7 +82,7 @@ class AccountDatabaseServiceImplTest {
     }
 
     @Test
-    void findAllByStatus() {
+    void findAllByStatus_success() {
         // given
         List<Account> expected = List.of(account0, account1);
         when(accountRepository.findAccountsByStatus(AccountStatus.ACTIVE)).thenReturn(expected);
@@ -94,20 +96,21 @@ class AccountDatabaseServiceImplTest {
     }
 
     @Test
-    void update_updateAccountInRepositoryIfPresent_success() {
-        // given
-        Account expected = account1;
-        expected.setName("test");
-        expected.setBalance(new BigDecimal(500));
-        when(accountRepository.findById(uuid)).thenReturn(Optional.of(account0));
+    void update_validAccount_success() {
+        //given
+        Account updatedAccount = account1;
+        Account account = account0;
+        when(accountRepository.findById(uuid)).thenReturn(Optional.of(account));
+        when(accountUpdateService.update(account, updatedAccount)).thenReturn(updatedAccount);
 
-        // when
-        accountDatabaseService.update(uuid, expected);
-        Account actual = accountDatabaseService.findById(uuid);
+        //when
+        accountDatabaseService.update(uuid, updatedAccount);
 
-        // then
-        assertEquals(expected, actual);
-        verify(accountRepository).save(expected);
+        //then
+        assertEquals(account, updatedAccount);
+        verify(accountRepository).findById(uuid);
+        verify(accountUpdateService).update(account, updatedAccount);
+        verify(accountRepository).save(account);
     }
 
     @Test
