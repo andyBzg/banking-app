@@ -12,8 +12,8 @@ public class ManagerUpdateServiceImpl implements EntityUpdateService<Manager> {
             if (managerUpdate.getFirstName() != null) {
                 manager.setFirstName(managerUpdate.getFirstName());
             }
-            if (managerUpdate.getFirstName() != null) {
-                manager.setFirstName(managerUpdate.getFirstName());
+            if (managerUpdate.getLastName() != null) {
+                manager.setLastName(managerUpdate.getLastName());
             }
             if (managerUpdate.getStatus() != null) {
                 manager.setStatus(managerUpdate.getStatus());
