@@ -7,9 +7,11 @@ import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ import java.util.UUID;
 public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     private final ClientRepository clientRepository;
+    private final EntityUpdateService<Client> clientUpdateService;
 
     @Override
     public void create(Client client) {
@@ -44,30 +47,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public void update(UUID uuid, Client clientUpdate) {
         Client client = clientRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        if (clientUpdate.getManagerUuid() != null) {
-            client.setManagerUuid(clientUpdate.getManagerUuid());
-        }
-        if (clientUpdate.getStatus() != null) {
-            client.setStatus(clientUpdate.getStatus());
-        }
-        if (clientUpdate.getTaxCode() != null) {
-            client.setTaxCode(clientUpdate.getTaxCode());
-        }
-        if (clientUpdate.getFirstName() != null) {
-            client.setFirstName(clientUpdate.getFirstName());
-        }
-        if (clientUpdate.getLastName() != null) {
-            client.setLastName(clientUpdate.getLastName());
-        }
-        if (clientUpdate.getEmail() != null) {
-            client.setEmail(clientUpdate.getEmail());
-        }
-        if (clientUpdate.getAddress() != null) {
-            client.setAddress(clientUpdate.getAddress());
-        }
-        if (clientUpdate.getPhone() != null) {
-            client.setPhone(clientUpdate.getPhone());
-        }
+        client = clientUpdateService.update(client, clientUpdate);
         clientRepository.save(client);
         log.info("updated client id {}", uuid);
     }
@@ -87,5 +67,33 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<Client> findActiveClients() {
         log.info("retrieving list of active clients");
         return clientRepository.findClientsByStatusIs(ClientStatus.ACTIVE);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findClientsWhereBalanceMoreThan(BigDecimal balance) {
+        log.info("retrieving list of clients where balance is more than {}", balance);
+        return clientRepository.findAllClientsWhereBalanceMoreThan(balance);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findClientsWhereTransactionMoreThan(Integer count) {
+        log.info("retrieving list of clients where transaction count is more than {}", count);
+        return clientRepository.findAllClientsWhereTransactionMoreThan(count);
+    }
+
+    @Override
+    @Transactional
+    public BigDecimal calculateTotalBalanceByClientUuid(UUID uuid) {
+        log.info("calculating total balance for client id {}", uuid);
+        return clientRepository.calculateTotalBalanceByClientUuid(uuid);
+    }
+
+    @Override
+    @Transactional
+    public boolean isClientStatusActive(UUID uuid) {
+        log.info("checking status for client id {}", uuid);
+        return clientRepository.isClientStatusBlocked(uuid);
     }
 }

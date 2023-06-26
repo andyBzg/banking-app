@@ -31,11 +31,7 @@ public class AccountController {
     public ResponseEntity<List<Account>> findAllAccounts() {
         log.info("endpoint request: find all accounts");
         List<Account> accountList = accountDatabaseService.findAll();
-        if (accountList != null && !accountList.isEmpty()) {
-            return ResponseEntity.ok(accountList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(accountList);
     }
 
     @GetMapping(value = "/account/find/{uuid}")
@@ -49,11 +45,7 @@ public class AccountController {
     public ResponseEntity<List<Account>> findAllAccountsByStatus(@PathVariable String status) {
         log.info("endpoint request: find all accounts by status {}", status);
         List<Account> accountList = accountDatabaseService.findAllByStatus(status);
-        if (accountList != null && !accountList.isEmpty()) {
-            return ResponseEntity.ok(accountList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(accountList);
     }
 
     @PutMapping(value = "/account/update/{uuid}")
@@ -84,6 +76,18 @@ public class AccountController {
         //TODO написать тесты
         log.info("endpoint request: find all accounts by product id {} and product status {}", uuid, status);
         List<Account> accountList = accountDatabaseService.findAccountsByProductIdAndStatus(uuid, status);
+        return createResponseEntity(accountList);
+    }
+
+    @GetMapping(value = "/account/find/all/by-client/{uuid}")
+    public ResponseEntity<List<Account>> findAllAccountsByClientUuid(@PathVariable UUID uuid) {
+        //TODO написать тесты
+        log.info("endpoint request: find all accounts by client id {} ", uuid);
+        List<Account> accountList = accountDatabaseService.findAllByClientId(uuid);
+        return createResponseEntity(accountList);
+     }
+
+    private ResponseEntity<List<Account>> createResponseEntity(List<Account> accountList) {
         if (accountList != null && !accountList.isEmpty()) {
             return ResponseEntity.ok(accountList);
         } else {

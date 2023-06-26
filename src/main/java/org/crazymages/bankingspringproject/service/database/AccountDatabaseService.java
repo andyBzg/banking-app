@@ -24,5 +24,5 @@ public interface AccountDatabaseService {
 
     List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status);
 
-//    void updateAccountStatusByUuid(UUID uuid, AccountStatus status);
+    List<Account> findAllByClientId(UUID uuid);
 }

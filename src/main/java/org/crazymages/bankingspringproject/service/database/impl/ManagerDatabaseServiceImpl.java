@@ -6,6 +6,7 @@ import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     private final ManagerRepository managerRepository;
+    private final EntityUpdateService<Manager> managerUpdateService;
 
     @Override
     public void create(Manager manager) {
@@ -43,18 +45,7 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     public void update(UUID uuid, Manager managerUpdate) {
         Manager manager = managerRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        if (managerUpdate.getFirstName() != null) {
-            manager.setFirstName(managerUpdate.getFirstName());
-        }
-        if (managerUpdate.getFirstName() != null) {
-            manager.setFirstName(managerUpdate.getFirstName());
-        }
-        if (managerUpdate.getStatus() != null) {
-            manager.setStatus(managerUpdate.getStatus());
-        }
-        if (managerUpdate.getDescription() != null) {
-            manager.setDescription(managerUpdate.getDescription());
-        }
+        manager = managerUpdateService.update(manager, managerUpdate);
         managerRepository.save(manager);
         log.info("updated manager id {}", uuid);
     }

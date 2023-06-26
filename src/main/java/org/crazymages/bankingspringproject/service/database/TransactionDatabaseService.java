@@ -17,6 +17,8 @@ public interface TransactionDatabaseService {
 
     List<Transaction> findIncomingTransactions(UUID uuid);
 
+    List<Transaction> findAllTransactionsByClientId(UUID uuid);
+
     void transferFunds(Transaction transaction);
 
 }

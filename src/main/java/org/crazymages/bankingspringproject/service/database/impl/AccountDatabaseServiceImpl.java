@@ -8,6 +8,7 @@ import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     private final AccountRepository accountRepository;
+    private final EntityUpdateService<Account> accountUpdateService;
 
 
     @Override
@@ -42,6 +44,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     }
 
     @Override
+    @Transactional
     public List<Account> findAllByStatus(String status) {
         log.info("retrieving list of accounts by status {}", status);
         return accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
@@ -52,24 +55,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public void update (UUID uuid, Account updatedAccount) {
         Account account = accountRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        if (updatedAccount.getClientUuid() != null) {
-            account.setClientUuid(updatedAccount.getClientUuid());
-        }
-        if (updatedAccount.getName() != null) {
-            account.setName(updatedAccount.getName());
-        }
-        if (updatedAccount.getType() != null) {
-            account.setType(updatedAccount.getType());
-        }
-        if (updatedAccount.getStatus() != null) {
-            account.setStatus(updatedAccount.getStatus());
-        }
-        if (updatedAccount.getBalance() != null) {
-            account.setBalance(updatedAccount.getBalance());
-        }
-        if (updatedAccount.getCurrencyCode() != null) {
-            account.setCurrencyCode(updatedAccount.getCurrencyCode());
-        }
+        account = accountUpdateService.update(account, updatedAccount);
         accountRepository.save(account);
         log.info("updated account id {}", uuid);
     }
@@ -92,14 +78,17 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     }
 
     @Override
+    @Transactional
     public List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
         log.info("retrieving list of accounts by product id {} and product status {}", uuid, status);
         return accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
     }
 
-//    @Override
-//    @Transactional
-//    public void updateAccountStatusByUuid(UUID uuid, AccountStatus status) {
-//        accountRepository.updateAccountStatusByUuid(uuid, status);
-//    }
+    @Override
+    @Transactional
+    public List<Account> findAllByClientId(UUID uuid) {
+        log.info("retrieving list of accounts by client id {}", uuid);
+        return accountRepository.findAccountsByClientUuid(uuid);
+    }
+
 }

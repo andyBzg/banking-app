@@ -26,11 +26,7 @@ public class AgreementController {
     @GetMapping(value = "/agreement/find/all")
     public ResponseEntity<List<Agreement>> findAllAgreements() {
         List<Agreement> agreementList = agreementDatabaseService.findAll();
-        if (agreementList != null && !agreementList.isEmpty()) {
-            return ResponseEntity.ok(agreementList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(agreementList);
     }
 
     @GetMapping(value = "/agreement/find/{uuid}")
@@ -55,17 +51,17 @@ public class AgreementController {
     @GetMapping(value = "/agreement/find/all-by-manager/{uuid}")
     public ResponseEntity<List<Agreement>> findAgreementsByManagerId(@PathVariable UUID uuid) {
         List<Agreement> agreementList = agreementDatabaseService.findAgreementsByManagerUuid(uuid);
-        if (agreementList != null && !agreementList.isEmpty()) {
-            return ResponseEntity.ok(agreementList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return createResponseEntity(agreementList);
     }
 
     //TODO лог, тесты, postman
     @GetMapping(value = "/agreement/find/all-by-client/{uuid}")
     public ResponseEntity<List<Agreement>> findAgreementsByClientId(@PathVariable UUID uuid) {
         List<Agreement> agreementList = agreementDatabaseService.findAgreementsByClientUuid(uuid);
+        return createResponseEntity(agreementList);
+    }
+
+    private ResponseEntity<List<Agreement>> createResponseEntity(List<Agreement> agreementList) {
         if (agreementList != null && !agreementList.isEmpty()) {
             return ResponseEntity.ok(agreementList);
         } else {

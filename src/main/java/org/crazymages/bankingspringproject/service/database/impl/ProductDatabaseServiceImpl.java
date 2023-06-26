@@ -6,6 +6,7 @@ import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
+import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     private final ProductRepository productRepository;
+    private final EntityUpdateService<Product> productUpdateService;
 
     @Override
     public void create(Product product) {
@@ -43,24 +45,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     public void update(UUID uuid, Product productUpdate) {
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        if (productUpdate.getManagerUuid() != null) {
-            product.setManagerUuid(productUpdate.getManagerUuid());
-        }
-        if (productUpdate.getName() != null) {
-            product.setName(productUpdate.getName());
-        }
-        if (productUpdate.getStatus() != null) {
-            product.setStatus(productUpdate.getStatus());
-        }
-        if (productUpdate.getCurrencyCode() != null) {
-            product.setCurrencyCode(productUpdate.getCurrencyCode());
-        }
-        if (productUpdate.getInterestRate() != null) {
-            product.setInterestRate(productUpdate.getInterestRate());
-        }
-        if (productUpdate.getLimitation() != null) {
-            product.setLimitation(productUpdate.getLimitation());
-        }
+        product = productUpdateService.update(product, productUpdate);
         productRepository.save(product);
         log.info("updated product id {}", uuid);
     }

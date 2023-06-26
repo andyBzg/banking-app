@@ -1,7 +1,10 @@
 package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.entity.Client;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,4 +21,12 @@ public interface ClientDatabaseService {
     void delete(UUID uuid);
 
     List<Client> findActiveClients();
+
+    List<Client> findClientsWhereBalanceMoreThan(BigDecimal balance);
+
+    List<Client> findClientsWhereTransactionMoreThan(Integer count);
+
+    BigDecimal calculateTotalBalanceByClientUuid(UUID uuid);
+
+    boolean isClientStatusActive(UUID uuid);
 }
