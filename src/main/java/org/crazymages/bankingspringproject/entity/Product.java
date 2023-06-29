@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
+import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -43,6 +43,10 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProductStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private ProductType type;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "currency_code")
