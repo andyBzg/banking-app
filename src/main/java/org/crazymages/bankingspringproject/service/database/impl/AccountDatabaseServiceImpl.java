@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
+import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
@@ -91,4 +92,19 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return accountRepository.findAccountsByClientUuid(uuid);
     }
 
+    @Override
+    @Transactional
+    public Account findCurrentByClientId(UUID uuid) {
+        log.info("retrieving CURRENT account by id {}", uuid);
+        return accountRepository.findAccountByClientUuidAndType(uuid, AccountType.CURRENT)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+    }
+
+    @Override
+    @Transactional
+    public Account findSavingsByClientId(UUID uuid) {
+        log.info("retrieving SAVINGS account by id {}", uuid);
+        return accountRepository.findAccountByClientUuidAndType(uuid, AccountType.SAVINGS)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+    }
 }
