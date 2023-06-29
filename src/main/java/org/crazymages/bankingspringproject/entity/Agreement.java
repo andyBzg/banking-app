@@ -46,6 +46,6 @@ public class Agreement {
     @Column(name = "status")
     private AgreementStatus status;
 
-    @Column(name = "sum", precision = 15, scale = 2)
-    private BigDecimal sum;
+    @Column(name = "amount", precision = 12, scale = 2)
+    private BigDecimal amount;
 }
