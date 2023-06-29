@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.repository;
 
 import org.crazymages.bankingspringproject.entity.Client;
+import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +36,12 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
 
     @Query("SELECT CASE WHEN cl.status = 'BLOCKED' THEN TRUE ELSE FALSE END FROM Client cl WHERE cl.uuid = :uuid")
     Boolean isClientStatusBlocked(@Param("uuid") UUID uuid);
+
+    @Query("SELECT DISTINCT cl FROM Client cl " +
+            "JOIN Account ac ON ac.clientUuid = cl.uuid " +
+            "WHERE ac.type = :firstType OR ac.type = :secondType " +
+            "AND cl.status = 'ACTIVE'")
+    List<Client> findAllActiveClientsWithTwoDifferentAccountTypes(
+            @Param("firstType") AccountType firstType,
+            @Param("secondType") AccountType secondType);
 }
