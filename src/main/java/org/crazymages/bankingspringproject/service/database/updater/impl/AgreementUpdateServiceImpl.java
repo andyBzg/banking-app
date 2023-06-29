@@ -21,8 +21,8 @@ public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement
             if (agreementUpdate.getStatus() != null) {
                 agreement.setStatus(agreementUpdate.getStatus());
             }
-            if (agreementUpdate.getSum() != null) {
-                agreement.setSum(agreementUpdate.getSum());
+            if (agreementUpdate.getAmount() != null) {
+                agreement.setAmount(agreementUpdate.getAmount());
             }
         }
         return agreement;
