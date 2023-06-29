@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.entity.Transaction;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,4 +22,5 @@ public interface TransactionDatabaseService {
 
     void transferFunds(Transaction transaction);
 
+//    List<Transaction> findTransactionsByClientIdBetweenDates(UUID uuid, Timestamp from, Timestamp to);
 }

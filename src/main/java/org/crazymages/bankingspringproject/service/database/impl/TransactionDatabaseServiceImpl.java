@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,4 +102,17 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         transactionRepository.save(transaction);
         log.info("transfer saved to db");
     }
+
+//    @Override
+//    @Transactional
+//    public List<Transaction> findTransactionsByClientIdBetweenDates(UUID uuid, Timestamp from, Timestamp to) {
+//        if(uuid == null) {
+//            throw new IllegalArgumentException();
+//        }
+//        if (from == null || to == null) {
+//            throw new IllegalArgumentException();
+//        }
+//        log.info("retrieving list of transactions by client id {} between dates: {} and {} ", uuid, from, to);
+//        return transactionRepository.findTransactionsByClientIdBetweenDates(uuid, from, to);
+//    }
 }

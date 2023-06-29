@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             "WHERE ac.currencyCode = :currencyCode")
     List<Transaction> findAllTransactionsWhereAccountCurrencyIs(@Param("currencyCode")CurrencyCode currencyCode);
 
-
+//    @Query("SELECT tr FROM Transaction tr " +
+//            "JOIN Account ac ON ac.uuid = tr.debitAccountUuid " +
+//            "OR ac.uuid = tr.creditAccountUuid " +
+//            "JOIN Client cl ON cl.uuid = ac.clientUuid " +
+//            "WHERE cl.uuid = :clientUuid " +
+//            "AND tr.createdAt >= :from " +
+//            "AND tr.createdAt <= :to")
+//    List<Transaction> findTransactionsByClientIdBetweenDates(
+//            @Param("uuid") UUID uuid,
+//            @Param("from") Timestamp from,
+//            @Param("to") Timestamp to);
     //TODO List<Transaction> findTransactionsByCreatedAtBetween(Timestamp createdAt, Timestamp createdAt2);
 }
