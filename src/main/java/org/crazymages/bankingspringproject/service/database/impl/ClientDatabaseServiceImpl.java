@@ -3,10 +3,14 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.entity.Client;
+import org.crazymages.bankingspringproject.entity.Manager;
+import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
+import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +26,19 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     private final ClientRepository clientRepository;
     private final EntityUpdateService<Client> clientUpdateService;
+    private final ManagerDatabaseService managerDatabaseService;
 
     @Override
+    @Transactional
     public void create(Client client) {
+        if (client.getManagerUuid() == null) {
+            List<Manager> activeManagers = managerDatabaseService.findManagersSortedByClientCount(ManagerStatus.ACTIVE);
+            Manager firstManager = activeManagers
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new DataNotFoundException("null"));
+            client.setManagerUuid(firstManager.getUuid());
+        }
         clientRepository.save(client);
         log.info("client created");
     }
@@ -95,5 +109,15 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public boolean isClientStatusActive(UUID uuid) {
         log.info("checking status for client id {}", uuid);
         return clientRepository.isClientStatusBlocked(uuid);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findClientsWithCurrentAndSavingsAccounts() {
+        log.info("retrieving clients where status is {} and {}", AccountType.CURRENT, AccountType.SAVINGS);
+        List<Client> clients = clientRepository.findAllActiveClientsWithTwoDifferentAccountTypes(
+                AccountType.CURRENT, AccountType.SAVINGS);
+        log.info(clients.toString());
+        return clients;
     }
 }
