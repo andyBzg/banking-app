@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.entity.Agreement;
+import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
@@ -43,6 +44,14 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     @Override
     @Transactional
+    public Agreement findSavingsAgreementByClientId(UUID uuid) {
+        log.info("retrieving savings agreement by id {}", uuid);
+        return agreementRepository.findAgreementByClientIdAndProductType(uuid, ProductType.SAVINGS_ACCOUNT)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+    }
+
+    @Override
+    @Transactional
     public void update(UUID uuid, Agreement agreementUpdate) {
         Agreement agreement = agreementRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
@@ -74,4 +83,11 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
         log.info("retrieving agreements client id {}", uuid);
         return agreementRepository.findAgreementsWhereClientIdIs(uuid);
     }
+
+//    @Override
+//    @Transactional
+//    public List<Agreement> findRecurringPaymentAgreements() {
+//        return agreementRepository.findAgreementsWhereStatusIsAndProductTypeIs(
+//                AgreementStatus.ACTIVE, ProductType.SAVINGS_ACCOUNT);
+//    }
 }

@@ -13,6 +13,8 @@ public interface AgreementDatabaseService {
 
     Agreement findById(UUID uuid);
 
+    Agreement findSavingsAgreementByClientId(UUID uuid);
+
     void update(UUID uuid, Agreement agreement);
 
     void delete(UUID uuid);
@@ -20,4 +22,6 @@ public interface AgreementDatabaseService {
     List<Agreement> findAgreementsByManagerUuid(UUID uuid);
 
     List<Agreement> findAgreementsByClientUuid(UUID uuid);
+
+//    List<Agreement> findRecurringPaymentAgreements();
 }
