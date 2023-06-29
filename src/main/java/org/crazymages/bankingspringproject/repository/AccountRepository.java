@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.repository;
 
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
+import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -31,4 +33,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
             @Param("status") ProductStatus status);
 
     List<Account> findAccountsByClientUuid(UUID uuid);
+
+    Optional<Account> findAccountByClientUuidAndType(UUID uuid, AccountType type);
 }
