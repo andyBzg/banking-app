@@ -1,8 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.entity.Client;
-import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,4 +27,6 @@ public interface ClientDatabaseService {
     BigDecimal calculateTotalBalanceByClientUuid(UUID uuid);
 
     boolean isClientStatusActive(UUID uuid);
+
+    List<Client> findClientsWithCurrentAndSavingsAccounts();
 }
