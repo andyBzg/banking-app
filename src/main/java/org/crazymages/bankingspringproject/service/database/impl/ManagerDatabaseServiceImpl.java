@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.entity.Manager;
+import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
@@ -58,5 +59,12 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         manager.setDeleted(true);
         managerRepository.save(manager);
         log.info("deleted manager id {}", uuid);
+    }
+
+    @Override
+    @Transactional
+    public List<Manager> findManagersSortedByClientCount(ManagerStatus status) {
+        log.info("retrieving list of managers sorted by status {}", status);
+        return managerRepository.findManagersSortedByClientCountWhereManagerStatusIs(status);
     }
 }
