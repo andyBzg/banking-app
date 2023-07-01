@@ -21,4 +21,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("SELECT pr FROM Product pr WHERE pr.updatedAt > pr.createdAt")
     List<Product> findAllChangedProducts();
 
+    @Query("SELECT pr FROM Product pr WHERE pr.isDeleted = false")
+    List<Product> findAllNotDeleted();
+
+    @Query("SELECT pr FROM Product pr WHERE pr.isDeleted = true")
+    List<Product> findAllDeleted();
+
 }

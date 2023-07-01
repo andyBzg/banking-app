@@ -35,4 +35,11 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findAccountsByClientUuid(UUID uuid);
 
     Optional<Account> findAccountByClientUuidAndType(UUID uuid, AccountType type);
+
+    @Query("SELECT ac FROM Account ac WHERE ac.isDeleted = false")
+    List<Account> findAllNotDeleted();
+
+    @Query("SELECT ac FROM Account ac WHERE ac.isDeleted = true")
+    List<Account> findAllDeleted();
+
 }

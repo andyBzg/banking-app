@@ -44,4 +44,10 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
     List<Client> findAllActiveClientsWithTwoDifferentAccountTypes(
             @Param("firstType") AccountType firstType,
             @Param("secondType") AccountType secondType);
+
+    @Query("SELECT cl FROM Client cl WHERE cl.isDeleted = false")
+    List<Client> findAllNotDeleted();
+
+    @Query("SELECT cl FROM Client cl WHERE cl.isDeleted = true")
+    List<Client> findAllDeleted();
 }

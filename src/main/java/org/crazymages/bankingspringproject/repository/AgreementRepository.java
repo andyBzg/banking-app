@@ -1,7 +1,6 @@
 package org.crazymages.bankingspringproject.repository;
 
 import org.crazymages.bankingspringproject.entity.Agreement;
-import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,13 +32,12 @@ public interface AgreementRepository extends JpaRepository<Agreement, UUID> {
             "JOIN Product pr ON pr.uuid = ag.productUuid " +
             "WHERE cl.uuid = :clientUuid " +
             "AND pr.type = :type")
-    Optional<Agreement> findAgreementByClientIdAndProductType(@Param("clientUuid") UUID clientUuid, @Param("type")ProductType type);
+    Optional<Agreement> findAgreementByClientIdAndProductType(
+            @Param("clientUuid") UUID clientUuid, @Param("type")ProductType type);
 
-//    @Query("SELECT ag FROM Agreement ag " +
-//            "JOIN Product pr ON pr.uuid = ag.productUuid " +
-//            "WHERE ag.status = :status " +
-//            "AND pr.type = :type")
-//    List<Agreement> findAgreementsWhereStatusIsAndProductTypeIs(@Param("status")AgreementStatus status, @Param("type")ProductType type);
+    @Query("SELECT ag FROM Agreement ag WHERE ag.isDeleted = false")
+    List<Agreement> findAllNotDeleted();
 
-//    Agreement findAgreementWhereProductTypeIs(UUID uuid);
+    @Query("SELECT ag FROM Agreement ag WHERE ag.isDeleted = true")
+    List<Agreement> findAllDeleted();
 }
