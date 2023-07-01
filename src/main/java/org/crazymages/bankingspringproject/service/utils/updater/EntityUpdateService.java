@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.database.updater;
+package org.crazymages.bankingspringproject.service.utils.updater;
 
 public interface EntityUpdateService<E> {
 

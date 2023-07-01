@@ -1,10 +1,10 @@
-package org.crazymages.bankingspringproject.service.database.updater.impl;
+package org.crazymages.bankingspringproject.service.utils.updater.impl;
 
 import org.crazymages.bankingspringproject.entity.Agreement;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
-import org.springframework.stereotype.Service;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement> {
     @Override
     public Agreement update(Agreement agreement, Agreement agreementUpdate) {

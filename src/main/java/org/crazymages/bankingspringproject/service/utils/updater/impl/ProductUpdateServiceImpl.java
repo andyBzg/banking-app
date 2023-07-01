@@ -1,10 +1,10 @@
-package org.crazymages.bankingspringproject.service.database.updater.impl;
+package org.crazymages.bankingspringproject.service.utils.updater.impl;
 
 import org.crazymages.bankingspringproject.entity.Product;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
-import org.springframework.stereotype.Service;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class ProductUpdateServiceImpl implements EntityUpdateService<Product> {
     @Override
     public Product update(Product product, Product productUpdate) {
