@@ -4,7 +4,8 @@ import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +28,8 @@ class AccountDatabaseServiceImplTest {
     AccountRepository accountRepository;
     @Mock
     EntityUpdateService<Account> accountUpdateService;
+    @Mock
+    ListValidator<Account> listValidator;
 
     @InjectMocks
     AccountDatabaseServiceImpl accountDatabaseService;
@@ -62,6 +66,20 @@ class AccountDatabaseServiceImplTest {
     }
 
     @Test
+    void findAll_emptyList_success() {
+        // given
+        when(accountRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // when
+        List<Account> actual = accountDatabaseService.findAll();
+
+        // then
+        assertTrue(actual.isEmpty());
+        verify(accountRepository).findAll();
+        verifyNoMoreInteractions(accountRepository);
+    }
+
+    @Test
     void findById_returnAccountFromRepository_success() {
         // given
         when(accountRepository.findById(uuid)).thenReturn(Optional.of(account0));
@@ -85,14 +103,17 @@ class AccountDatabaseServiceImplTest {
     void findAllByStatus_success() {
         // given
         List<Account> expected = List.of(account0, account1);
-        when(accountRepository.findAccountsByStatus(AccountStatus.ACTIVE)).thenReturn(expected);
+        String status = "ACTIVE";
+        when(accountRepository.findAccountsByStatus(AccountStatus.valueOf(status))).thenReturn(expected);
+        when(listValidator.validate(expected)).thenReturn(expected);
 
         // when
-        List<Account> actual = accountDatabaseService.findAllByStatus(AccountStatus.ACTIVE.name());
+        List<Account> actual = accountDatabaseService.findAllByStatus(status);
 
         // then
         assertEquals(expected, actual);
-        verify(accountRepository).findAccountsByStatus(AccountStatus.ACTIVE);
+        verify(accountRepository).findAccountsByStatus(AccountStatus.valueOf(status));
+        verifyNoMoreInteractions(accountRepository);
     }
 
     @Test
