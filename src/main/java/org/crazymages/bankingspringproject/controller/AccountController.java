@@ -27,10 +27,17 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
+    @PostMapping(value = "/account/create/by-client/{uuid}")
+    public ResponseEntity<Account> createAccount(@RequestBody Account account, @PathVariable UUID uuid) {
+        log.info("endpoint request: create account");
+        accountDatabaseService.create(account, uuid);
+        return ResponseEntity.status(HttpStatus.CREATED).body(account);
+    }
+
     @GetMapping(value = "/account/find/all")
     public ResponseEntity<List<Account>> findAllAccounts() {
         log.info("endpoint request: find all accounts");
-        List<Account> accountList = accountDatabaseService.findAll();
+        List<Account> accountList = accountDatabaseService.findAllNotDeleted();
         return createResponseEntity(accountList);
     }
 
@@ -67,13 +74,11 @@ public class AccountController {
         log.info("endpoint request: block accounts by client uuid {}", uuid);
         accountDatabaseService.blockAccountsByClientUuid(uuid);
         return ResponseEntity.ok().build();
-        //TODO написать тесты
     }
 
     @GetMapping(value = "/account/find/all/by-product/{uuid}/product-status/{status}")
     public ResponseEntity<List<Account>> findAllAccountsByProductIdAndStatus(
             @PathVariable UUID uuid, @PathVariable ProductStatus status) {
-        //TODO написать тесты
         log.info("endpoint request: find all accounts by product id {} and product status {}", uuid, status);
         List<Account> accountList = accountDatabaseService.findAccountsByProductIdAndStatus(uuid, status);
         return createResponseEntity(accountList);
@@ -81,17 +86,12 @@ public class AccountController {
 
     @GetMapping(value = "/account/find/all/by-client/{uuid}")
     public ResponseEntity<List<Account>> findAllAccountsByClientUuid(@PathVariable UUID uuid) {
-        //TODO написать тесты
         log.info("endpoint request: find all accounts by client id {} ", uuid);
         List<Account> accountList = accountDatabaseService.findAllByClientId(uuid);
         return createResponseEntity(accountList);
      }
 
     private ResponseEntity<List<Account>> createResponseEntity(List<Account> accountList) {
-        if (accountList != null && !accountList.isEmpty()) {
-            return ResponseEntity.ok(accountList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return accountList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountList);
     }
 }
