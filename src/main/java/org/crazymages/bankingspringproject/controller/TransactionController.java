@@ -72,21 +72,25 @@ public class TransactionController {
     }
 
     private ResponseEntity<List<Transaction>> createResponseEntity(List<Transaction> transactionList) {
-        if (transactionList != null && !transactionList.isEmpty()) {
-            return ResponseEntity.ok(transactionList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
     }
 
-//    GET /transactions/get/statement?startDate=2022-01-01&endDate=2022-12-31
-//    @GetMapping(value = "/transaction/get/statement")
-//    public ResponseEntity<List<Transaction>> getTransactionStatement(
-//            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-//            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-//
-//        // Здесь выполняется логика получения выписки по транзакциям за указанный промежуток времени
-//        List<Transaction> statement = transactionDatabaseService.findAll();
-//        return ResponseEntity.ok(statement);
-//    }
+    @GetMapping(value = "/transaction/get/client/{uuid}/statement")
+    public ResponseEntity<List<Transaction>> getTransactionStatement(
+            @PathVariable("uuid") UUID uuid,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<Transaction> statement = transactionDatabaseService
+                .findTransactionsByClientIdBetweenDates(uuid, startDate, endDate);
+        return ResponseEntity.ok(statement);
+    }
+
+    @GetMapping(value = "/transaction/get/statement")
+    public ResponseEntity<List<Transaction>> getTransactionStatement(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<Transaction> statement = transactionDatabaseService
+                .findTransactionsBetweenDates(startDate, endDate);
+        return ResponseEntity.ok(statement);
+    }
 }
