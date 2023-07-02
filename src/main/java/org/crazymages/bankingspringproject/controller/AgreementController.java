@@ -25,7 +25,7 @@ public class AgreementController {
 
     @GetMapping(value = "/agreement/find/all")
     public ResponseEntity<List<Agreement>> findAllAgreements() {
-        List<Agreement> agreementList = agreementDatabaseService.findAll();
+        List<Agreement> agreementList = agreementDatabaseService.findAllNotDeleted();
         return createResponseEntity(agreementList);
     }
 
@@ -62,10 +62,6 @@ public class AgreementController {
     }
 
     private ResponseEntity<List<Agreement>> createResponseEntity(List<Agreement> agreementList) {
-        if (agreementList != null && !agreementList.isEmpty()) {
-            return ResponseEntity.ok(agreementList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return agreementList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agreementList);
     }
 }

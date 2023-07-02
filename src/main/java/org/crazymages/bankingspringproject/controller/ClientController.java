@@ -28,7 +28,7 @@ public class ClientController {
 
     @GetMapping(value = "/client/find/all")
     public ResponseEntity<List<Client>> findAllClients() {
-        List<Client> clientList = clientDatabaseService.findAll();
+        List<Client> clientList = clientDatabaseService.findAllNotDeleted();
         return createResponseEntity(clientList);
     }
 
@@ -79,10 +79,6 @@ public class ClientController {
     }
 
     private ResponseEntity<List<Client>> createResponseEntity(List<Client> clientList) {
-        if (clientList != null && !clientList.isEmpty()) {
-            return ResponseEntity.ok(clientList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return clientList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(clientList);
     }
 }

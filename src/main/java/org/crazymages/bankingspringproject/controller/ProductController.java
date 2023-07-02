@@ -25,12 +25,8 @@ public class ProductController {
 
     @GetMapping(value = "/product/find/all")
     public ResponseEntity<List<Product>> findAllProducts() {
-        List<Product> productList = productDatabaseService.findAll();
-        if (productList != null && !productList.isEmpty()) {
-            return ResponseEntity.ok(productList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        List<Product> productList = productDatabaseService.findAllNotDeleted();
+        return productList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productList);
     }
 
     @GetMapping(value = "/product/find/{uuid}")

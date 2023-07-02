@@ -25,12 +25,8 @@ public class ManagerController {
 
     @GetMapping(value = "/manager/find/all")
     public ResponseEntity<List<Manager>> findAllManagers() {
-        List<Manager> managerList = managerDatabaseService.findAll();
-        if (managerList != null && !managerList.isEmpty()) {
-            return ResponseEntity.ok(managerList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        List<Manager> managerList = managerDatabaseService.findAllNotDeleted();
+        return managerList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(managerList);
     }
 
     @GetMapping(value = "/manager/find/{uuid}")
