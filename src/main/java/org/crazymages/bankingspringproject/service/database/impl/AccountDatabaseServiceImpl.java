@@ -3,16 +3,21 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.entity.Account;
-import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
-import org.crazymages.bankingspringproject.entity.enums.AccountType;
-import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
+import org.crazymages.bankingspringproject.entity.Agreement;
+import org.crazymages.bankingspringproject.entity.Product;
+import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
+import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.converter.EnumTypeMatcher;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +28,10 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     private final AccountRepository accountRepository;
     private final EntityUpdateService<Account> accountUpdateService;
+    private final ProductDatabaseService productDatabaseService;
+    private final AgreementDatabaseService agreementDatabaseService;
+    private final ListValidator<Account> listValidator;
+    private final EnumTypeMatcher enumTypeMatcher;
 
 
     @Override
@@ -32,9 +41,53 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     }
 
     @Override
+    @Transactional
+    public void create(Account account, UUID clientUuid) {
+        CurrencyCode currencyCode = account.getCurrencyCode();
+        ProductStatus status = ProductStatus.ACTIVE;
+        ProductType type = enumTypeMatcher.matchTypes(account.getType());
+        Product product = productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
+
+        account.setClientUuid(clientUuid);
+        account.setStatus(AccountStatus.PENDING);
+        accountRepository.save(account);
+
+        UUID accountUuid = account.getUuid();
+        Agreement agreement = composeAgreement(accountUuid, product);
+        agreementDatabaseService.create(agreement);
+    }
+
+    private Agreement composeAgreement(UUID accountUuid, Product product) {
+        Agreement agreement = new Agreement();
+        agreement.setAccountUuid(accountUuid);
+        agreement.setProductUuid(product.getUuid());
+        agreement.setInterestRate(product.getInterestRate());
+        agreement.setStatus(AgreementStatus.PENDING);
+        agreement.setAmount(BigDecimal.valueOf(0));
+        return agreement;
+    }
+
+    @Override
     public List<Account> findAll() {
         log.info("retrieving list of accounts");
-        return accountRepository.findAll();
+        List<Account> accounts = accountRepository.findAll();
+        return listValidator.validate(accounts);
+    }
+
+    @Override
+    @Transactional
+    public List<Account> findAllNotDeleted() {
+        log.info("retrieving list of accounts");
+        List<Account> accounts = accountRepository.findAllNotDeleted();
+        return listValidator.validate(accounts);
+    }
+
+    @Override
+    @Transactional
+    public List<Account> findDeletedAccounts() {
+        log.info("retrieving list of deleted accounts");
+        List<Account> deletedAccounts = accountRepository.findAllDeleted();
+        return listValidator.validate(deletedAccounts);
     }
 
     @Override
@@ -48,7 +101,8 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     @Transactional
     public List<Account> findAllByStatus(String status) {
         log.info("retrieving list of accounts by status {}", status);
-        return accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
+        List<Account> accounts = accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
+        return listValidator.validate(accounts);
     }
 
     @Override
@@ -82,14 +136,16 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     @Transactional
     public List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
         log.info("retrieving list of accounts by product id {} and product status {}", uuid, status);
-        return accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
+        List<Account> accounts = accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
+        return listValidator.validate(accounts);
     }
 
     @Override
     @Transactional
     public List<Account> findAllByClientId(UUID uuid) {
         log.info("retrieving list of accounts by client id {}", uuid);
-        return accountRepository.findAccountsByClientUuid(uuid);
+        List<Account> accounts = accountRepository.findAccountsByClientUuid(uuid);
+        return listValidator.validate(accounts);
     }
 
     @Override
