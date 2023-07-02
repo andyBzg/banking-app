@@ -11,6 +11,10 @@ public interface AgreementDatabaseService {
 
     List<Agreement> findAll();
 
+    List<Agreement> findAllNotDeleted();
+
+    List<Agreement> findDeletedAccounts();
+
     Agreement findById(UUID uuid);
 
     Agreement findSavingsAgreementByClientId(UUID uuid);
@@ -23,5 +27,4 @@ public interface AgreementDatabaseService {
 
     List<Agreement> findAgreementsByClientUuid(UUID uuid);
 
-//    List<Agreement> findRecurringPaymentAgreements();
 }

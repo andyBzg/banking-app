@@ -12,6 +12,10 @@ public interface ClientDatabaseService {
 
     List<Client> findAll();
 
+    List<Client> findAllNotDeleted();
+
+    List<Client> findDeletedAccounts();
+
     Client findById(UUID uuid);
 
     void update(UUID uuid, Client client);
