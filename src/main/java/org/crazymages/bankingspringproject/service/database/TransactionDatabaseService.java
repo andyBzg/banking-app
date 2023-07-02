@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.entity.Transaction;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -22,5 +23,7 @@ public interface TransactionDatabaseService {
 
     void transferFunds(Transaction transaction);
 
-//    List<Transaction> findTransactionsByClientIdBetweenDates(UUID uuid, Timestamp from, Timestamp to);
+    List<Transaction> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to);
+
+    List<Transaction> findTransactionsBetweenDates(String from, String to);
 }

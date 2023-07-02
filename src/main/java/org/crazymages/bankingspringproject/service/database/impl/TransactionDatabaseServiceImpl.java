@@ -12,11 +12,13 @@ import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +31,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     private final TransactionRepository transactionRepository;
     private final AccountDatabaseService accountDatabaseService;
     private final ClientDatabaseService clientDatabaseService;
+    private final ListValidator<Transaction> listValidator;
 
     @Override
     public void create(Transaction transaction) {
@@ -39,7 +42,8 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     @Override
     public List<Transaction> findAll() {
         log.info("retrieving list of transactions");
-        return transactionRepository.findAll();
+        List<Transaction> transactions = transactionRepository.findAll();
+        return listValidator.validate(transactions);
     }
 
     @Override
@@ -53,21 +57,24 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     @Transactional
     public List<Transaction> findOutgoingTransactions(UUID uuid) {
         log.info("retrieving list of transactions by sender id {}", uuid);
-        return transactionRepository.findTransactionsByDebitAccountUuid(uuid);
+        List<Transaction> transactions = transactionRepository.findTransactionsByDebitAccountUuid(uuid);
+        return listValidator.validate(transactions);
     }
 
     @Override
     @Transactional
     public List<Transaction> findIncomingTransactions(UUID uuid) {
         log.info("retrieving list of transactions by recipient id {}", uuid);
-        return transactionRepository.findTransactionsByCreditAccountUuid(uuid);
+        List<Transaction> transactions = transactionRepository.findTransactionsByCreditAccountUuid(uuid);
+        return listValidator.validate(transactions);
     }
 
     @Override
     @Transactional
     public List<Transaction> findAllTransactionsByClientId(UUID uuid) {
         log.info("retrieving list of transactions by client id {} ", uuid);
-        return transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
+        List<Transaction> transactions = transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
+        return listValidator.validate(transactions);
     }
 
     @Override
@@ -103,16 +110,30 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         log.info("transfer saved to db");
     }
 
-//    @Override
-//    @Transactional
-//    public List<Transaction> findTransactionsByClientIdBetweenDates(UUID uuid, Timestamp from, Timestamp to) {
-//        if(uuid == null) {
-//            throw new IllegalArgumentException();
-//        }
-//        if (from == null || to == null) {
-//            throw new IllegalArgumentException();
-//        }
-//        log.info("retrieving list of transactions by client id {} between dates: {} and {} ", uuid, from, to);
-//        return transactionRepository.findTransactionsByClientIdBetweenDates(uuid, from, to);
-//    }
+    @Override
+    @Transactional
+    public List<Transaction> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to) {
+        log.info("retrieving list of transactions for client {}, between {} and {}", clientUuid, from, to);
+        LocalDate localDateStart = LocalDate.parse(from);
+        Timestamp start = Timestamp.valueOf(localDateStart.atStartOfDay());
+
+        LocalDate localDateEnd = LocalDate.parse(to);
+        Timestamp end = Timestamp.valueOf(localDateEnd.atStartOfDay());
+        return transactionRepository.findTransactionsByClientIdBetweenDates(clientUuid, start, end);
+    }
+
+    @Override
+    @Transactional
+    public List<Transaction> findTransactionsBetweenDates(String from, String to) {
+        log.info("retrieving list of transactions between {} and {}", from, to);
+
+        LocalDate localDateStart = LocalDate.parse(from);
+        Timestamp timestampStart = Timestamp.valueOf(localDateStart.atStartOfDay());
+
+        LocalDate localDateEnd = LocalDate.parse(to);
+        Timestamp timestampEnd = Timestamp.valueOf(localDateEnd.atStartOfDay());
+
+        return transactionRepository.findTransactionsBetweenDates(timestampStart, timestampEnd);
+    }
+
 }

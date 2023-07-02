@@ -30,16 +30,20 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             "WHERE ac.currencyCode = :currencyCode")
     List<Transaction> findAllTransactionsWhereAccountCurrencyIs(@Param("currencyCode")CurrencyCode currencyCode);
 
-//    @Query("SELECT tr FROM Transaction tr " +
-//            "JOIN Account ac ON ac.uuid = tr.debitAccountUuid " +
-//            "OR ac.uuid = tr.creditAccountUuid " +
-//            "JOIN Client cl ON cl.uuid = ac.clientUuid " +
-//            "WHERE cl.uuid = :clientUuid " +
-//            "AND tr.createdAt >= :from " +
-//            "AND tr.createdAt <= :to")
-//    List<Transaction> findTransactionsByClientIdBetweenDates(
-//            @Param("uuid") UUID uuid,
-//            @Param("from") Timestamp from,
-//            @Param("to") Timestamp to);
-    //TODO List<Transaction> findTransactionsByCreatedAtBetween(Timestamp createdAt, Timestamp createdAt2);
+    @Query("SELECT tr FROM Transaction tr " +
+            "JOIN Account ac ON ac.uuid = tr.debitAccountUuid " +
+            "OR ac.uuid = tr.creditAccountUuid " +
+            "JOIN Client cl ON cl.uuid = ac.clientUuid " +
+            "WHERE cl.uuid = :clientUuid " +
+            "AND tr.createdAt >= :from " +
+            "AND tr.createdAt <= :to")
+    List<Transaction> findTransactionsByClientIdBetweenDates(
+            @Param("clientUuid") UUID clientUuid,
+            @Param("from") Timestamp from,
+            @Param("to") Timestamp to);
+
+    @Query("SELECT tr FROM Transaction tr " +
+            "WHERE tr.createdAt >= :from " +
+            "AND tr.createdAt <= :to")
+    List<Transaction> findTransactionsBetweenDates(@Param("from") Timestamp from, @Param("to") Timestamp to);
 }
