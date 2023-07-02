@@ -12,11 +12,19 @@ public interface ManagerDatabaseService {
 
     List<Manager> findAll();
 
+    List<Manager> findAllNotDeleted();
+
+    List<Manager> findDeletedAccounts();
+
     Manager findById(UUID uuid);
 
     void update(UUID uuid, Manager manager);
 
     void delete(UUID uuid);
 
-    List<Manager> findManagersSortedByClientCount(ManagerStatus status);
+    List<Manager> findManagersSortedByClientQuantity(ManagerStatus status);
+
+    List<Manager> findManagersSortedByProductQuantity(ManagerStatus status);
+
+    Manager getFirstManager(List<Manager> activeManagers);
 }
