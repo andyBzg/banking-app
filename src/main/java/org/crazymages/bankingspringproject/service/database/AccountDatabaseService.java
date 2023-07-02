@@ -10,9 +10,15 @@ public interface AccountDatabaseService {
 
     void create(Account account);
 
+    void create(Account account, UUID uuid);
+
     Account findById(UUID uuid);
 
     List<Account> findAll();
+
+    List<Account> findAllNotDeleted();
+
+    List<Account> findDeletedAccounts();
 
     List<Account> findAllByStatus(String status);
 
