@@ -7,7 +7,8 @@ import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     private final ManagerRepository managerRepository;
     private final EntityUpdateService<Manager> managerUpdateService;
+    private final ListValidator<Manager> listValidator;
 
     @Override
     public void create(Manager manager) {
@@ -31,7 +33,24 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     @Override
     public List<Manager> findAll() {
         log.info("retrieving list of managers");
-        return managerRepository.findAll();
+        List<Manager> managers = managerRepository.findAll();
+        return listValidator.validate(managers);
+    }
+
+    @Override
+    @Transactional
+    public List<Manager> findAllNotDeleted() {
+        log.info("retrieving list of managers");
+        List<Manager> managers = managerRepository.findAllNotDeleted();
+        return listValidator.validate(managers);
+    }
+
+    @Override
+    @Transactional
+    public List<Manager> findDeletedAccounts() {
+        log.info("retrieving list of deleted managers");
+        List<Manager> deletedManagers = managerRepository.findAllDeleted();
+        return listValidator.validate(deletedManagers);
     }
 
     @Override
@@ -63,8 +82,26 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     @Override
     @Transactional
-    public List<Manager> findManagersSortedByClientCount(ManagerStatus status) {
+    public List<Manager> findManagersSortedByClientQuantity(ManagerStatus status) {
         log.info("retrieving list of managers sorted by status {}", status);
-        return managerRepository.findManagersSortedByClientCountWhereManagerStatusIs(status);
+        List<Manager> managers = managerRepository.findManagersSortedByClientCountWhereManagerStatusIs(status);
+        return listValidator.validate(managers);
+    }
+
+    @Override
+    @Transactional
+    public List<Manager> findManagersSortedByProductQuantity(ManagerStatus status) {
+        log.info("retrieving list of managers sorted by status {}", status);
+        List<Manager> managers = managerRepository.findAllManagersSortedByProductQuantityWhereManagerStatusIs(status);
+        return listValidator.validate(managers);
+    }
+
+
+    @Override
+    public Manager getFirstManager(List<Manager> activeManagers) {
+        return activeManagers
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new DataNotFoundException("null"));
     }
 }
