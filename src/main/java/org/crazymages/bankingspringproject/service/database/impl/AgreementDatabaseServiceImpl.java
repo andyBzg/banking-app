@@ -7,7 +7,8 @@ import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     private final AgreementRepository agreementRepository;
     private final EntityUpdateService<Agreement> agreementUpdateService;
+    private final ListValidator<Agreement> listValidator;
 
 
     @Override
@@ -30,9 +32,27 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     }
 
     @Override
+    @Transactional
     public List<Agreement> findAll() {
         log.info("retrieving list of agreements");
-        return agreementRepository.findAll();
+        List<Agreement> agreements = agreementRepository.findAll();
+        return listValidator.validate(agreements);
+    }
+
+    @Override
+    @Transactional
+    public List<Agreement> findAllNotDeleted() {
+        log.info("retrieving list of agreements");
+        List<Agreement> agreements = agreementRepository.findAllNotDeleted();
+        return listValidator.validate(agreements);
+    }
+
+    @Override
+    @Transactional
+    public List<Agreement> findDeletedAccounts() {
+        log.info("retrieving list of deleted agreements");
+        List<Agreement> deletedAgreements = agreementRepository.findAllDeleted();
+        return listValidator.validate(deletedAgreements);
     }
 
     @Override
@@ -74,20 +94,16 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     @Transactional
     public List<Agreement> findAgreementsByManagerUuid(UUID uuid) {
         log.info("retrieving agreements by manager id {}", uuid);
-        return agreementRepository.findAgreementsWhereManagerIdIs(uuid);
+        List<Agreement> agreements = agreementRepository.findAgreementsWhereManagerIdIs(uuid);
+        return listValidator.validate(agreements);
     }
 
     @Override
     @Transactional
     public List<Agreement> findAgreementsByClientUuid(UUID uuid) {
         log.info("retrieving agreements client id {}", uuid);
-        return agreementRepository.findAgreementsWhereClientIdIs(uuid);
+        List<Agreement> agreements = agreementRepository.findAgreementsWhereClientIdIs(uuid);
+        return listValidator.validate(agreements);
     }
 
-//    @Override
-//    @Transactional
-//    public List<Agreement> findRecurringPaymentAgreements() {
-//        return agreementRepository.findAgreementsWhereStatusIsAndProductTypeIs(
-//                AgreementStatus.ACTIVE, ProductType.SAVINGS_ACCOUNT);
-//    }
 }

@@ -11,7 +11,8 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +28,14 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     private final ClientRepository clientRepository;
     private final EntityUpdateService<Client> clientUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
+    private final ListValidator<Client> listValidator;
 
     @Override
     @Transactional
     public void create(Client client) {
         if (client.getManagerUuid() == null) {
-            List<Manager> activeManagers = managerDatabaseService.findManagersSortedByClientCount(ManagerStatus.ACTIVE);
-            Manager firstManager = activeManagers
-                    .stream()
-                    .findFirst()
-                    .orElseThrow(() -> new DataNotFoundException("null"));
+            List<Manager> activeManagers = managerDatabaseService.findManagersSortedByClientQuantity(ManagerStatus.ACTIVE);
+            Manager firstManager = managerDatabaseService.getFirstManager(activeManagers);
             client.setManagerUuid(firstManager.getUuid());
         }
         clientRepository.save(client);
@@ -46,7 +45,24 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     @Override
     public List<Client> findAll() {
         log.info("retrieving list of clients");
-        return clientRepository.findAll();
+        List<Client> clients = clientRepository.findAll();
+        return listValidator.validate(clients);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findAllNotDeleted() {
+        log.info("retrieving list of clients");
+        List<Client> clients = clientRepository.findAllNotDeleted();
+        return listValidator.validate(clients);
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findDeletedAccounts() {
+        log.info("retrieving list of deleted agreements");
+        List<Client> deletedClients = clientRepository.findAllDeleted();
+        return listValidator.validate(deletedClients);
     }
 
     @Override
@@ -80,21 +96,24 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     @Transactional
     public List<Client> findActiveClients() {
         log.info("retrieving list of active clients");
-        return clientRepository.findClientsByStatusIs(ClientStatus.ACTIVE);
+        List<Client> clients = clientRepository.findClientsByStatusIs(ClientStatus.ACTIVE);
+        return listValidator.validate(clients);
     }
 
     @Override
     @Transactional
     public List<Client> findClientsWhereBalanceMoreThan(BigDecimal balance) {
         log.info("retrieving list of clients where balance is more than {}", balance);
-        return clientRepository.findAllClientsWhereBalanceMoreThan(balance);
+        List<Client> clients = clientRepository.findAllClientsWhereBalanceMoreThan(balance);
+        return listValidator.validate(clients);
     }
 
     @Override
     @Transactional
     public List<Client> findClientsWhereTransactionMoreThan(Integer count) {
         log.info("retrieving list of clients where transaction count is more than {}", count);
-        return clientRepository.findAllClientsWhereTransactionMoreThan(count);
+        List<Client> clients = clientRepository.findAllClientsWhereTransactionMoreThan(count);
+        return listValidator.validate(clients);
     }
 
     @Override
@@ -118,6 +137,6 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
         List<Client> clients = clientRepository.findAllActiveClientsWithTwoDifferentAccountTypes(
                 AccountType.CURRENT, AccountType.SAVINGS);
         log.info(clients.toString());
-        return clients;
+        return listValidator.validate(clients);
     }
 }
