@@ -17,6 +17,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * A component class that executes recurring transactions
+ * between same customer current and savings accounts on a scheduled basis.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +31,9 @@ public class ScheduledTransactionExecutor {
     private final AccountDatabaseService accountDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
 
+    /**
+     * Executes recurring transactions based on a scheduled cron expression.
+     */
     @Scheduled(cron = "0 0 12 15 * *")
     public void executeRecurringTransactions() {
         List<Client> clients = clientDatabaseService.findClientsWithCurrentAndSavingsAccounts();
@@ -38,12 +45,23 @@ public class ScheduledTransactionExecutor {
         log.info("executing recurring transactions");
     }
 
-    private boolean isRecurringTransactionAllowed(Client client) {
+    /**
+     * Checks if recurring transactions are allowed for the given client.
+     *
+     * @param client The client for whom to check the recurring transaction allowance
+     * @return {@code true} if recurring transactions are allowed, {@code false} otherwise
+     */
+    public boolean isRecurringTransactionAllowed(Client client) {
         Agreement agreement = agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid());
         return agreement.getStatus().equals(AgreementStatus.ACTIVE);
     }
 
-    private void executeTransaction(Client client) {
+    /**
+     * Executes a transaction for the given client.
+     *
+     * @param client The client for whom to execute the transaction
+     */
+    public void executeTransaction(Client client) {
         Account currentAccount = accountDatabaseService.findCurrentByClientId(client.getUuid());
         Account savingsAccount = accountDatabaseService.findSavingsByClientId(client.getUuid());
         Agreement agreement = agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid());
@@ -52,6 +70,13 @@ public class ScheduledTransactionExecutor {
         transactionDatabaseService.transferFunds(transaction);
     }
 
+    /**
+     * Creates a new transaction with the specified debit and credit accounts.
+     *
+     * @param current The debit account
+     * @param savings The credit account
+     * @return The created transaction
+     */
     public Transaction createTransaction(Account current, Account savings) {
         Transaction transaction = new Transaction();
         transaction.setDebitAccountUuid(current.getUuid());

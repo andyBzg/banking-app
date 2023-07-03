@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller class for managing transactions.
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -18,7 +21,12 @@ public class TransactionController {
 
     private final TransactionDatabaseService transactionDatabaseService;
 
-
+    /**
+     * Creates a new transaction.
+     *
+     * @param transaction The transaction to create.
+     * @return The created transaction.
+     */
     @PostMapping(value = "/transaction/create")
     public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction) {
         log.info("endpoint request: create transaction");
@@ -26,6 +34,11 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
     }
 
+    /**
+     * Retrieves all transactions.
+     *
+     * @return The list of transactions.
+     */
     @GetMapping(value = "/transaction/find/all")
     public ResponseEntity<List<Transaction>> findAllTransactions() {
         log.info("endpoint request: find all transactions");
@@ -33,6 +46,12 @@ public class TransactionController {
         return createResponseEntity(transactionList);
     }
 
+    /**
+     * Retrieves a transaction by its UUID.
+     *
+     * @param uuid The UUID of the transaction.
+     * @return The transaction.
+     */
     @GetMapping(value = "/transaction/find/{uuid}")
     public ResponseEntity<Transaction> findTransactionByUuid(@PathVariable UUID uuid) {
         log.info("endpoint request: find transaction by uuid {}", uuid);
@@ -40,6 +59,12 @@ public class TransactionController {
         return ResponseEntity.ok(transaction);
     }
 
+    /**
+     * Retrieves outgoing transactions for a specific UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return The list of outgoing transactions.
+     */
     @GetMapping(value = "/transaction/find/outgoing/{uuid}")
     public ResponseEntity<List<Transaction>> findOutgoingTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
@@ -47,6 +72,12 @@ public class TransactionController {
         return createResponseEntity(transactionList);
     }
 
+    /**
+     * Retrieves incoming transactions for a specific UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return The list of incoming transactions.
+     */
     @GetMapping(value = "/transaction/find/incoming/{uuid}")
     public ResponseEntity<List<Transaction>> findIncomingTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
@@ -55,8 +86,11 @@ public class TransactionController {
     }
 
     /**
-     * Перевод средств с одного банковского аккаунта на другой.
-     **/
+     * Transfers funds between accounts.
+     *
+     * @param transaction The transaction containing the transfer details.
+     * @return A response indicating the success of the operation.
+     */
     @PostMapping(value = "/transaction/transfer/")
     public ResponseEntity<String> transferFunds(@RequestBody Transaction transaction) {
         log.info("endpoint request: execute money transfer");
@@ -64,29 +98,61 @@ public class TransactionController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Retrieves all transactions for a specific client UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return The list of transactions.
+     */
     @GetMapping(value = "/transaction/find-all-by-client/{uuid}")
     public ResponseEntity<List<Transaction>> findAllTransactions(@PathVariable UUID uuid) {
-        log.info("endpoint request: find all transactions by client id {} ", uuid);
+        log.info("endpoint request: find all transactions by client id {}", uuid);
         List<Transaction> transactionList = transactionDatabaseService.findAllTransactionsByClientId(uuid);
         return createResponseEntity(transactionList);
     }
 
-    private ResponseEntity<List<Transaction>> createResponseEntity(List<Transaction> transactionList) {
-        if (transactionList != null && !transactionList.isEmpty()) {
-            return ResponseEntity.ok(transactionList);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+    /**
+     * Retrieves a transaction statement for a specific client UUID and date range.
+     *
+     * @param uuid      The UUID of the client.
+     * @param startDate The start date of the statement.
+     * @param endDate   The end date of the statement.
+     * @return The transaction statement.
+     */
+    @GetMapping(value = "/transaction/get/client/{uuid}/statement")
+    public ResponseEntity<List<Transaction>> getTransactionStatement(
+            @PathVariable("uuid") UUID uuid,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<Transaction> statement = transactionDatabaseService
+                .findTransactionsByClientIdBetweenDates(uuid, startDate, endDate);
+        return ResponseEntity.ok(statement);
     }
 
-//    GET /transactions/get/statement?startDate=2022-01-01&endDate=2022-12-31
-//    @GetMapping(value = "/transaction/get/statement")
-//    public ResponseEntity<List<Transaction>> getTransactionStatement(
-//            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-//            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-//
-//        // Здесь выполняется логика получения выписки по транзакциям за указанный промежуток времени
-//        List<Transaction> statement = transactionDatabaseService.findAll();
-//        return ResponseEntity.ok(statement);
-//    }
+    /**
+     * Retrieves a transaction statement for a date range.
+     *
+     * @param startDate The start date of the statement.
+     * @param endDate   The end date of the statement.
+     * @return The transaction statement.
+     */
+    @GetMapping(value = "/transaction/get/statement")
+    public ResponseEntity<List<Transaction>> getTransactionStatement(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<Transaction> statement = transactionDatabaseService
+                .findTransactionsBetweenDates(startDate, endDate);
+        return ResponseEntity.ok(statement);
+    }
+
+    /**
+     * Creates a response entity for the given transaction list.
+     * If the list is empty, returns a no content response, otherwise returns the transaction list.
+     *
+     * @param transactionList The list of transactions.
+     * @return The response entity.
+     */
+    private ResponseEntity<List<Transaction>> createResponseEntity(List<Transaction> transactionList) {
+        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
+    }
 }

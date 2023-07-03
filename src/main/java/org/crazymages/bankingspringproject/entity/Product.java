@@ -12,6 +12,10 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+/**
+ * A class representing a product.
+ * It stores information about a product entity.
+ */
 @Data
 @Entity
 @Table(name = "products")

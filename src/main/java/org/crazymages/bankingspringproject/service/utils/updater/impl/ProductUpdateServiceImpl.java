@@ -1,11 +1,24 @@
-package org.crazymages.bankingspringproject.service.database.updater.impl;
+package org.crazymages.bankingspringproject.service.utils.updater.impl;
 
 import org.crazymages.bankingspringproject.entity.Product;
-import org.crazymages.bankingspringproject.service.database.updater.EntityUpdateService;
-import org.springframework.stereotype.Service;
+import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
+import org.springframework.stereotype.Component;
 
-@Service
+/**
+ * A class implementing the EntityUpdateService interface for updating Product entities.
+ * It provides custom update logic for the Product entity.
+ */
+@Component
 public class ProductUpdateServiceImpl implements EntityUpdateService<Product> {
+
+    /**
+     * Updates the given Product entity with the provided Product update.
+     * Only non-null fields in the Product update will be applied to the original Product.
+     *
+     * @param product The existing entity to be updated.
+     * @param productUpdate The entity containing the updated data.
+     * @return The updated Product entity.
+     */
     @Override
     public Product update(Product product, Product productUpdate) {
         if (product != null && productUpdate != null) {

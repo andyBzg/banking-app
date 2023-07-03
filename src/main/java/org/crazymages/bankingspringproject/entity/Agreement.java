@@ -10,6 +10,10 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+/**
+ * A class representing an agreement.
+ * It stores information about an agreement entity.
+ */
 @Data
 @Entity
 @Table(name = "agreements")
