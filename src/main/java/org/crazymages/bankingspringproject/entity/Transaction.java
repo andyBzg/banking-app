@@ -10,6 +10,10 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+/**
+ * A class representing a transaction.
+ * It stores information about a transaction entity.
+ */
 @Data
 @Entity
 @Table(name = "transactions")

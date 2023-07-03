@@ -4,8 +4,21 @@ import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Component;
 
+/**
+ * A class implementing the EntityUpdateService interface for updating Agreement entities.
+ * It provides custom update logic for the Agreement entity.
+ */
 @Component
 public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement> {
+
+    /**
+     * Updates the given Agreement entity with the provided Agreement update.
+     * Only non-null fields in the Agreement update will be applied to the original Agreement.
+     *
+     * @param agreement The existing entity to be updated.
+     * @param agreementUpdate The entity containing the updated data.
+     * @return The updated Agreement entity.
+     */
     @Override
     public Agreement update(Agreement agreement, Agreement agreementUpdate) {
         if (agreement != null && agreementUpdate != null) {

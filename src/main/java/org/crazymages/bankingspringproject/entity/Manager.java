@@ -10,6 +10,10 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A class representing a manager.
+ * It stores information about a manager entity.
+ */
 @Data
 @Entity
 @Table(name = "managers")

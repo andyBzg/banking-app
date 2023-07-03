@@ -4,8 +4,21 @@ import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Component;
 
+/**
+ * A class implementing the EntityUpdateService interface for updating Client entities.
+ * It provides custom update logic for the Client entity.
+ */
 @Component
 public class ClientUpdateServiceImpl implements EntityUpdateService<Client> {
+
+    /**
+     * Updates the given Client entity with the provided Client update.
+     * Only non-null fields in the Client update will be applied to the original Client.
+     *
+     * @param client The existing entity to be updated.
+     * @param clientUpdate The entity containing the updated data.
+     * @return The updated Client entity.
+     */
     @Override
     public Client update(Client client, Client clientUpdate) {
         if (client != null && clientUpdate != null) {

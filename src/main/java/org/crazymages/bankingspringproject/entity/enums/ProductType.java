@@ -1,5 +1,8 @@
 package org.crazymages.bankingspringproject.entity.enums;
 
+/**
+ * Enum representing the type of Product.
+ */
 public enum ProductType {
 
     CURRENT_ACCOUNT,

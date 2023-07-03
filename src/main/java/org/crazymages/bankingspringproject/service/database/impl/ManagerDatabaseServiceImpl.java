@@ -15,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A service implementation for managing Manager entities in the database.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,12 +27,22 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     private final EntityUpdateService<Manager> managerUpdateService;
     private final ListValidator<Manager> listValidator;
 
+    /**
+     * Creates a new Manager entity and saves it to the database.
+     *
+     * @param manager The Manager entity to create.
+     */
     @Override
     public void create(Manager manager) {
         managerRepository.save(manager);
         log.info("manager created");
     }
 
+    /**
+     * Retrieves a list of all Manager entities from the database.
+     *
+     * @return A list of all Manager entities.
+     */
     @Override
     public List<Manager> findAll() {
         log.info("retrieving list of managers");
@@ -37,6 +50,11 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         return listValidator.validate(managers);
     }
 
+    /**
+     * Retrieves a list of all not deleted Manager entities from the database.
+     *
+     * @return A list of all not deleted Manager entities.
+     */
     @Override
     @Transactional
     public List<Manager> findAllNotDeleted() {
@@ -45,6 +63,11 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         return listValidator.validate(managers);
     }
 
+    /**
+     * Retrieves a list of all deleted Manager entities from the database.
+     *
+     * @return A list of all deleted Manager entities.
+     */
     @Override
     @Transactional
     public List<Manager> findDeletedAccounts() {
@@ -53,6 +76,13 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         return listValidator.validate(deletedManagers);
     }
 
+    /**
+     * Retrieves a Manager entity from the database by its UUID.
+     *
+     * @param uuid The UUID of the Manager entity to retrieve.
+     * @return The Manager entity with the specified UUID.
+     * @throws DataNotFoundException if no Manager entity is found with the specified UUID.
+     */
     @Override
     public Manager findById(UUID uuid) {
         log.info("retrieving manager by id {}", uuid);
@@ -60,6 +90,13 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
+    /**
+     * Updates an existing Manager entity in the database.
+     *
+     * @param uuid          The UUID of the Manager to update.
+     * @param managerUpdate The updated Manager entity.
+     * @throws DataNotFoundException if no Manager entity is found with the specified UUID.
+     */
     @Override
     @Transactional
     public void update(UUID uuid, Manager managerUpdate) {
@@ -70,6 +107,12 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         log.info("updated manager id {}", uuid);
     }
 
+    /**
+     * Deletes an existing Manager entity in the database.
+     *
+     * @param uuid The UUID of the Manager to delete.
+     * @throws DataNotFoundException if no Manager entity is found with the specified UUID.
+     */
     @Override
     @Transactional
     public void delete(UUID uuid) {
@@ -80,23 +123,43 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         log.info("deleted manager id {}", uuid);
     }
 
+    /**
+     * Retrieves a list of managers sorted by the quantity of clients they manage,
+     * where the manager's status matches the specified status.
+     *
+     * @param status The status of the managers to filter by.
+     * @return A list of managers sorted by client quantity.
+     */
     @Override
     @Transactional
-    public List<Manager> findManagersSortedByClientQuantity(ManagerStatus status) {
+    public List<Manager> findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus status) {
         log.info("retrieving list of managers sorted by status {}", status);
         List<Manager> managers = managerRepository.findManagersSortedByClientCountWhereManagerStatusIs(status);
         return listValidator.validate(managers);
     }
 
+    /**
+     * Retrieves a list of managers sorted by the quantity of products they manage,
+     * where the manager's status matches the specified status.
+     *
+     * @param status The status of the managers to filter by.
+     * @return A list of managers sorted by product quantity.
+     */
     @Override
     @Transactional
-    public List<Manager> findManagersSortedByProductQuantity(ManagerStatus status) {
+    public List<Manager> findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus status) {
         log.info("retrieving list of managers sorted by status {}", status);
         List<Manager> managers = managerRepository.findAllManagersSortedByProductQuantityWhereManagerStatusIs(status);
         return listValidator.validate(managers);
     }
 
-
+    /**
+     * Gets the first Manager from the list of active managers.
+     *
+     * @param activeManagers The list of active managers.
+     * @return The first Manager in the list.
+     * @throws DataNotFoundException if the list of active managers is empty.
+     */
     @Override
     public Manager getFirstManager(List<Manager> activeManagers) {
         return activeManagers

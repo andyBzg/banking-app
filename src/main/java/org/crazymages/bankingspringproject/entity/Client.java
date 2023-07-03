@@ -10,6 +10,10 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A class representing a client.
+ * It stores information about a client entity.
+ */
 @Data
 @Entity
 @Table(name = "clients")
