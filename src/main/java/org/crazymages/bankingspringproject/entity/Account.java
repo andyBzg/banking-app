@@ -13,6 +13,10 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+/**
+ * A class representing an account.
+ * It stores information about an account entity.
+ */
 @Data
 @Entity
 @Table(name = "accounts")

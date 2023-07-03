@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * A service implementation for managing Transaction entities in the database.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,12 +36,22 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     private final ClientDatabaseService clientDatabaseService;
     private final ListValidator<Transaction> listValidator;
 
+    /**
+     * Creates a new Transaction entity and saves it to the database.
+     *
+     * @param transaction The Transaction entity to create.
+     */
     @Override
     public void create(Transaction transaction) {
         transactionRepository.save(transaction);
         log.info("transaction created");
     }
 
+    /**
+     * Retrieves a list of all Transaction entities from the database.
+     *
+     * @return A list of all Transaction entities.
+     */
     @Override
     public List<Transaction> findAll() {
         log.info("retrieving list of transactions");
@@ -46,6 +59,13 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         return listValidator.validate(transactions);
     }
 
+    /**
+     * Retrieves a Transaction entity from the database by its UUID.
+     *
+     * @param uuid The UUID of the Transaction entity to retrieve.
+     * @return The Transaction entity with the specified UUID.
+     * @throws DataNotFoundException if no Transaction entity is found with the specified UUID.
+     */
     @Override
     public Transaction findById(UUID uuid) {
         log.info("retrieving transaction by id {}", uuid);
@@ -53,6 +73,12 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         return transactionOptional.orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
+    /**
+     * Retrieves a list of outgoing Transaction entities from the database by the sender's UUID.
+     *
+     * @param uuid The UUID of the sender's Account entity.
+     * @return A list of outgoing Transaction entities for the sender.
+     */
     @Override
     @Transactional
     public List<Transaction> findOutgoingTransactions(UUID uuid) {
@@ -61,6 +87,12 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         return listValidator.validate(transactions);
     }
 
+    /**
+     * Retrieves a list of incoming Transaction entities from the database by the recipient's UUID.
+     *
+     * @param uuid The UUID of the recipient's Account entity.
+     * @return A list of incoming Transaction entities for the recipient.
+     */
     @Override
     @Transactional
     public List<Transaction> findIncomingTransactions(UUID uuid) {
@@ -69,6 +101,12 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         return listValidator.validate(transactions);
     }
 
+    /**
+     * Retrieves a list of all Transaction entities from the database for a given client UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return A list of all Transaction entities for the client.
+     */
     @Override
     @Transactional
     public List<Transaction> findAllTransactionsByClientId(UUID uuid) {
@@ -77,6 +115,14 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         return listValidator.validate(transactions);
     }
 
+    /**
+     * Transfers funds between two accounts based on the details provided in the Transaction entity.
+     * Updates the balances of the sender and recipient accounts accordingly.
+     *
+     * @param transaction The Transaction entity representing the fund transfer details.
+     * @throws InsufficientFundsException     if the sender account does not have sufficient funds for the transfer.
+     * @throws TransactionNotAllowedException if the sender or recipient accounts are not active or the client status is not active.
+     */
     @Override
     @Transactional
     public void transferFunds(Transaction transaction) {
@@ -110,6 +156,14 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         log.info("transfer saved to db");
     }
 
+    /**
+     * Retrieves a list of Transaction entities from the database for a specific client within a given date range.
+     *
+     * @param clientUuid The UUID of the client.
+     * @param from       The start date of the date range (inclusive) in the format "yyyy-MM-dd".
+     * @param to         The end date of the date range (inclusive) in the format "yyyy-MM-dd".
+     * @return A list of Transaction entities for the specified client within the date range.
+     */
     @Override
     @Transactional
     public List<Transaction> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to) {
@@ -122,6 +176,13 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         return transactionRepository.findTransactionsByClientIdBetweenDates(clientUuid, start, end);
     }
 
+    /**
+     * Retrieves a list of Transaction entities from the database within a given date range.
+     *
+     * @param from The start date of the date range (inclusive) in the format "yyyy-MM-dd".
+     * @param to   The end date of the date range (inclusive) in the format "yyyy-MM-dd".
+     * @return A list of Transaction entities within the specified date range.
+     */
     @Override
     @Transactional
     public List<Transaction> findTransactionsBetweenDates(String from, String to) {
@@ -135,5 +196,4 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
         return transactionRepository.findTransactionsBetweenDates(timestampStart, timestampEnd);
     }
-
 }

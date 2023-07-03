@@ -4,8 +4,21 @@ import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Component;
 
+/**
+ * A class implementing the EntityUpdateService interface for updating Account entities.
+ * It provides custom update logic for the Account entity.
+ */
 @Component
 public class AccountUpdateServiceImpl implements EntityUpdateService<Account> {
+
+    /**
+     * Updates the given Account entity with the provided Account update.
+     * Only non-null fields in the Account update will be applied to the original Account.
+     *
+     * @param account The existing entity to be updated.
+     * @param accountUpdate The entity containing the updated data.
+     * @return The updated Account entity.
+     */
     @Override
     public Account update(Account account, Account accountUpdate) {
         if (account != null && accountUpdate != null) {

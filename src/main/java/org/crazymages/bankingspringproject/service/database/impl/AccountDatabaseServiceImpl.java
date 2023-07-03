@@ -21,6 +21,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A service implementation for managing Account entities in the database.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,13 +36,23 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     private final ListValidator<Account> listValidator;
     private final EnumTypeMatcher enumTypeMatcher;
 
-
+    /**
+     * Creates a new Account entity in the database.
+     *
+     * @param account The Account entity to be created.
+     */
     @Override
     public void create(Account account) {
         accountRepository.save(account);
         log.info("account created");
     }
 
+    /**
+     * Creates a new Account entity in the database for the specified client.
+     *
+     * @param account    The Account entity to be created.
+     * @param clientUuid The UUID of the client associated with the account.
+     */
     @Override
     @Transactional
     public void create(Account account, UUID clientUuid) {
@@ -57,6 +70,13 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         agreementDatabaseService.create(agreement);
     }
 
+    /**
+     * Composes an Agreement entity based on the specified account UUID and product.
+     *
+     * @param accountUuid The UUID of the account.
+     * @param product     The Product entity.
+     * @return The composed Agreement entity.
+     */
     private Agreement composeAgreement(UUID accountUuid, Product product) {
         Agreement agreement = new Agreement();
         agreement.setAccountUuid(accountUuid);
@@ -67,6 +87,11 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return agreement;
     }
 
+    /**
+     * Retrieves a list of all Account entities from the database.
+     *
+     * @return A list of all Account entities.
+     */
     @Override
     public List<Account> findAll() {
         log.info("retrieving list of accounts");
@@ -74,6 +99,11 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return listValidator.validate(accounts);
     }
 
+    /**
+     * Retrieves a list of all non-deleted Account entities from the database.
+     *
+     * @return A list of non-deleted Account entities.
+     */
     @Override
     @Transactional
     public List<Account> findAllNotDeleted() {
@@ -82,6 +112,11 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return listValidator.validate(accounts);
     }
 
+    /**
+     * Retrieves a list of all deleted Account entities from the database.
+     *
+     * @return A list of deleted Account entities.
+     */
     @Override
     @Transactional
     public List<Account> findDeletedAccounts() {
@@ -90,6 +125,13 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return listValidator.validate(deletedAccounts);
     }
 
+    /**
+     * Retrieves an Account entity from the database by its UUID.
+     *
+     * @param uuid The UUID of the Account to retrieve.
+     * @return The Account entity with the specified UUID.
+     * @throws DataNotFoundException if no Account entity is found with the specified UUID.
+     */
     @Override
     public Account findById(UUID uuid) {
         log.info("retrieving account by id {}", uuid);
@@ -97,6 +139,12 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
+    /**
+     * Retrieves a list of Account entities from the database by their status.
+     *
+     * @param status The status of the Account entities to retrieve.
+     * @return A list of Account entities with the specified status.
+     */
     @Override
     @Transactional
     public List<Account> findAllByStatus(String status) {
@@ -105,9 +153,16 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return listValidator.validate(accounts);
     }
 
+    /**
+     * Updates an existing Account entity in the database.
+     *
+     * @param uuid           The UUID of the Account to update.
+     * @param updatedAccount The updated Account entity.
+     * @throws DataNotFoundException if no Account entity is found with the specified UUID.
+     */
     @Override
     @Transactional
-    public void update (UUID uuid, Account updatedAccount) {
+    public void update(UUID uuid, Account updatedAccount) {
         Account account = accountRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         account = accountUpdateService.update(account, updatedAccount);
@@ -115,6 +170,12 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         log.info("updated account id {}", uuid);
     }
 
+    /**
+     * Deletes an existing Account entity from the database.
+     *
+     * @param uuid The UUID of the Account to delete.
+     * @throws DataNotFoundException if no Account entity is found with the specified UUID.
+     */
     @Override
     @Transactional
     public void delete(UUID uuid) {
@@ -125,6 +186,11 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         log.info("deleted account id {}", uuid);
     }
 
+    /**
+     * Blocks all accounts associated with the specified client UUID.
+     *
+     * @param uuid The UUID of the client.
+     */
     @Override
     @Transactional
     public void blockAccountsByClientUuid(UUID uuid) {
@@ -132,6 +198,13 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         log.info("blocked account id {}", uuid);
     }
 
+    /**
+     * Retrieves a list of Account entities associated with the specified product UUID and status.
+     *
+     * @param uuid   The UUID of the product.
+     * @param status The status of the Account entities to retrieve.
+     * @return A list of Account entities with the specified product UUID and status.
+     */
     @Override
     @Transactional
     public List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
@@ -140,6 +213,12 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return listValidator.validate(accounts);
     }
 
+    /**
+     * Retrieves a list of Account entities associated with the specified client UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return A list of Account entities associated with the specified client UUID.
+     */
     @Override
     @Transactional
     public List<Account> findAllByClientId(UUID uuid) {
@@ -148,6 +227,13 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return listValidator.validate(accounts);
     }
 
+    /**
+     * Retrieves the current Account entity associated with the specified client UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return The current Account entity associated with the specified client UUID.
+     * @throws DataNotFoundException if no current Account entity is found for the client.
+     */
     @Override
     @Transactional
     public Account findCurrentByClientId(UUID uuid) {
@@ -156,6 +242,13 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
+    /**
+     * Retrieves the savings Account entity associated with the specified client UUID.
+     *
+     * @param uuid The UUID of the client.
+     * @return The savings Account entity associated with the specified client UUID.
+     * @throws DataNotFoundException if no savings Account entity is found for the client.
+     */
     @Override
     @Transactional
     public Account findSavingsByClientId(UUID uuid) {

@@ -20,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A service implementation for managing Product entities in the database.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,11 +33,17 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     private final ManagerDatabaseService managerDatabaseService;
     private final ListValidator<Product> listValidator;
 
+    /**
+     * Creates a new Product entity and saves it to the database.
+     * If the product's manager UUID is not set, it assigns the first active manager with the highest product quantity.
+     *
+     * @param product The Product entity to create.
+     */
     @Override
     @Transactional
     public void create(Product product) {
         if (product.getManagerUuid() == null) {
-            List<Manager> activeManagers = managerDatabaseService.findManagersSortedByProductQuantity(ManagerStatus.ACTIVE);
+            List<Manager> activeManagers = managerDatabaseService.findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
             Manager firstManager = managerDatabaseService.getFirstManager(activeManagers);
             product.setManagerUuid(firstManager.getUuid());
         }
@@ -42,6 +51,11 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("product created");
     }
 
+    /**
+     * Retrieves a list of all Product entities from the database.
+     *
+     * @return A list of all Product entities.
+     */
     @Override
     public List<Product> findAll() {
         log.info("retrieving list of products");
@@ -49,6 +63,11 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         return listValidator.validate(products);
     }
 
+    /**
+     * Retrieves a list of all not deleted Product entities from the database.
+     *
+     * @return A list of all not deleted Product entities.
+     */
     @Override
     @Transactional
     public List<Product> findAllNotDeleted() {
@@ -57,6 +76,11 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         return listValidator.validate(products);
     }
 
+    /**
+     * Retrieves a list of all deleted Product entities from the database.
+     *
+     * @return A list of all deleted Product entities.
+     */
     @Override
     @Transactional
     public List<Product> findDeletedProducts() {
@@ -65,6 +89,13 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         return listValidator.validate(deletedProducts);
     }
 
+    /**
+     * Retrieves a Product entity from the database by its UUID.
+     *
+     * @param uuid The UUID of the Product entity to retrieve.
+     * @return The Product entity with the specified UUID.
+     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
+     */
     @Override
     public Product findById(UUID uuid) {
         log.info("retrieving product by id {}", uuid);
@@ -72,6 +103,15 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
+    /**
+     * Retrieves a Product entity from the database by its type, status, and currency code.
+     *
+     * @param type         The type of the Product entity to retrieve.
+     * @param status       The status of the Product entity to retrieve.
+     * @param currencyCode The currency code of the Product entity to retrieve.
+     * @return The Product entity with the specified type, status, and currency code.
+     * @throws DataNotFoundException if no Product entity is found with the specified type, status, and currency code.
+     */
     @Override
     public Product findProductByTypeAndStatusAndCurrencyCode(ProductType type, ProductStatus status, CurrencyCode currencyCode) {
         log.info("retrieving product by type {}", type);
@@ -80,6 +120,13 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(type)));
     }
 
+    /**
+     * Updates a Product entity in the database with the provided UUID.
+     *
+     * @param uuid          The UUID of the Product entity to update.
+     * @param productUpdate The updated Product entity.
+     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
+     */
     @Override
     @Transactional
     public void update(UUID uuid, Product productUpdate) {
@@ -90,6 +137,12 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("updated product id {}", uuid);
     }
 
+    /**
+     * Deletes a Product entity from the database with the provided UUID.
+     *
+     * @param uuid The UUID of the Product entity to delete.
+     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
+     */
     @Override
     @Transactional
     public void delete(UUID uuid) {
@@ -100,3 +153,4 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("deleted product id {}", uuid);
     }
 }
+
