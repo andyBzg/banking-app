@@ -14,6 +14,9 @@ import org.crazymages.bankingspringproject.service.database.ManagerDatabaseServi
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +44,11 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
     public void create(Product product) {
         if (product.getManagerUuid() == null) {
-            List<Manager> activeManagers = managerDatabaseService.findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
+            List<Manager> activeManagers = managerDatabaseService
+                    .findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
             Manager firstManager = managerDatabaseService.getFirstManager(activeManagers);
             product.setManagerUuid(firstManager.getUuid());
         }
@@ -70,6 +75,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
      */
     @Override
     @Transactional
+    @Cacheable(value = "productsList")
     public List<Product> findAllNotDeleted() {
         log.info("retrieving list of not deleted products");
         List<Product> products = productRepository.findAllNotDeleted();
@@ -83,6 +89,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
      */
     @Override
     @Transactional
+    @Cacheable(value = "deletedProducts")
     public List<Product> findDeletedProducts() {
         log.info("retrieving list of deleted products");
         List<Product> deletedProducts = productRepository.findAllDeleted();
@@ -97,6 +104,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
      * @throws DataNotFoundException if no Product entity is found with the specified UUID.
      */
     @Override
+    @Cacheable(value = "productsCache", key = "#uuid")
     public Product findById(UUID uuid) {
         log.info("retrieving product by id {}", uuid);
         return productRepository.findById(uuid)
@@ -129,6 +137,8 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
      */
     @Override
     @Transactional
+    @CachePut(value = "productsCache", key = "#uuid")
+    @CacheEvict(value = "productsList", allEntries = true)
     public void update(UUID uuid, Product productUpdate) {
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
@@ -145,6 +155,8 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
      */
     @Override
     @Transactional
+    @CachePut(value = "deletedProducts", key = "#uuid")
+    @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
     public void delete(UUID uuid) {
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
