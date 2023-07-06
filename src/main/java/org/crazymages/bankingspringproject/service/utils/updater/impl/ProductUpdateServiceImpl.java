@@ -11,14 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductUpdateServiceImpl implements EntityUpdateService<Product> {
 
-    /**
-     * Updates the given Product entity with the provided Product update.
-     * Only non-null fields in the Product update will be applied to the original Product.
-     *
-     * @param product The existing entity to be updated.
-     * @param productUpdate The entity containing the updated data.
-     * @return The updated Product entity.
-     */
     @Override
     public Product update(Product product, Product productUpdate) {
         if (product != null && productUpdate != null) {

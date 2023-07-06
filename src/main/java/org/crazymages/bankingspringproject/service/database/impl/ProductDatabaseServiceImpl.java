@@ -13,13 +13,13 @@ import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
-import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,14 +34,8 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     private final ProductRepository productRepository;
     private final EntityUpdateService<Product> productUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
-    private final ListValidator<Product> listValidator;
 
-    /**
-     * Creates a new Product entity and saves it to the database.
-     * If the product's manager UUID is not set, it assigns the first active manager with the highest product quantity.
-     *
-     * @param product The Product entity to create.
-     */
+
     @Override
     @Transactional
     @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
@@ -56,54 +50,34 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("product created");
     }
 
-    /**
-     * Retrieves a list of all Product entities from the database.
-     *
-     * @return A list of all Product entities.
-     */
     @Override
+    @Transactional
     public List<Product> findAll() {
         log.info("retrieving list of products");
         List<Product> products = productRepository.findAll();
-        return listValidator.validate(products);
+        return checkListForNull(products);
     }
 
-    /**
-     * Retrieves a list of all not deleted Product entities from the database.
-     *
-     * @return A list of all not deleted Product entities.
-     */
     @Override
     @Transactional
     @Cacheable(value = "productsList")
     public List<Product> findAllNotDeleted() {
         log.info("retrieving list of not deleted products");
         List<Product> products = productRepository.findAllNotDeleted();
-        return listValidator.validate(products);
+        return checkListForNull(products);
     }
 
-    /**
-     * Retrieves a list of all deleted Product entities from the database.
-     *
-     * @return A list of all deleted Product entities.
-     */
     @Override
     @Transactional
     @Cacheable(value = "deletedProducts")
     public List<Product> findDeletedProducts() {
         log.info("retrieving list of deleted products");
         List<Product> deletedProducts = productRepository.findAllDeleted();
-        return listValidator.validate(deletedProducts);
+        return checkListForNull(deletedProducts);
     }
 
-    /**
-     * Retrieves a Product entity from the database by its UUID.
-     *
-     * @param uuid The UUID of the Product entity to retrieve.
-     * @return The Product entity with the specified UUID.
-     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
-     */
     @Override
+    @Transactional
     @Cacheable(value = "productsCache", key = "#uuid")
     public Product findById(UUID uuid) {
         log.info("retrieving product by id {}", uuid);
@@ -111,16 +85,8 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
-    /**
-     * Retrieves a Product entity from the database by its type, status, and currency code.
-     *
-     * @param type         The type of the Product entity to retrieve.
-     * @param status       The status of the Product entity to retrieve.
-     * @param currencyCode The currency code of the Product entity to retrieve.
-     * @return The Product entity with the specified type, status, and currency code.
-     * @throws DataNotFoundException if no Product entity is found with the specified type, status, and currency code.
-     */
     @Override
+    @Transactional
     public Product findProductByTypeAndStatusAndCurrencyCode(ProductType type, ProductStatus status, CurrencyCode currencyCode) {
         log.info("retrieving product by type {}", type);
         return productRepository
@@ -128,13 +94,6 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(type)));
     }
 
-    /**
-     * Updates a Product entity in the database with the provided UUID.
-     *
-     * @param uuid          The UUID of the Product entity to update.
-     * @param productUpdate The updated Product entity.
-     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
-     */
     @Override
     @Transactional
     @CachePut(value = "productsCache", key = "#uuid")
@@ -147,12 +106,6 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("updated product id {}", uuid);
     }
 
-    /**
-     * Deletes a Product entity from the database with the provided UUID.
-     *
-     * @param uuid The UUID of the Product entity to delete.
-     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
-     */
     @Override
     @Transactional
     @CachePut(value = "deletedProducts", key = "#uuid")
@@ -163,6 +116,10 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         product.setDeleted(true);
         productRepository.save(product);
         log.info("deleted product id {}", uuid);
+    }
+
+    private List<Product> checkListForNull(List<Product> list) {
+        return list == null ? Collections.emptyList() : list;
     }
 }
 

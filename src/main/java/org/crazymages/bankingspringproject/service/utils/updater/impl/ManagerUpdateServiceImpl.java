@@ -11,14 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ManagerUpdateServiceImpl implements EntityUpdateService<Manager> {
 
-    /**
-     * Updates the given Manager entity with the provided Manager update.
-     * Only non-null fields in the Manager update will be applied to the original Manager.
-     *
-     * @param manager The existing entity to be updated.
-     * @param managerUpdate The entity containing the updated data.
-     * @return The updated Manager entity.
-     */
     @Override
     public Manager update(Manager manager, Manager managerUpdate) {
         if (manager != null && managerUpdate != null) {

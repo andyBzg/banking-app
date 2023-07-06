@@ -11,14 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientUpdateServiceImpl implements EntityUpdateService<Client> {
 
-    /**
-     * Updates the given Client entity with the provided Client update.
-     * Only non-null fields in the Client update will be applied to the original Client.
-     *
-     * @param client The existing entity to be updated.
-     * @param clientUpdate The entity containing the updated data.
-     * @return The updated Client entity.
-     */
     @Override
     public Client update(Client client, Client clientUpdate) {
         if (client != null && clientUpdate != null) {

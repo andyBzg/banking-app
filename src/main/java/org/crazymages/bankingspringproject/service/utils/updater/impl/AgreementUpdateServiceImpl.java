@@ -11,14 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement> {
 
-    /**
-     * Updates the given Agreement entity with the provided Agreement update.
-     * Only non-null fields in the Agreement update will be applied to the original Agreement.
-     *
-     * @param agreement The existing entity to be updated.
-     * @param agreementUpdate The entity containing the updated data.
-     * @return The updated Agreement entity.
-     */
     @Override
     public Agreement update(Agreement agreement, Agreement agreementUpdate) {
         if (agreement != null && agreementUpdate != null) {

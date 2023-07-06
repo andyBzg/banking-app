@@ -7,7 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -47,11 +46,4 @@ public class Manager {
 
     @Column(name = "description")
     private String description;
-
-
-//    @OneToMany(mappedBy = "manager")
-//    private List<Product> products;
-//
-//    @OneToMany(mappedBy = "manager")
-//    private List<Client> clients;
 }

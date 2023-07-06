@@ -31,15 +31,14 @@ public class Account {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
-    @UpdateTimestamp //рассмотреть обычный способ создания временной метки
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-//    @ManyToOne
-    @JoinColumn(name = "client_uuid")
+    @Column(name = "client_uuid")
     private UUID clientUuid;
 
     @Column(name = "name", length = 100)
@@ -59,14 +58,4 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
-
-
-//    @OneToMany(mappedBy = "account")
-//    private List<Agreement> agreements;
-//
-//    @OneToMany(mappedBy = "debitAccount")
-//    private List<Transaction> debitTransactions;
-//
-//    @OneToMany(mappedBy = "creditAccount")
-//    private List<Transaction> creditTransactions;
 }

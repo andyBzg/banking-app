@@ -7,7 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -35,8 +34,7 @@ public class Client {
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-//    @ManyToOne
-    @JoinColumn(name = "manager_uuid")
+    @Column(name = "manager_uuid")
     private UUID managerUuid;
 
     @Enumerated(EnumType.STRING)
@@ -60,8 +58,4 @@ public class Client {
 
     @Column(name = "phone", length = 20)
     private String phone;
-
-
-//    @OneToMany(mappedBy = "client")
-//    private List<Account> accounts;
 }
