@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.entity.Account;
+import org.crazymages.bankingspringproject.dto.AccountDTO;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.exception.TransactionNotAllowedException;
@@ -87,8 +87,8 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     @Transactional
     public void transferFunds(Transaction transaction) {
         BigDecimal amount = transaction.getAmount();
-        Account senderAccount = accountDatabaseService.findById(transaction.getDebitAccountUuid());
-        Account recipientAccount = accountDatabaseService.findById(transaction.getCreditAccountUuid());
+        AccountDTO senderAccount = accountDatabaseService.findById(transaction.getDebitAccountUuid());
+        AccountDTO recipientAccount = accountDatabaseService.findById(transaction.getCreditAccountUuid());
         boolean senderStatus = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
         boolean recipientStatus = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
 

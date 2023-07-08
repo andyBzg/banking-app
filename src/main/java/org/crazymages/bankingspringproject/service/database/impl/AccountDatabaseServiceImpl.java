@@ -2,23 +2,22 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.entity.Account;
-import org.crazymages.bankingspringproject.entity.Agreement;
-import org.crazymages.bankingspringproject.entity.Product;
+import org.crazymages.bankingspringproject.dto.AccountDTO;
+import org.crazymages.bankingspringproject.entity.*;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.converter.EnumTypeMatcher;
+import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
+import org.crazymages.bankingspringproject.service.utils.mapper.AccountDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A service implementation for managing Account entities in the database.
@@ -32,92 +31,74 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     private final EntityUpdateService<Account> accountUpdateService;
     private final ProductDatabaseService productDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
-    private final EnumTypeMatcher enumTypeMatcher;
+    private final AgreementCreator agreementCreator;
+    private final ProductTypeMatcher productTypeMatcher;
+    private final AccountDTOMapper accountDTOMapper;
 
 
     @Override
     @Transactional
-    public void create(Account account) {
+    public void create(AccountDTO accountDTO) {
+        Account account = accountDTOMapper.mapToAccount(accountDTO);
         accountRepository.save(account);
         log.info("account created");
     }
 
     @Override
     @Transactional
-    public void create(Account account, UUID clientUuid) {
-        CurrencyCode currencyCode = account.getCurrencyCode();
+    public void create(AccountDTO accountDTO, UUID clientUuid) {
+        CurrencyCode currencyCode = accountDTO.getCurrencyCode();
         ProductStatus status = ProductStatus.ACTIVE;
-        ProductType type = enumTypeMatcher.matchTypes(account.getType());
+        ProductType type = productTypeMatcher.matchTypes(accountDTO.getType());
         Product product = productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
 
+        Account account = accountDTOMapper.mapToAccount(accountDTO);
         account.setClientUuid(clientUuid);
         account.setStatus(AccountStatus.PENDING);
         accountRepository.save(account);
 
         UUID accountUuid = account.getUuid();
-        Agreement agreement = composeAgreement(accountUuid, product);
+        Agreement agreement = agreementCreator.apply(accountUuid, product);
         agreementDatabaseService.create(agreement);
     }
 
-    /**
-     * Composes an Agreement entity based on the specified account UUID and product.
-     *
-     * @param accountUuid The UUID of the account.
-     * @param product     The Product entity.
-     * @return The composed Agreement entity.
-     */
-    private Agreement composeAgreement(UUID accountUuid, Product product) {
-        Agreement agreement = new Agreement();
-        agreement.setAccountUuid(accountUuid);
-        agreement.setProductUuid(product.getUuid());
-        agreement.setInterestRate(product.getInterestRate());
-        agreement.setStatus(AgreementStatus.PENDING);
-        return agreement;
-    }
-
     @Override
     @Transactional
-    public List<Account> findAll() {
-        log.info("retrieving list of accounts");
-        List<Account> accounts = accountRepository.findAll();
-        return checkListForNull(accounts);
-    }
-
-    @Override
-    @Transactional
-    public List<Account> findAllNotDeleted() {
+    public List<AccountDTO> findAllNotDeleted() {
         log.info("retrieving list of accounts");
         List<Account> accounts = accountRepository.findAllNotDeleted();
-        return checkListForNull(accounts);
+        return accountDTOMapper.getListOfAccountDTOs(accounts);
     }
 
     @Override
     @Transactional
-    public List<Account> findDeletedAccounts() {
+    public List<AccountDTO> findDeletedAccounts() {
         log.info("retrieving list of deleted accounts");
-        List<Account> deletedAccounts = accountRepository.findAllDeleted();
-        return checkListForNull(deletedAccounts);
+        List<Account> accounts = accountRepository.findAllDeleted();
+        return accountDTOMapper.getListOfAccountDTOs(accounts);
     }
 
     @Override
     @Transactional
-    public Account findById(UUID uuid) {
+    public AccountDTO findById(UUID uuid) {
         log.info("retrieving account by id {}", uuid);
-        return accountRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        return accountDTOMapper.mapToAccountDTO(
+                accountRepository.findById(uuid)
+                        .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
     @Override
     @Transactional
-    public List<Account> findAllByStatus(String status) {
+    public List<AccountDTO> findAllByStatus(String status) {
         log.info("retrieving list of accounts by status {}", status);
         List<Account> accounts = accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
-        return checkListForNull(accounts);
+        return accountDTOMapper.getListOfAccountDTOs(accounts);
     }
 
     @Override
     @Transactional
-    public void update(UUID uuid, Account updatedAccount) {
+    public void update(UUID uuid, AccountDTO updatedAccountDTO) {
+        Account updatedAccount = accountDTOMapper.mapToAccount(updatedAccountDTO);
         Account account = accountRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         account = accountUpdateService.update(account, updatedAccount);
@@ -144,18 +125,18 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     @Override
     @Transactional
-    public List<Account> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
+    public List<AccountDTO> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
         log.info("retrieving list of accounts by product id {} and product status {}", uuid, status);
         List<Account> accounts = accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
-        return checkListForNull(accounts);
+        return accountDTOMapper.getListOfAccountDTOs(accounts);
     }
 
     @Override
     @Transactional
-    public List<Account> findAllByClientId(UUID uuid) {
+    public List<AccountDTO> findAllByClientId(UUID uuid) {
         log.info("retrieving list of accounts by client id {}", uuid);
         List<Account> accounts = accountRepository.findAccountsByClientUuid(uuid);
-        return checkListForNull(accounts);
+        return accountDTOMapper.getListOfAccountDTOs(accounts);
     }
 
     @Override
@@ -172,9 +153,5 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         log.info("retrieving SAVINGS account by id {}", uuid);
         return accountRepository.findAccountByClientUuidAndType(uuid, AccountType.SAVINGS)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-    }
-
-    private List<Account> checkListForNull(List<Account> list) {
-        return list == null ? Collections.emptyList() : list;
     }
 }

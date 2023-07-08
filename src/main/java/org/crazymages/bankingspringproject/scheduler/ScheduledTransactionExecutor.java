@@ -7,11 +7,11 @@ import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
-import org.crazymages.bankingspringproject.entity.enums.TransactionType;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.creator.TransactionCreator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +30,7 @@ public class ScheduledTransactionExecutor {
     private final TransactionDatabaseService transactionDatabaseService;
     private final AccountDatabaseService accountDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
+    private final TransactionCreator transactionCreator;
 
     /**
      * Executes recurring transactions based on a scheduled cron expression.
@@ -65,25 +66,8 @@ public class ScheduledTransactionExecutor {
         Account currentAccount = accountDatabaseService.findCurrentByClientId(client.getUuid());
         Account savingsAccount = accountDatabaseService.findSavingsByClientId(client.getUuid());
         Agreement agreement = agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid());
-        Transaction transaction = createTransaction(currentAccount, savingsAccount);
+        Transaction transaction = transactionCreator.apply(currentAccount, savingsAccount);
         transaction.setAmount(agreement.getAmount());
         transactionDatabaseService.transferFunds(transaction);
-    }
-
-    /**
-     * Creates a new transaction with the specified debit and credit accounts.
-     *
-     * @param current The debit account
-     * @param savings The credit account
-     * @return The created transaction
-     */
-    public Transaction createTransaction(Account current, Account savings) {
-        Transaction transaction = new Transaction();
-        transaction.setDebitAccountUuid(current.getUuid());
-        transaction.setCreditAccountUuid(savings.getUuid());
-        transaction.setType(TransactionType.RECURRING_PAYMENT);
-        transaction.setCurrencyCode(current.getCurrencyCode());
-        transaction.setDescription("Recurring payment");
-        return transaction;
     }
 }

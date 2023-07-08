@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.utils.converter;
+package org.crazymages.bankingspringproject.service.utils.matcher;
 
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * It matches an account type to a corresponding product type.
  */
 @Component
-public class EnumTypeMatcher {
+public class ProductTypeMatcher {
 
     /**
      * Matches an account type to a corresponding product type.
