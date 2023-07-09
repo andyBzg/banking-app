@@ -3,16 +3,16 @@ package org.crazymages.bankingspringproject.service.utils.mapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.dto.AccountDTO;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Service class that provides mapping functionality between Account and AccountDTO objects.
+ * Component class that provides mapping functionality between Account and AccountDTO objects.
  */
-@Service
+@Component
 public class AccountDTOMapper {
 
     /**
