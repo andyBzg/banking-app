@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crazymages.bankingspringproject.entity.Manager;
+import org.crazymages.bankingspringproject.dto.ManagerDTO;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +22,13 @@ public class ManagerController {
     /**
      * Creates a new manager.
      *
-     * @param manager The manager to create.
+     * @param managerDTO The manager to create.
      * @return The created manager.
      */
     @PostMapping(value = "/manager/create")
-    public ResponseEntity<Manager> createManager(@RequestBody Manager manager) {
-        managerDatabaseService.create(manager);
-        return ResponseEntity.status(HttpStatus.CREATED).body(manager);
+    public ResponseEntity<ManagerDTO> createManager(@RequestBody ManagerDTO managerDTO) {
+        managerDatabaseService.create(managerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(managerDTO);
     }
 
     /**
@@ -37,8 +37,8 @@ public class ManagerController {
      * @return The list of managers.
      */
     @GetMapping(value = "/manager/find/all")
-    public ResponseEntity<List<Manager>> findAllManagers() {
-        List<Manager> managerList = managerDatabaseService.findAllNotDeleted();
+    public ResponseEntity<List<ManagerDTO>> findAllManagers() {
+        List<ManagerDTO> managerList = managerDatabaseService.findAllNotDeleted();
         return managerList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(managerList);
     }
 
@@ -49,22 +49,23 @@ public class ManagerController {
      * @return The manager.
      */
     @GetMapping(value = "/manager/find/{uuid}")
-    public ResponseEntity<Manager> findManagerByUuid(@PathVariable UUID uuid) {
-        Manager manager = managerDatabaseService.findById(uuid);
-        return ResponseEntity.ok(manager);
+    public ResponseEntity<ManagerDTO> findManagerByUuid(@PathVariable UUID uuid) {
+        ManagerDTO managerDTO = managerDatabaseService.findById(uuid);
+        return ResponseEntity.ok(managerDTO);
     }
 
     /**
      * Updates an existing manager.
      *
-     * @param uuid           The UUID of the manager to update.
-     * @param updatedManager The updated manager.
+     * @param uuid              The UUID of the manager to update.
+     * @param updatedManagerDTO The updated manager.
      * @return The updated manager.
      */
     @PutMapping(value = "/manager/update/{uuid}")
-    public ResponseEntity<Manager> updateManager(@PathVariable UUID uuid, @RequestBody Manager updatedManager) {
-        managerDatabaseService.update(uuid, updatedManager);
-        return ResponseEntity.ok(updatedManager);
+    public ResponseEntity<ManagerDTO> updateManager(
+            @PathVariable UUID uuid, @RequestBody ManagerDTO updatedManagerDTO) {
+        managerDatabaseService.update(uuid, updatedManagerDTO);
+        return ResponseEntity.ok(updatedManagerDTO);
     }
 
     /**

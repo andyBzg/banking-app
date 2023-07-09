@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.entity.Transaction;
+import org.crazymages.bankingspringproject.dto.TransactionDTO;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +24,14 @@ public class TransactionController {
     /**
      * Creates a new transaction.
      *
-     * @param transaction The transaction to create.
+     * @param transactionDTO The transaction to create.
      * @return The created transaction.
      */
     @PostMapping(value = "/transaction/create")
-    public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction) {
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
         log.info("endpoint request: create transaction");
-        transactionDatabaseService.create(transaction);
-        return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
+        transactionDatabaseService.create(transactionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionDTO);
     }
 
     /**
@@ -40,10 +40,10 @@ public class TransactionController {
      * @return The list of transactions.
      */
     @GetMapping(value = "/transaction/find/all")
-    public ResponseEntity<List<Transaction>> findAllTransactions() {
+    public ResponseEntity<List<TransactionDTO>> findAllTransactions() {
         log.info("endpoint request: find all transactions");
-        List<Transaction> transactionList = transactionDatabaseService.findAll();
-        return createResponseEntity(transactionList);
+        List<TransactionDTO> transactionList = transactionDatabaseService.findAll();
+        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
     }
 
     /**
@@ -53,9 +53,9 @@ public class TransactionController {
      * @return The transaction.
      */
     @GetMapping(value = "/transaction/find/{uuid}")
-    public ResponseEntity<Transaction> findTransactionByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<TransactionDTO> findTransactionByUuid(@PathVariable UUID uuid) {
         log.info("endpoint request: find transaction by uuid {}", uuid);
-        Transaction transaction = transactionDatabaseService.findById(uuid);
+        TransactionDTO transaction = transactionDatabaseService.findById(uuid);
         return ResponseEntity.ok(transaction);
     }
 
@@ -66,10 +66,10 @@ public class TransactionController {
      * @return The list of outgoing transactions.
      */
     @GetMapping(value = "/transaction/find/outgoing/{uuid}")
-    public ResponseEntity<List<Transaction>> findOutgoingTransactions(@PathVariable UUID uuid) {
+    public ResponseEntity<List<TransactionDTO>> findOutgoingTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
-        List<Transaction> transactionList = transactionDatabaseService.findOutgoingTransactions(uuid);
-        return createResponseEntity(transactionList);
+        List<TransactionDTO> transactionList = transactionDatabaseService.findOutgoingTransactions(uuid);
+        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
     }
 
     /**
@@ -79,22 +79,22 @@ public class TransactionController {
      * @return The list of incoming transactions.
      */
     @GetMapping(value = "/transaction/find/incoming/{uuid}")
-    public ResponseEntity<List<Transaction>> findIncomingTransactions(@PathVariable UUID uuid) {
+    public ResponseEntity<List<TransactionDTO>> findIncomingTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
-        List<Transaction> transactionList = transactionDatabaseService.findIncomingTransactions(uuid);
-        return createResponseEntity(transactionList);
+        List<TransactionDTO> transactionList = transactionDatabaseService.findIncomingTransactions(uuid);
+        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
     }
 
     /**
      * Transfers funds between accounts.
      *
-     * @param transaction The transaction containing the transfer details.
+     * @param transactionDTO The transaction containing the transfer details.
      * @return A response indicating the success of the operation.
      */
     @PostMapping(value = "/transaction/transfer/")
-    public ResponseEntity<String> transferFunds(@RequestBody Transaction transaction) {
+    public ResponseEntity<String> transferFunds(@RequestBody TransactionDTO transactionDTO) {
         log.info("endpoint request: execute money transfer");
-        transactionDatabaseService.transferFunds(transaction);
+        transactionDatabaseService.transferFunds(transactionDTO);
         return ResponseEntity.ok().build();
     }
 
@@ -105,10 +105,10 @@ public class TransactionController {
      * @return The list of transactions.
      */
     @GetMapping(value = "/transaction/find-all-by-client/{uuid}")
-    public ResponseEntity<List<Transaction>> findAllTransactions(@PathVariable UUID uuid) {
+    public ResponseEntity<List<TransactionDTO>> findAllTransactions(@PathVariable UUID uuid) {
         log.info("endpoint request: find all transactions by client id {}", uuid);
-        List<Transaction> transactionList = transactionDatabaseService.findAllTransactionsByClientId(uuid);
-        return createResponseEntity(transactionList);
+        List<TransactionDTO> transactionList = transactionDatabaseService.findAllTransactionsByClientId(uuid);
+        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
     }
 
     /**
@@ -120,11 +120,11 @@ public class TransactionController {
      * @return The transaction statement.
      */
     @GetMapping(value = "/transaction/get/client/{uuid}/statement")
-    public ResponseEntity<List<Transaction>> getTransactionStatement(
+    public ResponseEntity<List<TransactionDTO>> getTransactionStatement(
             @PathVariable("uuid") UUID uuid,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
-        List<Transaction> statement = transactionDatabaseService
+        List<TransactionDTO> statement = transactionDatabaseService
                 .findTransactionsByClientIdBetweenDates(uuid, startDate, endDate);
         return ResponseEntity.ok(statement);
     }
@@ -137,22 +137,11 @@ public class TransactionController {
      * @return The transaction statement.
      */
     @GetMapping(value = "/transaction/get/statement")
-    public ResponseEntity<List<Transaction>> getTransactionStatement(
+    public ResponseEntity<List<TransactionDTO>> getTransactionStatement(
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
-        List<Transaction> statement = transactionDatabaseService
+        List<TransactionDTO> statement = transactionDatabaseService
                 .findTransactionsBetweenDates(startDate, endDate);
         return ResponseEntity.ok(statement);
-    }
-
-    /**
-     * Creates a response entity for the given transaction list.
-     * If the list is empty, returns a no content response, otherwise returns the transaction list.
-     *
-     * @param transactionList The list of transactions.
-     * @return The response entity.
-     */
-    private ResponseEntity<List<Transaction>> createResponseEntity(List<Transaction> transactionList) {
-        return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
     }
 }

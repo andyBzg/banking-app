@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.dto.ProductDTO;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -12,6 +13,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.mapper.ProductDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -19,7 +21,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,12 +35,14 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     private final ProductRepository productRepository;
     private final EntityUpdateService<Product> productUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
+    private final ProductDTOMapper productDTOMapper;
 
 
     @Override
     @Transactional
     @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
-    public void create(Product product) {
+    public void create(ProductDTO productDTO) {
+        Product product = productDTOMapper.mapToProduct(productDTO);
         if (product.getManagerUuid() == null) {
             List<Manager> activeManagers = managerDatabaseService
                     .findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
@@ -52,37 +55,38 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     @Override
     @Transactional
-    public List<Product> findAll() {
+    public List<ProductDTO> findAll() {
         log.info("retrieving list of products");
         List<Product> products = productRepository.findAll();
-        return checkListForNull(products);
+        return productDTOMapper.getListOfProductDTOs(products);
     }
 
     @Override
     @Transactional
     @Cacheable(value = "productsList")
-    public List<Product> findAllNotDeleted() {
+    public List<ProductDTO> findAllNotDeleted() {
         log.info("retrieving list of not deleted products");
         List<Product> products = productRepository.findAllNotDeleted();
-        return checkListForNull(products);
+        return productDTOMapper.getListOfProductDTOs(products);
     }
 
     @Override
     @Transactional
     @Cacheable(value = "deletedProducts")
-    public List<Product> findDeletedProducts() {
+    public List<ProductDTO> findDeletedProducts() {
         log.info("retrieving list of deleted products");
         List<Product> deletedProducts = productRepository.findAllDeleted();
-        return checkListForNull(deletedProducts);
+        return productDTOMapper.getListOfProductDTOs(deletedProducts);
     }
 
     @Override
     @Transactional
     @Cacheable(value = "productsCache", key = "#uuid")
-    public Product findById(UUID uuid) {
+    public ProductDTO findById(UUID uuid) {
         log.info("retrieving product by id {}", uuid);
-        return productRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        return productDTOMapper.mapToProductDTO(
+                productRepository.findById(uuid)
+                        .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
     @Override
@@ -98,7 +102,8 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     @Transactional
     @CachePut(value = "productsCache", key = "#uuid")
     @CacheEvict(value = "productsList", allEntries = true)
-    public void update(UUID uuid, Product productUpdate) {
+    public void update(UUID uuid, ProductDTO productDTOUpdate) {
+        Product productUpdate = productDTOMapper.mapToProduct(productDTOUpdate);
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         product = productUpdateService.update(product, productUpdate);
@@ -116,10 +121,6 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         product.setDeleted(true);
         productRepository.save(product);
         log.info("deleted product id {}", uuid);
-    }
-
-    private List<Product> checkListForNull(List<Product> list) {
-        return list == null ? Collections.emptyList() : list;
     }
 }
 
