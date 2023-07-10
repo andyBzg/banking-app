@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.AccountDTO;
+import org.crazymages.bankingspringproject.dto.AgreementDTO;
 import org.crazymages.bankingspringproject.entity.*;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
@@ -12,6 +13,7 @@ import org.crazymages.bankingspringproject.service.database.AgreementDatabaseSer
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
 import org.crazymages.bankingspringproject.service.utils.mapper.AccountDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.AgreementDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
@@ -28,12 +30,13 @@ import java.util.*;
 public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     private final AccountRepository accountRepository;
+    private final AccountDTOMapper accountDTOMapper;
     private final EntityUpdateService<Account> accountUpdateService;
     private final ProductDatabaseService productDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
     private final AgreementCreator agreementCreator;
+    private final AgreementDTOMapper agreementDTOMapper;
     private final ProductTypeMatcher productTypeMatcher;
-    private final AccountDTOMapper accountDTOMapper;
 
 
     @Override
@@ -59,7 +62,8 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
         UUID accountUuid = account.getUuid();
         Agreement agreement = agreementCreator.apply(accountUuid, product);
-        agreementDatabaseService.create(agreement);
+        AgreementDTO agreementDTO = agreementDTOMapper.mapToAgreementDTO(agreement);
+        agreementDatabaseService.create(agreementDTO);
     }
 
     @Override

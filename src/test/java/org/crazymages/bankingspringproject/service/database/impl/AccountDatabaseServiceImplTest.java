@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.AccountDTO;
+import org.crazymages.bankingspringproject.dto.AgreementDTO;
 import org.crazymages.bankingspringproject.entity.*;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
@@ -9,6 +10,7 @@ import org.crazymages.bankingspringproject.service.database.AgreementDatabaseSer
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
 import org.crazymages.bankingspringproject.service.utils.mapper.AccountDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.AgreementDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,8 @@ class AccountDatabaseServiceImplTest {
     @Mock
     AccountRepository accountRepository;
     @Mock
+    AccountDTOMapper accountDTOMapper;
+    @Mock
     EntityUpdateService<Account> accountUpdateService;
     @Mock
     ProductDatabaseService productDatabaseService;
@@ -40,9 +44,9 @@ class AccountDatabaseServiceImplTest {
     @Mock
     AgreementCreator agreementCreator;
     @Mock
-    ProductTypeMatcher productTypeMatcher;
+    AgreementDTOMapper agreementDTOMapper;
     @Mock
-    AccountDTOMapper accountDTOMapper;
+    ProductTypeMatcher productTypeMatcher;
 
     @InjectMocks
     AccountDatabaseServiceImpl accountDatabaseService;
@@ -101,11 +105,13 @@ class AccountDatabaseServiceImplTest {
         ProductType type = productTypeMatcher.matchTypes(accountDto1.getType());
         Product product = new Product();
         Agreement agreement = new Agreement();
+        AgreementDTO agreementDTO = new AgreementDTO();
 
         when(accountDTOMapper.mapToAccount(accountDto1)).thenReturn(account1);
         when(accountRepository.save(account1)).thenReturn(account1);
         when(productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode)).thenReturn(product);
         when(agreementCreator.apply(account1.getUuid(), product)).thenReturn(agreement);
+        when(agreementDTOMapper.mapToAgreementDTO(agreement)).thenReturn(agreementDTO);
 
 
         // when
@@ -117,7 +123,7 @@ class AccountDatabaseServiceImplTest {
         verify(accountRepository).save(account1);
         verify(productDatabaseService).findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
         verify(agreementCreator).apply(account1.getUuid(), product);
-        verify(agreementDatabaseService).create(agreement);
+        verify(agreementDatabaseService).create(agreementDTO);
     }
 
     @Test
