@@ -17,4 +17,12 @@ public interface EntityUpdateService<E> {
       */
      E update(E existing, E update);
 
+     /**
+
+      Updates the properties of an existing entity with new data.
+      @param existing The existing entity whose properties need to be updated.
+      @param update The entity containing the updated property values.
+      */
+     void updateProperties(E existing, E update);
+
 }

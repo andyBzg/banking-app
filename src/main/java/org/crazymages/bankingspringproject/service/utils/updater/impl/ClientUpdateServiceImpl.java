@@ -14,31 +14,36 @@ public class ClientUpdateServiceImpl implements EntityUpdateService<Client> {
     @Override
     public Client update(Client client, Client clientUpdate) {
         if (client != null && clientUpdate != null) {
-            if (clientUpdate.getManagerUuid() != null) {
-                client.setManagerUuid(clientUpdate.getManagerUuid());
-            }
-            if (clientUpdate.getStatus() != null) {
-                client.setStatus(clientUpdate.getStatus());
-            }
-            if (clientUpdate.getTaxCode() != null) {
-                client.setTaxCode(clientUpdate.getTaxCode());
-            }
-            if (clientUpdate.getFirstName() != null) {
-                client.setFirstName(clientUpdate.getFirstName());
-            }
-            if (clientUpdate.getLastName() != null) {
-                client.setLastName(clientUpdate.getLastName());
-            }
-            if (clientUpdate.getEmail() != null) {
-                client.setEmail(clientUpdate.getEmail());
-            }
-            if (clientUpdate.getAddress() != null) {
-                client.setAddress(clientUpdate.getAddress());
-            }
-            if (clientUpdate.getPhone() != null) {
-                client.setPhone(clientUpdate.getPhone());
-            }
+            updateProperties(client, clientUpdate);
         }
         return client;
+    }
+
+    @Override
+    public void updateProperties(Client client, Client clientUpdate) {
+        if (clientUpdate.getManagerUuid() != null) {
+            client.setManagerUuid(clientUpdate.getManagerUuid());
+        }
+        if (clientUpdate.getStatus() != null) {
+            client.setStatus(clientUpdate.getStatus());
+        }
+        if (clientUpdate.getTaxCode() != null) {
+            client.setTaxCode(clientUpdate.getTaxCode());
+        }
+        if (clientUpdate.getFirstName() != null) {
+            client.setFirstName(clientUpdate.getFirstName());
+        }
+        if (clientUpdate.getLastName() != null) {
+            client.setLastName(clientUpdate.getLastName());
+        }
+        if (clientUpdate.getEmail() != null) {
+            client.setEmail(clientUpdate.getEmail());
+        }
+        if (clientUpdate.getAddress() != null) {
+            client.setAddress(clientUpdate.getAddress());
+        }
+        if (clientUpdate.getPhone() != null) {
+            client.setPhone(clientUpdate.getPhone());
+        }
     }
 }

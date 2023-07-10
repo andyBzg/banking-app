@@ -1,5 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
+import org.crazymages.bankingspringproject.dto.ClientDTO;
 import org.crazymages.bankingspringproject.entity.Client;
 
 import java.math.BigDecimal;
@@ -15,46 +16,46 @@ public interface ClientDatabaseService {
     /**
      * Creates a new Client entity in the database.
      *
-     * @param client The Client entity to be created.
+     * @param clientDTO The Client entity to be created.
      */
-    void create(Client client);
+    void create(ClientDTO clientDTO);
 
     /**
      * Retrieves all Client entities from the database.
      *
-     * @return A list of all Client entities.
+     * @return A list of all ClientDTOs.
      */
-    List<Client> findAll();
+    List<ClientDTO> findAll();
 
     /**
      * Retrieves all non-deleted Client entities from the database.
      *
      * @return A list of all non-deleted Client entities.
      */
-    List<Client> findAllNotDeleted();
+    List<ClientDTO> findAllNotDeleted();
 
     /**
      * Retrieves all deleted Client entities from the database.
      *
      * @return A list of all deleted Client entities.
      */
-    List<Client> findDeletedAccounts();
+    List<ClientDTO> findDeletedClients();
 
     /**
      * Retrieves a Client entity from the database by its UUID.
      *
      * @param uuid The UUID of the Client to retrieve.
-     * @return The Client entity with the specified UUID, or null if not found.
+     * @return The ClientDTO with the specified UUID, or null if not found.
      */
-    Client findById(UUID uuid);
+    ClientDTO findById(UUID uuid);
 
     /**
      * Updates a Client entity in the database with the specified UUID.
      *
-     * @param uuid   The UUID of the Client to update.
-     * @param client The updated Client entity.
+     * @param uuid             The UUID of the Client to update.
+     * @param updatedClientDTO The updated ClientDTO.
      */
-    void update(UUID uuid, Client client);
+    void update(UUID uuid, ClientDTO updatedClientDTO);
 
     /**
      * Deletes a Client entity from the database with the specified UUID.
@@ -66,25 +67,25 @@ public interface ClientDatabaseService {
     /**
      * Retrieves all active Client entities from the database.
      *
-     * @return A list of all active Client entities.
+     * @return A list of all active ClientDTOs.
      */
-    List<Client> findActiveClients();
+    List<ClientDTO> findActiveClients();
 
     /**
      * Retrieves all Client entities from the database where the balance is greater than the specified amount.
      *
      * @param balance The minimum balance amount to filter by.
-     * @return A list of Client entities where the balance is greater than the specified amount.
+     * @return A list of ClientDTOs where the balance is greater than the specified amount.
      */
-    List<Client> findClientsWhereBalanceMoreThan(BigDecimal balance);
+    List<ClientDTO> findClientsWhereBalanceMoreThan(BigDecimal balance);
 
     /**
      * Retrieves all Client entities from the database where the transaction count is greater than the specified amount.
      *
      * @param count The minimum transaction count to filter by.
-     * @return A list of Client entities where the transaction count is greater than the specified amount.
+     * @return A list of ClientDTOs where the transaction count is greater than the specified amount.
      */
-    List<Client> findClientsWhereTransactionMoreThan(Integer count);
+    List<ClientDTO> findClientsWhereTransactionMoreThan(Integer count);
 
     /**
      * Calculates the total balance of all Accounts associated with the specified client UUID.

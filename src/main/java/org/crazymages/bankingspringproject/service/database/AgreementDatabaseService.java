@@ -1,5 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
+import org.crazymages.bankingspringproject.dto.AgreementDTO;
 import org.crazymages.bankingspringproject.entity.Agreement;
 
 import java.util.List;
@@ -14,30 +15,23 @@ public interface AgreementDatabaseService {
     /**
      * Creates a new Agreement entity in the database.
      *
-     * @param agreement The Agreement entity to be created.
+     * @param agreementDTO The Agreement entity to be created.
      */
-    void create(Agreement agreement);
-
-    /**
-     * Retrieves all Agreement entities from the database.
-     *
-     * @return A list of all Agreement entities.
-     */
-    List<Agreement> findAll();
+    void create(AgreementDTO agreementDTO);
 
     /**
      * Retrieves all non-deleted Agreement entities from the database.
      *
      * @return A list of all non-deleted Agreement entities.
      */
-    List<Agreement> findAllNotDeleted();
+    List<AgreementDTO> findAllNotDeleted();
 
     /**
      * Retrieves all deleted Agreement entities from the database.
      *
      * @return A list of all deleted Agreement entities.
      */
-    List<Agreement> findDeletedAccounts();
+    List<AgreementDTO> findDeletedAccounts();
 
     /**
      * Retrieves an Agreement entity from the database by its UUID.
@@ -45,7 +39,7 @@ public interface AgreementDatabaseService {
      * @param uuid The UUID of the Agreement to retrieve.
      * @return The Agreement entity with the specified UUID, or null if not found.
      */
-    Agreement findById(UUID uuid);
+    AgreementDTO findById(UUID uuid);
 
     /**
      * Retrieves the savings Agreement entity from the database associated with the specified client UUID.
@@ -58,10 +52,10 @@ public interface AgreementDatabaseService {
     /**
      * Updates an Agreement entity in the database with the specified UUID.
      *
-     * @param uuid      The UUID of the Agreement to update.
-     * @param agreement The updated Agreement entity.
+     * @param uuid                The UUID of the Agreement to update.
+     * @param updatedAgreementDTO The updated Agreement entity.
      */
-    void update(UUID uuid, Agreement agreement);
+    void update(UUID uuid, AgreementDTO updatedAgreementDTO);
 
     /**
      * Deletes an Agreement entity from the database with the specified UUID.
@@ -76,7 +70,7 @@ public interface AgreementDatabaseService {
      * @param managerUuid The UUID of the manager to filter by.
      * @return A list of Agreement entities associated with the specified manager UUID.
      */
-    List<Agreement> findAgreementsByManagerUuid(UUID managerUuid);
+    List<AgreementDTO> findAgreementsByManagerUuid(UUID managerUuid);
 
     /**
      * Retrieves all Agreement entities from the database associated with the specified client UUID.
@@ -84,6 +78,6 @@ public interface AgreementDatabaseService {
      * @param clientUuid The UUID of the client to filter by.
      * @return A list of Agreement entities associated with the specified client UUID.
      */
-    List<Agreement> findAgreementsByClientUuid(UUID clientUuid);
+    List<AgreementDTO> findAgreementsByClientUuid(UUID clientUuid);
 
 }
