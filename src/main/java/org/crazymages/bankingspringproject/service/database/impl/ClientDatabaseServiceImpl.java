@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -80,7 +81,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
         log.info("retrieving client by id {}", uuid);
         return clientDTOMapper.mapToClientDTO(
                 clientRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
+                        .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
     @Override
@@ -149,10 +150,9 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
         List<Client> clients = clientRepository.findAllActiveClientsWithTwoDifferentAccountTypes(
                 AccountType.CURRENT, AccountType.SAVINGS);
         log.info(clients.toString());
-        return checkListForNull(clients);
-    }
-
-    private List<Client> checkListForNull(List<Client> list) {
-        return list == null ? Collections.emptyList() : list;
+        return Optional.of(clients)
+                .orElse(Collections.emptyList())
+                .stream()
+                .toList();
     }
 }
