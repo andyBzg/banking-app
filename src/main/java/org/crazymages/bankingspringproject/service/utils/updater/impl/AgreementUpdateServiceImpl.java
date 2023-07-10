@@ -11,33 +11,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement> {
 
-    /**
-     * Updates the given Agreement entity with the provided Agreement update.
-     * Only non-null fields in the Agreement update will be applied to the original Agreement.
-     *
-     * @param agreement The existing entity to be updated.
-     * @param agreementUpdate The entity containing the updated data.
-     * @return The updated Agreement entity.
-     */
     @Override
     public Agreement update(Agreement agreement, Agreement agreementUpdate) {
         if (agreement != null && agreementUpdate != null) {
-            if (agreementUpdate.getAccountUuid() != null) {
-                agreement.setAccountUuid(agreementUpdate.getAccountUuid());
-            }
-            if (agreementUpdate.getProductUuid() != null) {
-                agreement.setProductUuid(agreementUpdate.getProductUuid());
-            }
-            if (agreementUpdate.getInterestRate() != null) {
-                agreement.setInterestRate(agreementUpdate.getInterestRate());
-            }
-            if (agreementUpdate.getStatus() != null) {
-                agreement.setStatus(agreementUpdate.getStatus());
-            }
-            if (agreementUpdate.getAmount() != null) {
-                agreement.setAmount(agreementUpdate.getAmount());
-            }
+            updateProperties(agreement, agreementUpdate);
         }
         return agreement;
+    }
+
+    @Override
+    public void updateProperties(Agreement agreement, Agreement agreementUpdate) {
+        if (agreementUpdate.getAccountUuid() != null) {
+            agreement.setAccountUuid(agreementUpdate.getAccountUuid());
+        }
+        if (agreementUpdate.getProductUuid() != null) {
+            agreement.setProductUuid(agreementUpdate.getProductUuid());
+        }
+        if (agreementUpdate.getInterestRate() != null) {
+            agreement.setInterestRate(agreementUpdate.getInterestRate());
+        }
+        if (agreementUpdate.getStatus() != null) {
+            agreement.setStatus(agreementUpdate.getStatus());
+        }
+        if (agreementUpdate.getAmount() != null) {
+            agreement.setAmount(agreementUpdate.getAmount());
+        }
     }
 }

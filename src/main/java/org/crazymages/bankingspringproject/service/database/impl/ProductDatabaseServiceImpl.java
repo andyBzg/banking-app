@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.dto.ProductDTO;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -12,8 +13,8 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.mapper.ProductDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
-import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,18 +35,14 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     private final ProductRepository productRepository;
     private final EntityUpdateService<Product> productUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
-    private final ListValidator<Product> listValidator;
+    private final ProductDTOMapper productDTOMapper;
 
-    /**
-     * Creates a new Product entity and saves it to the database.
-     * If the product's manager UUID is not set, it assigns the first active manager with the highest product quantity.
-     *
-     * @param product The Product entity to create.
-     */
+
     @Override
     @Transactional
     @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
-    public void create(Product product) {
+    public void create(ProductDTO productDTO) {
+        Product product = productDTOMapper.mapToProduct(productDTO);
         if (product.getManagerUuid() == null) {
             List<Manager> activeManagers = managerDatabaseService
                     .findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
@@ -56,71 +53,44 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("product created");
     }
 
-    /**
-     * Retrieves a list of all Product entities from the database.
-     *
-     * @return A list of all Product entities.
-     */
     @Override
-    public List<Product> findAll() {
+    @Transactional
+    public List<ProductDTO> findAll() {
         log.info("retrieving list of products");
         List<Product> products = productRepository.findAll();
-        return listValidator.validate(products);
+        return productDTOMapper.getListOfProductDTOs(products);
     }
 
-    /**
-     * Retrieves a list of all not deleted Product entities from the database.
-     *
-     * @return A list of all not deleted Product entities.
-     */
     @Override
     @Transactional
     @Cacheable(value = "productsList")
-    public List<Product> findAllNotDeleted() {
+    public List<ProductDTO> findAllNotDeleted() {
         log.info("retrieving list of not deleted products");
         List<Product> products = productRepository.findAllNotDeleted();
-        return listValidator.validate(products);
+        return productDTOMapper.getListOfProductDTOs(products);
     }
 
-    /**
-     * Retrieves a list of all deleted Product entities from the database.
-     *
-     * @return A list of all deleted Product entities.
-     */
     @Override
     @Transactional
     @Cacheable(value = "deletedProducts")
-    public List<Product> findDeletedProducts() {
+    public List<ProductDTO> findDeletedProducts() {
         log.info("retrieving list of deleted products");
         List<Product> deletedProducts = productRepository.findAllDeleted();
-        return listValidator.validate(deletedProducts);
+        return productDTOMapper.getListOfProductDTOs(deletedProducts);
     }
 
-    /**
-     * Retrieves a Product entity from the database by its UUID.
-     *
-     * @param uuid The UUID of the Product entity to retrieve.
-     * @return The Product entity with the specified UUID.
-     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
-     */
     @Override
+    @Transactional
     @Cacheable(value = "productsCache", key = "#uuid")
-    public Product findById(UUID uuid) {
+    public ProductDTO findById(UUID uuid) {
         log.info("retrieving product by id {}", uuid);
-        return productRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        return productDTOMapper.mapToProductDTO(
+                productRepository.findById(uuid)
+                        .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
-    /**
-     * Retrieves a Product entity from the database by its type, status, and currency code.
-     *
-     * @param type         The type of the Product entity to retrieve.
-     * @param status       The status of the Product entity to retrieve.
-     * @param currencyCode The currency code of the Product entity to retrieve.
-     * @return The Product entity with the specified type, status, and currency code.
-     * @throws DataNotFoundException if no Product entity is found with the specified type, status, and currency code.
-     */
     @Override
+    @Transactional
     public Product findProductByTypeAndStatusAndCurrencyCode(ProductType type, ProductStatus status, CurrencyCode currencyCode) {
         log.info("retrieving product by type {}", type);
         return productRepository
@@ -128,18 +98,12 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(type)));
     }
 
-    /**
-     * Updates a Product entity in the database with the provided UUID.
-     *
-     * @param uuid          The UUID of the Product entity to update.
-     * @param productUpdate The updated Product entity.
-     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
-     */
     @Override
     @Transactional
     @CachePut(value = "productsCache", key = "#uuid")
     @CacheEvict(value = "productsList", allEntries = true)
-    public void update(UUID uuid, Product productUpdate) {
+    public void update(UUID uuid, ProductDTO productDTOUpdate) {
+        Product productUpdate = productDTOMapper.mapToProduct(productDTOUpdate);
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         product = productUpdateService.update(product, productUpdate);
@@ -147,12 +111,6 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         log.info("updated product id {}", uuid);
     }
 
-    /**
-     * Deletes a Product entity from the database with the provided UUID.
-     *
-     * @param uuid The UUID of the Product entity to delete.
-     * @throws DataNotFoundException if no Product entity is found with the specified UUID.
-     */
     @Override
     @Transactional
     @CachePut(value = "deletedProducts", key = "#uuid")

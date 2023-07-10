@@ -37,7 +37,6 @@ public class Product {
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-//    @ManyToOne
     @JoinColumn(name = "manager_uuid")
     private UUID managerUuid;
 
@@ -56,13 +55,9 @@ public class Product {
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
 
-    @Column(name = "interest_rate", precision = 6, scale = 4)
+    @Column(name = "interest_rate", precision = 6, scale = 4, columnDefinition = "default 0.00")
     private BigDecimal interestRate;
 
-    @Column(name = "limitation", precision = 15, scale = 2)
+    @Column(name = "limitation", precision = 15, scale = 2, columnDefinition = "default 0.00")
     private BigDecimal limitation;
-
-
-//    @OneToMany(mappedBy = "product")
-//    private List<Agreement> agreements;
 }

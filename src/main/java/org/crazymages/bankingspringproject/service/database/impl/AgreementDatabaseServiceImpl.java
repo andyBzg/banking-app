@@ -2,13 +2,14 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.dto.AgreementDTO;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.mapper.AgreementDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
-import org.crazymages.bankingspringproject.service.utils.validator.ListValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,79 +26,42 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     private final AgreementRepository agreementRepository;
     private final EntityUpdateService<Agreement> agreementUpdateService;
-    private final ListValidator<Agreement> listValidator;
+    private final AgreementDTOMapper agreementDTOMapper;
 
-    /**
-     * Creates a new Agreement entity and saves it to the database.
-     *
-     * @param agreement The Agreement entity to create.
-     */
+
     @Override
-    public void create(Agreement agreement) {
+    @Transactional
+    public void create(AgreementDTO agreementDTO) {
+        Agreement agreement = agreementDTOMapper.mapToAgreement(agreementDTO);
         agreementRepository.save(agreement);
         log.info("agreement created");
     }
 
-    /**
-     * Retrieves a list of all Agreement entities from the database.
-     *
-     * @return A list of all Agreement entities.
-     */
     @Override
     @Transactional
-    public List<Agreement> findAll() {
-        log.info("retrieving list of agreements");
-        List<Agreement> agreements = agreementRepository.findAll();
-        return listValidator.validate(agreements);
-    }
-
-    /**
-     * Retrieves a list of all not deleted Agreement entities from the database.
-     *
-     * @return A list of all not deleted Agreement entities.
-     */
-    @Override
-    @Transactional
-    public List<Agreement> findAllNotDeleted() {
+    public List<AgreementDTO> findAllNotDeleted() {
         log.info("retrieving list of agreements");
         List<Agreement> agreements = agreementRepository.findAllNotDeleted();
-        return listValidator.validate(agreements);
+        return agreementDTOMapper.getListOfAgreementDTOs(agreements);
     }
 
-    /**
-     * Retrieves a list of all deleted Agreement entities from the database.
-     *
-     * @return A list of all deleted Agreement entities.
-     */
     @Override
     @Transactional
-    public List<Agreement> findDeletedAccounts() {
+    public List<AgreementDTO> findDeletedAccounts() {
         log.info("retrieving list of deleted agreements");
         List<Agreement> deletedAgreements = agreementRepository.findAllDeleted();
-        return listValidator.validate(deletedAgreements);
+        return agreementDTOMapper.getListOfAgreementDTOs(deletedAgreements);
     }
 
-    /**
-     * Retrieves an Agreement entity from the database by its UUID.
-     *
-     * @param uuid The UUID of the Agreement entity to retrieve.
-     * @return The Agreement entity with the specified UUID.
-     * @throws DataNotFoundException if no Agreement entity is found with the specified UUID.
-     */
     @Override
-    public Agreement findById(UUID uuid) {
+    @Transactional
+    public AgreementDTO findById(UUID uuid) {
         log.info("retrieving agreement by id {}", uuid);
-        return agreementRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+        return agreementDTOMapper.mapToAgreementDTO(
+                agreementRepository.findById(uuid)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
-    /**
-     * Retrieves the savings Agreement entity associated with the specified client UUID.
-     *
-     * @param uuid The UUID of the client.
-     * @return The savings Agreement entity associated with the specified client UUID.
-     * @throws DataNotFoundException if no savings Agreement entity is found for the client.
-     */
     @Override
     @Transactional
     public Agreement findSavingsAgreementByClientId(UUID uuid) {
@@ -106,29 +70,17 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
     }
 
-    /**
-     * Updates an existing Agreement entity in the database.
-     *
-     * @param uuid            The UUID of the Agreement to update.
-     * @param agreementUpdate The updated Agreement entity.
-     * @throws DataNotFoundException if no Agreement entity is found with the specified UUID.
-     */
     @Override
     @Transactional
-    public void update(UUID uuid, Agreement agreementUpdate) {
+    public void update(UUID uuid, AgreementDTO updatedAgreementDTO) {
+        Agreement updatedAgreement = agreementDTOMapper.mapToAgreement(updatedAgreementDTO);
         Agreement agreement = agreementRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
-        agreement = agreementUpdateService.update(agreement, agreementUpdate);
+        agreement = agreementUpdateService.update(agreement, updatedAgreement);
         agreementRepository.save(agreement);
         log.info("updated agreement id {}", uuid);
     }
 
-    /**
-     * Deletes an existing Agreement entity in the database.
-     *
-     * @param uuid The UUID of the Agreement to delete.
-     * @throws DataNotFoundException if no Agreement entity is found with the specified UUID.
-     */
     @Override
     @Transactional
     public void delete(UUID uuid) {
@@ -139,31 +91,19 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
         log.info("deleted agreement id {}", uuid);
     }
 
-    /**
-     * Retrieves a list of Agreement entities associated with the specified manager UUID.
-     *
-     * @param uuid The UUID of the manager.
-     * @return A list of Agreement entities associated with the specified manager UUID.
-     */
     @Override
     @Transactional
-    public List<Agreement> findAgreementsByManagerUuid(UUID uuid) {
+    public List<AgreementDTO> findAgreementsByManagerUuid(UUID uuid) {
         log.info("retrieving agreements by manager id {}", uuid);
         List<Agreement> agreements = agreementRepository.findAgreementsWhereManagerIdIs(uuid);
-        return listValidator.validate(agreements);
+        return agreementDTOMapper.getListOfAgreementDTOs(agreements);
     }
 
-    /**
-     * Retrieves a list of Agreement entities associated with the specified client UUID.
-     *
-     * @param uuid The UUID of the client.
-     * @return A list of Agreement entities associated with the specified client UUID.
-     */
     @Override
     @Transactional
-    public List<Agreement> findAgreementsByClientUuid(UUID uuid) {
+    public List<AgreementDTO> findAgreementsByClientUuid(UUID uuid) {
         log.info("retrieving agreements client id {}", uuid);
         List<Agreement> agreements = agreementRepository.findAgreementsWhereClientIdIs(uuid);
-        return listValidator.validate(agreements);
+        return agreementDTOMapper.getListOfAgreementDTOs(agreements);
     }
 }

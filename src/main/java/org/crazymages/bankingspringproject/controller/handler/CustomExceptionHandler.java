@@ -32,34 +32,33 @@ public class CustomExceptionHandler {
      * Handles the {@link InsufficientFundsException} exception.
      *
      * @param e the exception
-     * @return the ResponseEntity with HTTP status 403
+     * @return the ResponseEntity with HTTP status 400
      */
     @ExceptionHandler(InsufficientFundsException.class)
     public ResponseEntity<String> handleInsufficientFundsExceptionException(Exception e) {
         log.error("Insufficient funds in sender's account id {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     /**
      * Handles the {@link TransactionNotAllowedException} exception.
      *
-     * @return the ResponseEntity with HTTP status 403
+     * @return the ResponseEntity with HTTP status 400
      */
     @ExceptionHandler(TransactionNotAllowedException.class)
     public ResponseEntity<String> handleTransactionNotAllowedException() {
         log.error("Not allowed to execute transaction");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     /**
      * Handles the {@link IllegalArgumentException} exception.
      *
-     * @return the ResponseEntity with HTTP status 403
+     * @return the ResponseEntity with HTTP status 400
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException() {
         log.error("One or more fields are 'null'");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-    //Сообщения можно убрать в файл .properties
 }
