@@ -7,6 +7,7 @@ import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
+import org.crazymages.bankingspringproject.entity.enums.TransactionType;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
@@ -68,7 +69,9 @@ public class RecurringTransactionScheduler {
         Agreement agreement = agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid());
 
         Transaction transaction = transactionCreator.apply(currentAccount, savingsAccount);
+        transaction.setType(TransactionType.RECURRING_PAYMENT);
         transaction.setAmount(agreement.getAmount());
+        transaction.setDescription("Recurring payment");
 
         transactionDatabaseService.transferFunds(transaction);
     }
