@@ -100,4 +100,12 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
      */
     @Query("SELECT cl FROM Client cl WHERE cl.isDeleted = true")
     List<Client> findAllDeleted();
+
+    /**
+     * Blocks client by its UUID.
+     *
+     * @param uuid The client UUID
+     */
+    @Query("UPDATE Client cl SET cl.status = 'BLOCKED' WHERE cl.uuid = :uuid")
+    void blockClientById(@Param("uuid") UUID uuid);
 }
