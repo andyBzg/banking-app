@@ -281,7 +281,7 @@ class AccountDatabaseServiceImplTest {
     }
 
     @Test
-    void findAllByClientId_success() {
+    void findAllDtoByClientId_success() {
         // given
         List<Account> accounts = List.of(account1, account2);
         List<AccountDTO> expected = List.of(accountDto1, accountDto2);
@@ -289,12 +289,26 @@ class AccountDatabaseServiceImplTest {
         when(accountDTOMapper.getListOfAccountDTOs(accounts)).thenReturn(expected);
 
         // when
-        List<AccountDTO> actual = accountDatabaseService.findAllByClientId(clientUuid);
+        List<AccountDTO> actual = accountDatabaseService.findAllDtoByClientId(clientUuid);
 
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsByClientUuid(clientUuid);
         verify(accountDTOMapper).getListOfAccountDTOs(accounts);
+    }
+
+    @Test
+    void findAllByClientId_success() {
+        // given
+        List<Account> expected = List.of(account1, account2);
+        when(accountRepository.findAccountsByClientUuid(clientUuid)).thenReturn(List.of(account1, account2));
+
+        // when
+        List<Account> actual = accountDatabaseService.findAllByClientId(clientUuid);
+
+        // then
+        assertEquals(expected, actual);
+        verify(accountRepository).findAccountsByClientUuid(clientUuid);
     }
 
     @Test
@@ -314,6 +328,7 @@ class AccountDatabaseServiceImplTest {
 
     @Test
     void findSavingsByClientId_success() {
+        // given
         Account expected = account2;
         AccountType type = AccountType.SAVINGS;
         when(accountRepository.findAccountByClientUuidAndType(clientUuid, type)).thenReturn(Optional.ofNullable(account2));
@@ -324,5 +339,25 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountByClientUuidAndType(clientUuid, type);
+    }
+
+    @Test
+    void findAccountsByProductTypeAndStatus_success() {
+        // given
+        ProductType type = ProductType.DEPOSIT_ACCOUNT;
+        ProductStatus status = ProductStatus.ACTIVE;
+        List<Account> expected = List.of(account1, account2);
+
+        when(accountRepository.findAccountsWhereProductTypeIsAndProductStatusIs(type, status))
+                .thenReturn(List.of(account1, account2));
+
+
+        // when
+        List<Account> actual = accountDatabaseService.findAccountsByProductTypeAndStatus(type, status);
+
+
+        // then
+        assertEquals(expected, actual);
+        verify(accountRepository).findAccountsWhereProductTypeIsAndProductStatusIs(type, status);
     }
 }
