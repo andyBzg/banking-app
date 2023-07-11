@@ -151,7 +151,7 @@ public class AccountController {
     @GetMapping(value = "/account/find/all/by-client/{uuid}")
     public ResponseEntity<List<AccountDTO>> findAllAccountsByClientUuid(@PathVariable UUID uuid) {
         log.info("endpoint request: find all accounts by client id {} ", uuid);
-        List<AccountDTO> accountList = accountDatabaseService.findAllByClientId(uuid);
+        List<AccountDTO> accountList = accountDatabaseService.findAllDtoByClientId(uuid);
         return accountList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountList);
     }
 }
