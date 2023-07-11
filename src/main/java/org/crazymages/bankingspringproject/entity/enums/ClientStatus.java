@@ -7,5 +7,5 @@ public enum ClientStatus {
 
     ACTIVE,
     BLOCKED,
-    VIP
+    BANK
 }
