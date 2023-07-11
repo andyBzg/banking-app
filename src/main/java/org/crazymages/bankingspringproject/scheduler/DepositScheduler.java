@@ -9,10 +9,12 @@ import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.service.database.*;
+import org.crazymages.bankingspringproject.service.utils.creator.TransactionCreator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,41 +31,63 @@ public class DepositScheduler {
     private final AgreementDatabaseService agreementDatabaseService;
     private final ClientDatabaseService clientDatabaseService;
     private final TransactionDatabaseService transactionDatabaseService;
+    private final TransactionCreator transactionCreator;
 
     /**
      * Executes deposit interest payments based on a scheduled cron expression.
      */
     @Scheduled(cron = "${deposit.schedule}")
     public void executeDepositsInterestPayments() {
+        log.info("Executing deposit interest payments");
         List<Account> depositAccounts = getActiveDepositAccounts();
         List<Agreement> agreements = getAgreements(depositAccounts);
         Account bankAccount = getBankAccount();
+        BigDecimal updatedBalance;
 
         for (Account depositAccount : depositAccounts) {
             BigDecimal interestRate = findInterestRate(agreements, depositAccount.getUuid());
             if (interestRate != null) {
-                performInterestPayment(bankAccount, depositAccount, interestRate);
+                updatedBalance = applyInterestRate(depositAccount.getBalance(), interestRate);
+                performInterestPayment(bankAccount, depositAccount, updatedBalance);
             }
         }
     }
 
-    private Account getBankAccount() {
+    /**
+     * Retrieves the bank account from the database.
+     *
+     * @return The bank account.
+     * @throws DataNotFoundException if the bank account is not found.
+     */
+    public Account getBankAccount() {
         UUID bankUuid = getBankUuid();
         return accountDatabaseService.findAllByClientId(bankUuid)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new DataNotFoundException("bank account not found"));
+                .orElseThrow(() -> new DataNotFoundException("Bank account not found"));
     }
 
-    private UUID getBankUuid() {
+    /**
+     * Retrieves the UUID of the bank client from the database.
+     *
+     * @return The UUID of the bank client.
+     * @throws DataNotFoundException if the bank UUID is not found.
+     */
+    public UUID getBankUuid() {
         return clientDatabaseService.findClientsByStatus(ClientStatus.BANK)
                 .stream()
                 .map(Client::getUuid)
                 .findFirst()
-                .orElseThrow(() -> new DataNotFoundException("bank uuid not found"));
+                .orElseThrow(() -> new DataNotFoundException("Bank UUID not found"));
     }
 
-    private List<Agreement> getAgreements(List<Account> depositAccounts) {
+    /**
+     * Retrieves the active agreements associated with the deposit accounts.
+     *
+     * @param depositAccounts The list of deposit accounts.
+     * @return The list of active agreements.
+     */
+    public List<Agreement> getAgreements(List<Account> depositAccounts) {
         return depositAccounts
                 .stream()
                 .flatMap(account -> agreementDatabaseService.findAgreementsByClientUuid(account.getClientUuid())
@@ -72,7 +96,12 @@ public class DepositScheduler {
                 .toList();
     }
 
-    private List<Account> getActiveDepositAccounts() {
+    /**
+     * Retrieves the active deposit accounts from the database.
+     *
+     * @return The list of active deposit accounts.
+     */
+    public List<Account> getActiveDepositAccounts() {
         return accountDatabaseService
                 .findAccountsByProductTypeAndStatus(ProductType.DEPOSIT_ACCOUNT, ProductStatus.ACTIVE)
                 .stream()
@@ -87,24 +116,26 @@ public class DepositScheduler {
      * @param interestRate The interest rate to apply.
      * @return The new balance after applying the interest rate.
      */
-    public BigDecimal calculateNewBalance(BigDecimal balance, BigDecimal interestRate) {
-        BigDecimal deposit = balance.multiply(interestRate.divide(BigDecimal.valueOf(100)));
+    public BigDecimal applyInterestRate(BigDecimal balance, BigDecimal interestRate) {
+        BigDecimal deposit =
+                balance.multiply(interestRate.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
         return balance.add(deposit);
     }
 
     /**
      * Finds the interest rate for a specific account UUID from the list of agreements.
      *
-     * @param agreements   The list of agreements to search in.
-     * @param accountUuid  The UUID of the account to find the interest rate for.
+     * @param agreements  The list of agreements to search in.
+     * @param accountUuid The UUID of the account to find the interest rate for.
      * @return The interest rate for the account, or null if not found.
+     * @throws DataNotFoundException if the interest rates is not found.
      */
     public BigDecimal findInterestRate(List<Agreement> agreements, UUID accountUuid) {
         return agreements.stream()
                 .filter(agreement -> agreement.getAccountUuid().equals(accountUuid))
                 .findFirst()
                 .map(Agreement::getInterestRate)
-                .orElseThrow(() -> new DataNotFoundException("not found"));
+                .orElseThrow(() -> new DataNotFoundException("Interest rate not found"));
     }
 
     /**
@@ -112,29 +143,13 @@ public class DepositScheduler {
      *
      * @param bankAccount      The bank account from which the payment is made.
      * @param recipientAccount The recipient account to receive the payment.
-     * @param interestRate     The interest rate to apply to the payment.
+     * @param updatedBalance   The interest rate to apply to the payment.
      */
-    public void performInterestPayment(Account bankAccount, Account recipientAccount, BigDecimal interestRate) {
-        Transaction transaction = getTransaction(bankAccount, recipientAccount, interestRate);
-        transactionDatabaseService.transferFunds(transaction);
-    }
-
-    /**
-     * Creates a transaction from the bank account to the recipient account for the interest payment.
-     *
-     * @param bankAccount      The bank account from which the payment is made.
-     * @param recipientAccount The recipient account to receive the payment.
-     * @param interestRate     The interest rate to apply to the payment.
-     * @return The created transaction.
-     */
-    public Transaction getTransaction(Account bankAccount, Account recipientAccount, BigDecimal interestRate) {
-        Transaction transaction = new Transaction();
-        transaction.setDebitAccountUuid(bankAccount.getUuid());
-        transaction.setCreditAccountUuid(recipientAccount.getUuid());
+    public void performInterestPayment(Account bankAccount, Account recipientAccount, BigDecimal updatedBalance) {
+        Transaction transaction = transactionCreator.apply(bankAccount, recipientAccount);
         transaction.setType(TransactionType.DEPOSIT);
-        transaction.setCurrencyCode(recipientAccount.getCurrencyCode());
-        transaction.setAmount(calculateNewBalance(recipientAccount.getBalance(), interestRate));
+        transaction.setAmount(updatedBalance);
         transaction.setDescription("Deposit Interest Payment");
-        return transaction;
+        transactionDatabaseService.transferFunds(transaction);
     }
 }
