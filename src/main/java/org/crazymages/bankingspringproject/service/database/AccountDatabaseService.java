@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.service.database;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.dto.AccountDTO;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
+import org.crazymages.bankingspringproject.entity.enums.ProductType;
 
 import java.util.List;
 import java.util.UUID;
@@ -90,12 +91,20 @@ public interface AccountDatabaseService {
     List<AccountDTO> findAccountsByProductIdAndStatus(UUID productUuid, ProductStatus status);
 
     /**
+     * Retrieves all AccountDTOs from the database associated with a client UUID.
+     *
+     * @param clientUuid The UUID of the client to filter AccountDTOs by.
+     * @return A list of AccountDTOs associated with the specified client UUID.
+     */
+    List<AccountDTO> findAllDtoByClientId(UUID clientUuid);
+
+    /**
      * Retrieves all Account entities from the database associated with a client UUID.
      *
      * @param clientUuid The UUID of the client to filter Account entities by.
      * @return A list of Account entities associated with the specified client UUID.
      */
-    List<AccountDTO> findAllByClientId(UUID clientUuid);
+    List<Account> findAllByClientId(UUID clientUuid);
 
     /**
      * Retrieves the current Account entity from the database associated with a client UUID.
@@ -112,4 +121,13 @@ public interface AccountDatabaseService {
      * @return The savings Account entity associated with the specified client UUID, or null if not found.
      */
     Account findSavingsByClientId(UUID clientUuid);
+
+    /**
+     * Retrieves all Account entities from the database with the specified product type and status.
+     *
+     * @param productType   The type of the product to filter Account entities by.
+     * @param productStatus The status of the product to filter Account entities by.
+     * @return A list of Account entities with the specified product type and status.
+     */
+    List<Account> findAccountsByProductTypeAndStatus(ProductType productType, ProductStatus productStatus);
 }
