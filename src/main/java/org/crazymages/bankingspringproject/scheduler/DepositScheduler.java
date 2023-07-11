@@ -35,30 +35,9 @@ public class DepositScheduler {
      */
     @Scheduled(cron = "${deposit.schedule}")
     public void executeDepositsInterestPayments() {
-        List<Account> depositAccounts = accountDatabaseService.findAccountsByProductTypeAndStatus(
-                ProductType.DEPOSIT_ACCOUNT, ProductStatus.ACTIVE);
-
-        depositAccounts = depositAccounts
-                .stream()
-                .filter(account -> account.getStatus() == AccountStatus.ACTIVE)
-                .toList();
-
-        List<Agreement> agreements = depositAccounts
-                .stream()
-                .flatMap(account -> agreementDatabaseService.findAgreementsByClientUuid(account.getClientUuid())
-                        .stream())
-                .filter(agreement -> agreement.getStatus() == AgreementStatus.ACTIVE)
-                .toList();
-
-        UUID bankUuid = clientDatabaseService.findClientsByStatus(ClientStatus.BANK)
-                .stream()
-                .map(Client::getUuid)
-                .findFirst()
-                .orElseThrow(() -> new DataNotFoundException("bank uuid not found"));
-        Account bankAccount = accountDatabaseService.findAllByClientId(bankUuid)
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new DataNotFoundException("bank account not found"));
+        List<Account> depositAccounts = getActiveDepositAccounts();
+        List<Agreement> agreements = getAgreements(depositAccounts);
+        Account bankAccount = getBankAccount();
 
         for (Account depositAccount : depositAccounts) {
             BigDecimal interestRate = findInterestRate(agreements, depositAccount.getUuid());
@@ -66,6 +45,39 @@ public class DepositScheduler {
                 performInterestPayment(bankAccount, depositAccount, interestRate);
             }
         }
+    }
+
+    private Account getBankAccount() {
+        UUID bankUuid = getBankUuid();
+        return accountDatabaseService.findAllByClientId(bankUuid)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new DataNotFoundException("bank account not found"));
+    }
+
+    private UUID getBankUuid() {
+        return clientDatabaseService.findClientsByStatus(ClientStatus.BANK)
+                .stream()
+                .map(Client::getUuid)
+                .findFirst()
+                .orElseThrow(() -> new DataNotFoundException("bank uuid not found"));
+    }
+
+    private List<Agreement> getAgreements(List<Account> depositAccounts) {
+        return depositAccounts
+                .stream()
+                .flatMap(account -> agreementDatabaseService.findAgreementsByClientUuid(account.getClientUuid())
+                        .stream())
+                .filter(agreement -> agreement.getStatus() == AgreementStatus.ACTIVE)
+                .toList();
+    }
+
+    private List<Account> getActiveDepositAccounts() {
+        return accountDatabaseService
+                .findAccountsByProductTypeAndStatus(ProductType.DEPOSIT_ACCOUNT, ProductStatus.ACTIVE)
+                .stream()
+                .filter(account -> account.getStatus() == AccountStatus.ACTIVE)
+                .toList();
     }
 
     /**
@@ -92,7 +104,7 @@ public class DepositScheduler {
                 .filter(agreement -> agreement.getAccountUuid().equals(accountUuid))
                 .findFirst()
                 .map(Agreement::getInterestRate)
-                .orElse(null);
+                .orElseThrow(() -> new DataNotFoundException("not found"));
     }
 
     /**
