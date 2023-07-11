@@ -93,17 +93,24 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     @Override
     @Transactional
-    public List<AgreementDTO> findAgreementsByManagerUuid(UUID uuid) {
-        log.info("retrieving agreements by manager id {}", uuid);
-        List<Agreement> agreements = agreementRepository.findAgreementsWhereManagerIdIs(uuid);
+    public List<AgreementDTO> findAgreementsByManagerUuid(UUID managerUuid) {
+        log.info("retrieving agreements by manager id {}", managerUuid);
+        List<Agreement> agreements = agreementRepository.findAgreementsWhereManagerIdIs(managerUuid);
         return agreementDTOMapper.getListOfAgreementDTOs(agreements);
     }
 
     @Override
     @Transactional
-    public List<AgreementDTO> findAgreementsByClientUuid(UUID uuid) {
-        log.info("retrieving agreements client id {}", uuid);
-        List<Agreement> agreements = agreementRepository.findAgreementsWhereClientIdIs(uuid);
+    public List<AgreementDTO> findAgreementDTOsByClientUuid(UUID clientUuid) {
+        log.info("retrieving agreements client id {}", clientUuid);
+        List<Agreement> agreements = agreementRepository.findAgreementsWhereClientIdIs(clientUuid);
         return agreementDTOMapper.getListOfAgreementDTOs(agreements);
+    }
+
+    @Override
+    @Transactional
+    public List<Agreement> findAgreementsByClientUuid(UUID clientUuid) {
+        log.info("retrieving agreements client id {}", clientUuid);
+        return agreementRepository.findAgreementsWhereClientIdIs(clientUuid);
     }
 }
