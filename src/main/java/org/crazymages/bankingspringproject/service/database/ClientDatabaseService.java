@@ -2,6 +2,7 @@ package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.dto.ClientDTO;
 import org.crazymages.bankingspringproject.entity.Client;
+import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -109,4 +110,19 @@ public interface ClientDatabaseService {
      * @return A list of Client entities that have both current and savings Accounts.
      */
     List<Client> findClientsWithCurrentAndSavingsAccounts();
+
+    /**
+     * Retrieves all Client entities from the database that have the specified status.
+     *
+     * @param status The status to filter by.
+     * @return A list of Client entities that have the specified status.
+     */
+    List<Client> findClientsByStatus(ClientStatus status);
+
+    /**
+     * Blocks the Client with the specified UUID by setting its status to blocked.
+     *
+     * @param uuid The UUID of the client to block.
+     */
+    void blockClientById(UUID uuid);
 }

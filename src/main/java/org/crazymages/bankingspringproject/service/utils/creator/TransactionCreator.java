@@ -2,7 +2,6 @@ package org.crazymages.bankingspringproject.service.utils.creator;
 
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Transaction;
-import org.crazymages.bankingspringproject.entity.enums.TransactionType;
 import org.springframework.stereotype.Component;
 
 import java.util.function.BiFunction;
@@ -15,13 +14,12 @@ import java.util.function.BiFunction;
 public class TransactionCreator implements BiFunction<Account, Account, Transaction> {
 
     @Override
-    public Transaction apply(Account current, Account savings) {
+    public Transaction apply(Account sender, Account recipient) {
         Transaction transaction = new Transaction();
-        transaction.setDebitAccountUuid(current.getUuid());
-        transaction.setCreditAccountUuid(savings.getUuid());
-        transaction.setType(TransactionType.RECURRING_PAYMENT);
-        transaction.setCurrencyCode(current.getCurrencyCode());
-        transaction.setDescription("Recurring payment");
+        transaction.setDebitAccountUuid(sender.getUuid());
+        transaction.setCreditAccountUuid(recipient.getUuid());
+        transaction.setCurrencyCode(sender.getCurrencyCode());
+
         return transaction;
     }
 }

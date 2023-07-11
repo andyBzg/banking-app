@@ -10,6 +10,7 @@ import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
+import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.mapper.ClientDTOMapper;
@@ -32,9 +33,10 @@ import java.util.UUID;
 public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     private final ClientRepository clientRepository;
+    private final ClientDTOMapper clientDTOMapper;
     private final EntityUpdateService<Client> clientUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
-    private final ClientDTOMapper clientDTOMapper;
+    private final AccountDatabaseService accountDatabaseService;
 
 
     @Override
@@ -154,5 +156,20 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<Client> findClientsByStatus(ClientStatus status) {
+        log.info("retrieving clients where status is {}", status);
+        return clientRepository.findClientsByStatusIs(status);
+    }
+
+    @Override
+    @Transactional
+    public void blockClientById(UUID uuid) {
+        log.info("blocked client with uuid {}", uuid);
+        clientRepository.blockClientById(uuid);
+        accountDatabaseService.blockAccountsByClientUuid(uuid);
     }
 }

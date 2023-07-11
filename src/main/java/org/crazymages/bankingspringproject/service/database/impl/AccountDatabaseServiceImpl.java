@@ -137,10 +137,17 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     @Override
     @Transactional
-    public List<AccountDTO> findAllByClientId(UUID uuid) {
+    public List<AccountDTO> findAllDtoByClientId(UUID uuid) {
         log.info("retrieving list of accounts by client id {}", uuid);
         List<Account> accounts = accountRepository.findAccountsByClientUuid(uuid);
         return accountDTOMapper.getListOfAccountDTOs(accounts);
+    }
+
+    @Override
+    @Transactional
+    public List<Account> findAllByClientId(UUID clientUuid) {
+        log.info("retrieving list of accounts by client id {}", clientUuid);
+        return accountRepository.findAccountsByClientUuid(clientUuid);
     }
 
     @Override
@@ -157,5 +164,16 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         log.info("retrieving SAVINGS account by id {}", uuid);
         return accountRepository.findAccountByClientUuidAndType(uuid, AccountType.SAVINGS)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
+    }
+
+    @Override
+    @Transactional
+    public List<Account> findAccountsByProductTypeAndStatus(ProductType productType, ProductStatus productStatus) {
+        List<Account> accounts = accountRepository
+                .findAccountsWhereProductTypeIsAndProductStatusIs(productType, productStatus);
+        return Optional.of(accounts)
+                .orElse(Collections.emptyList())
+                .stream()
+                .toList();
     }
 }

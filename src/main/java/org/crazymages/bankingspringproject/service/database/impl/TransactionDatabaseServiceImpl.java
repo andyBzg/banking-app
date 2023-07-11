@@ -88,8 +88,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public void transferFunds(TransactionDTO transactionDTO) {
-        Transaction transaction = transactionDTOMapper.mapToTransaction(transactionDTO);
+    public void transferFunds(Transaction transaction) {
         BigDecimal amount = transaction.getAmount();
         AccountDTO senderAccount = accountDatabaseService.findById(transaction.getDebitAccountUuid());
         AccountDTO recipientAccount = accountDatabaseService.findById(transaction.getCreditAccountUuid());

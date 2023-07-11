@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.TransactionDTO;
+import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,13 +89,13 @@ public class TransactionController {
     /**
      * Transfers funds between accounts.
      *
-     * @param transactionDTO The transaction containing the transfer details.
+     * @param transaction The transaction containing the transfer details.
      * @return A response indicating the success of the operation.
      */
     @PostMapping(value = "/transaction/transfer/")
-    public ResponseEntity<String> transferFunds(@RequestBody TransactionDTO transactionDTO) {
+    public ResponseEntity<String> transferFunds(@RequestBody Transaction transaction) {
         log.info("endpoint request: execute money transfer");
-        transactionDatabaseService.transferFunds(transactionDTO);
+        transactionDatabaseService.transferFunds(transaction);
         return ResponseEntity.ok().build();
     }
 

@@ -2,18 +2,17 @@ package org.crazymages.bankingspringproject.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.TransactionDTO;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
+import org.crazymages.bankingspringproject.entity.enums.TransactionType;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.creator.TransactionCreator;
-import org.crazymages.bankingspringproject.service.utils.mapper.TransactionDTOMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,19 +25,18 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ScheduledTransactionExecutor {
+public class RecurringTransactionScheduler {
 
     private final ClientDatabaseService clientDatabaseService;
     private final TransactionDatabaseService transactionDatabaseService;
     private final AccountDatabaseService accountDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
     private final TransactionCreator transactionCreator;
-    private final TransactionDTOMapper transactionDTOMapper;
 
     /**
      * Executes recurring transactions based on a scheduled cron expression.
      */
-    @Scheduled(cron = "0 0 12 15 * *")
+    @Scheduled(cron = "${recurring.transaction}")
     public void executeRecurringTransactions() {
         List<Client> clients = clientDatabaseService.findClientsWithCurrentAndSavingsAccounts();
         for (Client client : clients) {
@@ -71,9 +69,10 @@ public class ScheduledTransactionExecutor {
         Agreement agreement = agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid());
 
         Transaction transaction = transactionCreator.apply(currentAccount, savingsAccount);
+        transaction.setType(TransactionType.RECURRING_PAYMENT);
         transaction.setAmount(agreement.getAmount());
+        transaction.setDescription("Recurring payment");
 
-        TransactionDTO transactionDTO = transactionDTOMapper.mapToTransactionDTO(transaction);
-        transactionDatabaseService.transferFunds(transactionDTO);
+        transactionDatabaseService.transferFunds(transaction);
     }
 }

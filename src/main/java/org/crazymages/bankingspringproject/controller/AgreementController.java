@@ -100,7 +100,7 @@ public class AgreementController {
      */
     @GetMapping(value = "/agreement/find/all-by-client/{uuid}")
     public ResponseEntity<List<AgreementDTO>> findAgreementsByClientId(@PathVariable UUID uuid) {
-        List<AgreementDTO> agreementList = agreementDatabaseService.findAgreementsByClientUuid(uuid);
+        List<AgreementDTO> agreementList = agreementDatabaseService.findAgreementDTOsByClientUuid(uuid);
         return agreementList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agreementList);
     }
 }

@@ -73,11 +73,19 @@ public interface AgreementDatabaseService {
     List<AgreementDTO> findAgreementsByManagerUuid(UUID managerUuid);
 
     /**
+     * Retrieves all AgreementDTOs from the database associated with the specified client UUID.
+     *
+     * @param clientUuid The UUID of the client to filter by.
+     * @return A list of AgreementDTOs associated with the specified client UUID.
+     */
+    List<AgreementDTO> findAgreementDTOsByClientUuid(UUID clientUuid);
+
+    /**
      * Retrieves all Agreement entities from the database associated with the specified client UUID.
      *
      * @param clientUuid The UUID of the client to filter by.
      * @return A list of Agreement entities associated with the specified client UUID.
      */
-    List<AgreementDTO> findAgreementsByClientUuid(UUID clientUuid);
+    List<Agreement> findAgreementsByClientUuid(UUID clientUuid);
 
 }
