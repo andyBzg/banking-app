@@ -1,8 +1,9 @@
-package org.crazymages.bankingspringproject.service.utils.mapper;
+package org.crazymages.bankingspringproject.service.utils.mapper.impl;
 
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.dto.AccountDTO;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
+import org.crazymages.bankingspringproject.service.utils.mapper.DTOMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,15 +14,10 @@ import java.util.Optional;
  * Component class that provides mapping functionality between Account and AccountDTO objects.
  */
 @Component
-public class AccountDTOMapper {
+public class AccountDTOMapper implements DTOMapper<Account, AccountDTO> {
 
-    /**
-     * Maps an Account object to an AccountDTO object.
-     *
-     * @param account The Account object to be mapped.
-     * @return The mapped AccountDTO object.
-     */
-    public AccountDTO mapToAccountDTO(Account account) {
+    @Override
+    public AccountDTO mapEntityToDto(Account account) {
         return new AccountDTO(
                 account.getUuid(),
                 account.getClientUuid(),
@@ -33,13 +29,8 @@ public class AccountDTOMapper {
         );
     }
 
-    /**
-     * Maps an AccountDTO object to an Account object.
-     *
-     * @param accountDTO The AccountDTO object to be mapped.
-     * @return The mapped Account object.
-     */
-    public Account mapToAccount(AccountDTO accountDTO) {
+    @Override
+    public Account mapDtoToEntity(AccountDTO accountDTO) {
         Account account = new Account();
         account.setUuid(accountDTO.getUuid());
         account.setClientUuid(accountDTO.getClientUuid());
@@ -51,19 +42,13 @@ public class AccountDTOMapper {
         return account;
     }
 
-    /**
-     * Maps a list of Account objects to a list of AccountDTO objects.
-     *
-     * @param accountList The list of Account objects to be mapped.
-     * @return The list of mapped AccountDTO objects.
-     * @throws DataNotFoundException If the input accountList is null.
-     */
-    public List<AccountDTO> getListOfAccountDTOs(List<Account> accountList) {
+    @Override
+    public List<AccountDTO> getListOfDTOs(List<Account> accountList) {
         return Optional.ofNullable(accountList)
                 .orElseThrow(() -> new DataNotFoundException("list is null"))
                 .stream()
                 .filter(Objects::nonNull)
-                .map(this::mapToAccountDTO)
+                .map(this::mapEntityToDto)
                 .toList();
     }
 }

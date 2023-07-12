@@ -13,7 +13,7 @@ import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.TransactionDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.TransactionDTOMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +40,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     @Override
     @Transactional
     public void create(TransactionDTO transactionDTO) {
-        Transaction transaction = transactionDTOMapper.mapToTransaction(transactionDTO);
+        Transaction transaction = transactionDTOMapper.mapDtoToEntity(transactionDTO);
         transactionRepository.save(transaction);
         log.info("transaction created");
     }
@@ -50,14 +50,14 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     public List<TransactionDTO> findAll() {
         log.info("retrieving list of transactions");
         List<Transaction> transactions = transactionRepository.findAll();
-        return transactionDTOMapper.getListOfTransactionDTOs(transactions);
+        return transactionDTOMapper.getListOfDTOs(transactions);
     }
 
     @Override
     @Transactional
     public TransactionDTO findById(UUID uuid) {
         log.info("retrieving transaction by id {}", uuid);
-        return transactionDTOMapper.mapToTransactionDTO(
+        return transactionDTOMapper.mapEntityToDto(
                 transactionRepository.findById(uuid)
                         .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
@@ -67,7 +67,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     public List<TransactionDTO> findOutgoingTransactions(UUID uuid) {
         log.info("retrieving list of transactions by sender id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByDebitAccountUuid(uuid);
-        return transactionDTOMapper.getListOfTransactionDTOs(transactions);
+        return transactionDTOMapper.getListOfDTOs(transactions);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     public List<TransactionDTO> findIncomingTransactions(UUID uuid) {
         log.info("retrieving list of transactions by recipient id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByCreditAccountUuid(uuid);
-        return transactionDTOMapper.getListOfTransactionDTOs(transactions);
+        return transactionDTOMapper.getListOfDTOs(transactions);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     public List<TransactionDTO> findAllTransactionsByClientId(UUID uuid) {
         log.info("retrieving list of transactions by client id {} ", uuid);
         List<Transaction> transactions = transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
-        return transactionDTOMapper.getListOfTransactionDTOs(transactions);
+        return transactionDTOMapper.getListOfDTOs(transactions);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         Timestamp end = Timestamp.valueOf(localDateEnd.atStartOfDay());
 
         List<Transaction> transactions = transactionRepository.findTransactionsByClientIdBetweenDates(clientUuid, start, end);
-        return transactionDTOMapper.getListOfTransactionDTOs(transactions);
+        return transactionDTOMapper.getListOfDTOs(transactions);
     }
 
     @Override
@@ -145,6 +145,6 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         Timestamp timestampEnd = Timestamp.valueOf(localDateEnd.atStartOfDay());
 
         List<Transaction> transactions = transactionRepository.findTransactionsBetweenDates(timestampStart, timestampEnd);
-        return transactionDTOMapper.getListOfTransactionDTOs(transactions);
+        return transactionDTOMapper.getListOfDTOs(transactions);
     }
 }

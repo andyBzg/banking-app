@@ -12,8 +12,8 @@ import org.crazymages.bankingspringproject.service.database.AccountDatabaseServi
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
-import org.crazymages.bankingspringproject.service.utils.mapper.AccountDTOMapper;
-import org.crazymages.bankingspringproject.service.utils.mapper.AgreementDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     @Override
     @Transactional
     public void create(AccountDTO accountDTO) {
-        Account account = accountDTOMapper.mapToAccount(accountDTO);
+        Account account = accountDTOMapper.mapDtoToEntity(accountDTO);
         accountRepository.save(account);
         log.info("account created");
     }
@@ -55,14 +55,14 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         ProductType type = productTypeMatcher.matchTypes(accountDTO.getType());
         Product product = productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
 
-        Account account = accountDTOMapper.mapToAccount(accountDTO);
+        Account account = accountDTOMapper.mapDtoToEntity(accountDTO);
         account.setClientUuid(clientUuid);
         account.setStatus(AccountStatus.PENDING);
         accountRepository.save(account);
 
         UUID accountUuid = account.getUuid();
         Agreement agreement = agreementCreator.apply(accountUuid, product);
-        AgreementDTO agreementDTO = agreementDTOMapper.mapToAgreementDTO(agreement);
+        AgreementDTO agreementDTO = agreementDTOMapper.mapEntityToDto(agreement);
         agreementDatabaseService.create(agreementDTO);
     }
 
@@ -71,7 +71,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDTO> findAllNotDeleted() {
         log.info("retrieving list of accounts");
         List<Account> accounts = accountRepository.findAllNotDeleted();
-        return accountDTOMapper.getListOfAccountDTOs(accounts);
+        return accountDTOMapper.getListOfDTOs(accounts);
     }
 
     @Override
@@ -79,14 +79,14 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDTO> findDeletedAccounts() {
         log.info("retrieving list of deleted accounts");
         List<Account> accounts = accountRepository.findAllDeleted();
-        return accountDTOMapper.getListOfAccountDTOs(accounts);
+        return accountDTOMapper.getListOfDTOs(accounts);
     }
 
     @Override
     @Transactional
     public AccountDTO findById(UUID uuid) {
         log.info("retrieving account by id {}", uuid);
-        return accountDTOMapper.mapToAccountDTO(
+        return accountDTOMapper.mapEntityToDto(
                 accountRepository.findById(uuid)
                         .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
@@ -96,13 +96,13 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDTO> findAllByStatus(String status) {
         log.info("retrieving list of accounts by status {}", status);
         List<Account> accounts = accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
-        return accountDTOMapper.getListOfAccountDTOs(accounts);
+        return accountDTOMapper.getListOfDTOs(accounts);
     }
 
     @Override
     @Transactional
     public void update(UUID uuid, AccountDTO updatedAccountDTO) {
-        Account updatedAccount = accountDTOMapper.mapToAccount(updatedAccountDTO);
+        Account updatedAccount = accountDTOMapper.mapDtoToEntity(updatedAccountDTO);
         Account account = accountRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         account = accountUpdateService.update(account, updatedAccount);
@@ -132,7 +132,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDTO> findAccountsByProductIdAndStatus(UUID uuid, ProductStatus status) {
         log.info("retrieving list of accounts by product id {} and product status {}", uuid, status);
         List<Account> accounts = accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
-        return accountDTOMapper.getListOfAccountDTOs(accounts);
+        return accountDTOMapper.getListOfDTOs(accounts);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDTO> findAllDtoByClientId(UUID uuid) {
         log.info("retrieving list of accounts by client id {}", uuid);
         List<Account> accounts = accountRepository.findAccountsByClientUuid(uuid);
-        return accountDTOMapper.getListOfAccountDTOs(accounts);
+        return accountDTOMapper.getListOfDTOs(accounts);
     }
 
     @Override

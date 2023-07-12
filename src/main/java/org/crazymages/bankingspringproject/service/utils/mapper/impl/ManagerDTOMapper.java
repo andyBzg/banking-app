@@ -1,8 +1,9 @@
-package org.crazymages.bankingspringproject.service.utils.mapper;
+package org.crazymages.bankingspringproject.service.utils.mapper.impl;
 
 import org.crazymages.bankingspringproject.dto.ManagerDTO;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
+import org.crazymages.bankingspringproject.service.utils.mapper.DTOMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,15 +14,10 @@ import java.util.Optional;
  * Component class that provides mapping functionality between Manager and ManagerDTO objects.
  */
 @Component
-public class ManagerDTOMapper {
+public class ManagerDTOMapper implements DTOMapper<Manager, ManagerDTO> {
 
-    /**
-     * Maps a Manager object to a ManagerDTO object.
-     *
-     * @param manager The Manager object to be mapped.
-     * @return The mapped ManagerDTO object.
-     */
-    public ManagerDTO mapToManagerDTO(Manager manager) {
+    @Override
+    public ManagerDTO mapEntityToDto(Manager manager) {
         return new ManagerDTO(
                 manager.getUuid(),
                 manager.getFirstName(),
@@ -31,13 +27,8 @@ public class ManagerDTOMapper {
         );
     }
 
-    /**
-     * Maps an ManagerDTO object to a Manager object.
-     *
-     * @param managerDTO The ManagerDTO object to be mapped.
-     * @return The mapped Manager object.
-     */
-    public Manager mapToManager(ManagerDTO managerDTO) {
+    @Override
+    public Manager mapDtoToEntity(ManagerDTO managerDTO) {
         Manager manager = new Manager();
         manager.setUuid(managerDTO.getUuid());
         manager.setFirstName(managerDTO.getFirstName());
@@ -47,19 +38,13 @@ public class ManagerDTOMapper {
         return manager;
     }
 
-    /**
-     * Maps a list of Manager objects to a list of ManagerDTO objects.
-     *
-     * @param managerList The list of Manager objects to be mapped.
-     * @return The list of mapped ManagerDTO objects.
-     * @throws DataNotFoundException If the input managerList is null.
-     */
-    public List<ManagerDTO> getListOfManagerDTOs(List<Manager> managerList) {
+    @Override
+    public List<ManagerDTO> getListOfDTOs(List<Manager> managerList) {
         return Optional.ofNullable(managerList)
                 .orElseThrow(() -> new DataNotFoundException("list is null"))
                 .stream()
                 .filter(Objects::nonNull)
-                .map(this::mapToManagerDTO)
+                .map(this::mapEntityToDto)
                 .toList();
     }
 }

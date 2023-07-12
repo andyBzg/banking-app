@@ -9,8 +9,8 @@ import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
-import org.crazymages.bankingspringproject.service.utils.mapper.AccountDTOMapper;
-import org.crazymages.bankingspringproject.service.utils.mapper.AgreementDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,13 +87,13 @@ class AccountDatabaseServiceImplTest {
     @Test
     void create_success() {
         // given
-        when(accountDTOMapper.mapToAccount(accountDto1)).thenReturn(account1);
+        when(accountDTOMapper.mapDtoToEntity(accountDto1)).thenReturn(account1);
 
         // when
         accountDatabaseService.create(accountDto1);
 
         // then
-        verify(accountDTOMapper).mapToAccount(accountDto1);
+        verify(accountDTOMapper).mapDtoToEntity(accountDto1);
         verify(accountRepository).save(account1);
     }
 
@@ -107,11 +107,11 @@ class AccountDatabaseServiceImplTest {
         Agreement agreement = new Agreement();
         AgreementDTO agreementDTO = new AgreementDTO();
 
-        when(accountDTOMapper.mapToAccount(accountDto1)).thenReturn(account1);
+        when(accountDTOMapper.mapDtoToEntity(accountDto1)).thenReturn(account1);
         when(accountRepository.save(account1)).thenReturn(account1);
         when(productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode)).thenReturn(product);
         when(agreementCreator.apply(account1.getUuid(), product)).thenReturn(agreement);
-        when(agreementDTOMapper.mapToAgreementDTO(agreement)).thenReturn(agreementDTO);
+        when(agreementDTOMapper.mapEntityToDto(agreement)).thenReturn(agreementDTO);
 
 
         // when
@@ -119,7 +119,7 @@ class AccountDatabaseServiceImplTest {
 
 
         // then
-        verify(accountDTOMapper).mapToAccount(accountDto1);
+        verify(accountDTOMapper).mapDtoToEntity(accountDto1);
         verify(accountRepository).save(account1);
         verify(productDatabaseService).findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
         verify(agreementCreator).apply(account1.getUuid(), product);
@@ -133,7 +133,7 @@ class AccountDatabaseServiceImplTest {
         List<AccountDTO> expected = List.of(accountDto1, accountDto2);
 
         when(accountRepository.findAllNotDeleted()).thenReturn(accounts);
-        when(accountDTOMapper.getListOfAccountDTOs(anyList())).thenReturn(expected);
+        when(accountDTOMapper.getListOfDTOs(anyList())).thenReturn(expected);
 
 
         // when
@@ -143,7 +143,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAllNotDeleted();
-        verify(accountDTOMapper).getListOfAccountDTOs(anyList());
+        verify(accountDTOMapper).getListOfDTOs(anyList());
     }
 
     @Test
@@ -153,7 +153,7 @@ class AccountDatabaseServiceImplTest {
         List<AccountDTO> expected = List.of(accountDto1, accountDto2);
 
         when(accountRepository.findAllDeleted()).thenReturn(accounts);
-        when(accountDTOMapper.getListOfAccountDTOs(anyList())).thenReturn(expected);
+        when(accountDTOMapper.getListOfDTOs(anyList())).thenReturn(expected);
 
 
         // when
@@ -163,14 +163,14 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAllDeleted();
-        verify(accountDTOMapper).getListOfAccountDTOs(anyList());
+        verify(accountDTOMapper).getListOfDTOs(anyList());
     }
 
     @Test
     void findById_returnAccountFromRepository_success() {
         // given
         when(accountRepository.findById(uuid)).thenReturn(Optional.ofNullable(account1));
-        when(accountDTOMapper.mapToAccountDTO(account1)).thenReturn(accountDto1);
+        when(accountDTOMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
 
         // when
         AccountDTO actual = accountDatabaseService.findById(uuid);
@@ -178,7 +178,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(accountDto1, actual);
         verify(accountRepository).findById(uuid);
-        verify(accountDTOMapper).mapToAccountDTO(account1);
+        verify(accountDTOMapper).mapEntityToDto(account1);
     }
 
     @Test
@@ -198,7 +198,7 @@ class AccountDatabaseServiceImplTest {
         String status = "ACTIVE";
 
         when(accountRepository.findAccountsByStatus(AccountStatus.valueOf(status))).thenReturn(accounts);
-        when(accountDTOMapper.getListOfAccountDTOs(accounts)).thenReturn(expected);
+        when(accountDTOMapper.getListOfDTOs(accounts)).thenReturn(expected);
 
 
         // when
@@ -208,7 +208,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsByStatus(AccountStatus.valueOf(status));
-        verify(accountDTOMapper).getListOfAccountDTOs(accounts);
+        verify(accountDTOMapper).getListOfDTOs(accounts);
         verifyNoMoreInteractions(accountRepository);
     }
 
@@ -219,7 +219,7 @@ class AccountDatabaseServiceImplTest {
         Account updatedAccount = account1;
         Account account = account1;
 
-        when(accountDTOMapper.mapToAccount(updatedAccountDTO)).thenReturn(updatedAccount);
+        when(accountDTOMapper.mapDtoToEntity(updatedAccountDTO)).thenReturn(updatedAccount);
         when(accountRepository.findById(uuid)).thenReturn(Optional.of(account));
         when(accountUpdateService.update(account, updatedAccount)).thenReturn(updatedAccount);
 
@@ -229,7 +229,7 @@ class AccountDatabaseServiceImplTest {
 
 
         //then
-        verify(accountDTOMapper).mapToAccount(updatedAccountDTO);
+        verify(accountDTOMapper).mapDtoToEntity(updatedAccountDTO);
         verify(accountRepository).findById(uuid);
         verify(accountUpdateService).update(account, updatedAccount);
         verify(accountRepository).save(account);
@@ -267,7 +267,7 @@ class AccountDatabaseServiceImplTest {
         ProductStatus status = ProductStatus.ACTIVE;
 
         when(accountRepository.findAccountsWhereProductIdAndStatusIs(productUuid, status)).thenReturn(accounts);
-        when(accountDTOMapper.getListOfAccountDTOs(accounts)).thenReturn(expected);
+        when(accountDTOMapper.getListOfDTOs(accounts)).thenReturn(expected);
 
 
         // when
@@ -277,7 +277,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsWhereProductIdAndStatusIs(productUuid, status);
-        verify(accountDTOMapper).getListOfAccountDTOs(accounts);
+        verify(accountDTOMapper).getListOfDTOs(accounts);
     }
 
     @Test
@@ -286,7 +286,7 @@ class AccountDatabaseServiceImplTest {
         List<Account> accounts = List.of(account1, account2);
         List<AccountDTO> expected = List.of(accountDto1, accountDto2);
         when(accountRepository.findAccountsByClientUuid(clientUuid)).thenReturn(accounts);
-        when(accountDTOMapper.getListOfAccountDTOs(accounts)).thenReturn(expected);
+        when(accountDTOMapper.getListOfDTOs(accounts)).thenReturn(expected);
 
         // when
         List<AccountDTO> actual = accountDatabaseService.findAllDtoByClientId(clientUuid);
@@ -294,7 +294,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsByClientUuid(clientUuid);
-        verify(accountDTOMapper).getListOfAccountDTOs(accounts);
+        verify(accountDTOMapper).getListOfDTOs(accounts);
     }
 
     @Test

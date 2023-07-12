@@ -1,8 +1,9 @@
-package org.crazymages.bankingspringproject.service.utils.mapper;
+package org.crazymages.bankingspringproject.service.utils.mapper.impl;
 
 import org.crazymages.bankingspringproject.dto.TransactionDTO;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
+import org.crazymages.bankingspringproject.service.utils.mapper.DTOMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,15 +14,10 @@ import java.util.Optional;
  * Component class that provides mapping functionality between Transaction and TransactionDTO objects.
  */
 @Component
-public class TransactionDTOMapper {
+public class TransactionDTOMapper implements DTOMapper<Transaction, TransactionDTO> {
 
-    /**
-     * Maps a Transaction object to a TransactionDTO object.
-     *
-     * @param transaction The Transaction object to be mapped.
-     * @return The mapped TransactionDTO object.
-     */
-    public TransactionDTO mapToTransactionDTO(Transaction transaction) {
+    @Override
+    public TransactionDTO mapEntityToDto(Transaction transaction) {
         return new TransactionDTO(
                 transaction.getUuid(),
                 transaction.getDebitAccountUuid(),
@@ -33,13 +29,8 @@ public class TransactionDTOMapper {
         );
     }
 
-    /**
-     * Maps an TransactionDTO object to a Transaction object.
-     *
-     * @param transactionDTO The TransactionDTO object to be mapped.
-     * @return The mapped Transaction object.
-     */
-    public Transaction mapToTransaction(TransactionDTO transactionDTO) {
+    @Override
+    public Transaction mapDtoToEntity(TransactionDTO transactionDTO) {
         Transaction transaction = new Transaction();
         transaction.setUuid(transactionDTO.getUuid());
         transaction.setDebitAccountUuid(transactionDTO.getDebitAccountUuid());
@@ -51,19 +42,13 @@ public class TransactionDTOMapper {
         return transaction;
     }
 
-    /**
-     * Maps a list of Transaction objects to a list of TransactionDTO objects.
-     *
-     * @param transactionList The list of Transaction objects to be mapped.
-     * @return The list of mapped TransactionDTO objects.
-     * @throws DataNotFoundException If the input transactionList is null.
-     */
-    public List<TransactionDTO> getListOfTransactionDTOs(List<Transaction> transactionList) {
+    @Override
+    public List<TransactionDTO> getListOfDTOs(List<Transaction> transactionList) {
         return Optional.ofNullable(transactionList)
                 .orElseThrow(() -> new DataNotFoundException("list is null"))
                 .stream()
                 .filter(Objects::nonNull)
-                .map(this::mapToTransactionDTO)
+                .map(this::mapEntityToDto)
                 .toList();
     }
 }

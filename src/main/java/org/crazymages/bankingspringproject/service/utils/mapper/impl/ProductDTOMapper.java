@@ -1,8 +1,9 @@
-package org.crazymages.bankingspringproject.service.utils.mapper;
+package org.crazymages.bankingspringproject.service.utils.mapper.impl;
 
 import org.crazymages.bankingspringproject.dto.ProductDTO;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
+import org.crazymages.bankingspringproject.service.utils.mapper.DTOMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,15 +14,10 @@ import java.util.Optional;
  * Component class that provides mapping functionality between Product and ProductDTO objects.
  */
 @Component
-public class ProductDTOMapper {
+public class ProductDTOMapper implements DTOMapper<Product, ProductDTO> {
 
-    /**
-     * Maps a Product object to a ProductDTO object.
-     *
-     * @param product The Product object to be mapped.
-     * @return The mapped ProductDTO object.
-     */
-    public ProductDTO mapToProductDTO(Product product) {
+    @Override
+    public ProductDTO mapEntityToDto(Product product) {
         return new ProductDTO(
                 product.getUuid(),
                 product.getManagerUuid(),
@@ -34,13 +30,8 @@ public class ProductDTOMapper {
         );
     }
 
-    /**
-     * Maps an ProductDTO object to a Product object.
-     *
-     * @param productDTO The ProductDTO object to be mapped.
-     * @return The mapped Product object.
-     */
-    public Product mapToProduct(ProductDTO productDTO) {
+    @Override
+    public Product mapDtoToEntity(ProductDTO productDTO) {
         Product product = new Product();
         product.setUuid(productDTO.getUuid());
         product.setManagerUuid(productDTO.getManagerUuid());
@@ -53,19 +44,13 @@ public class ProductDTOMapper {
         return product;
     }
 
-    /**
-     * Maps a list of Product objects to a list of ProductDTO objects.
-     *
-     * @param productList The list of Product objects to be mapped.
-     * @return The list of mapped ProductDTO objects.
-     * @throws DataNotFoundException If the input productList is null.
-     */
-    public List<ProductDTO> getListOfProductDTOs(List<Product> productList) {
+    @Override
+    public List<ProductDTO> getListOfDTOs(List<Product> productList) {
         return Optional.ofNullable(productList)
                 .orElseThrow(() -> new DataNotFoundException("list is null"))
                 .stream()
                 .filter(Objects::nonNull)
-                .map(this::mapToProductDTO)
+                .map(this::mapEntityToDto)
                 .toList();
     }
 }

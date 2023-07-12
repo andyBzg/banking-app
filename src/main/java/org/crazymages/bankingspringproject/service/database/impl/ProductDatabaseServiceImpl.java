@@ -13,7 +13,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.ProductDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.ProductDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -42,7 +42,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     @Transactional
     @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
     public void create(ProductDTO productDTO) {
-        Product product = productDTOMapper.mapToProduct(productDTO);
+        Product product = productDTOMapper.mapDtoToEntity(productDTO);
         if (product.getManagerUuid() == null) {
             List<Manager> activeManagers = managerDatabaseService
                     .findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
@@ -58,7 +58,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     public List<ProductDTO> findAll() {
         log.info("retrieving list of products");
         List<Product> products = productRepository.findAll();
-        return productDTOMapper.getListOfProductDTOs(products);
+        return productDTOMapper.getListOfDTOs(products);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     public List<ProductDTO> findAllNotDeleted() {
         log.info("retrieving list of not deleted products");
         List<Product> products = productRepository.findAllNotDeleted();
-        return productDTOMapper.getListOfProductDTOs(products);
+        return productDTOMapper.getListOfDTOs(products);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     public List<ProductDTO> findDeletedProducts() {
         log.info("retrieving list of deleted products");
         List<Product> deletedProducts = productRepository.findAllDeleted();
-        return productDTOMapper.getListOfProductDTOs(deletedProducts);
+        return productDTOMapper.getListOfDTOs(deletedProducts);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     @Cacheable(value = "productsCache", key = "#uuid")
     public ProductDTO findById(UUID uuid) {
         log.info("retrieving product by id {}", uuid);
-        return productDTOMapper.mapToProductDTO(
+        return productDTOMapper.mapEntityToDto(
                 productRepository.findById(uuid)
                         .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
@@ -103,7 +103,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     @CachePut(value = "productsCache", key = "#uuid")
     @CacheEvict(value = "productsList", allEntries = true)
     public void update(UUID uuid, ProductDTO productDTOUpdate) {
-        Product productUpdate = productDTOMapper.mapToProduct(productDTOUpdate);
+        Product productUpdate = productDTOMapper.mapDtoToEntity(productDTOUpdate);
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         product = productUpdateService.update(product, productUpdate);
