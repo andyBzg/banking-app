@@ -8,7 +8,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-
+/**
+ * A class representing a currency exchange rate.
+ * It stores information about a currency exchange rate entity.
+ */
 @Data
 @Entity
 @Table(name = "currency_exchange_rate")

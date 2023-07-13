@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
+/**
+ * A service class for interacting with a currency API to retrieve currency rates.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,9 +23,12 @@ public class CurrencyApiService {
     @Value("${member.name}")
     private String memberName;
 
-
+    /**
+     * Retrieves the JSON response body from the currency API.
+     *
+     * @return The JSON response body as a JsonNode.
+     */
     public JsonNode getJsonResponseBody() {
-
         WebClient webClient = WebClient.create();
 
         return webClient.get()
@@ -33,6 +39,11 @@ public class CurrencyApiService {
                 .block();
     }
 
+    /**
+     * Retrieves the currency rates from the JSON response body.
+     *
+     * @return The currency rates as a JsonNode.
+     */
     public JsonNode getCurrencyRates() {
         JsonNode jsonNode = getJsonResponseBody();
         return jsonNode.get(memberName);

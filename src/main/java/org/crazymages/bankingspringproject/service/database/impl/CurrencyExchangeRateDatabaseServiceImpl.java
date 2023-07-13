@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+/**
+ * A service implementation for managing Currency exchange rate entities in the database.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,7 +27,7 @@ public class CurrencyExchangeRateDatabaseServiceImpl implements CurrencyExchange
 
     @Override
     public void create(CurrencyExchangeRate currencyExchangeRate) {
-        currencyExchangeRateRepository.saveAndFlush(currencyExchangeRate);
+        currencyExchangeRateRepository.save(currencyExchangeRate);
     }
 
     @Override

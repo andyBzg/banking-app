@@ -16,6 +16,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 
+/**
+ * A component responsible for updating currency exchange rates.
+ * It retrieves currency rates from a currency API and stores them in the database.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -24,11 +28,18 @@ public class CurrencyExchangeRateUpdater {
     private final CurrencyApiService currencyApiService;
     private final CurrencyExchangeRateDatabaseService currencyExchangeRateDatabaseService;
 
+    /**
+     * Initializes the currency exchange rate updater.
+     * It should be executed after the bean is constructed.
+     */
     @PostConstruct
     public void init() {
         updateCurrencyExchangeRates();
     }
 
+    /**
+     * Updates the currency exchange rates based on a scheduled cron expression.
+     */
     @Scheduled(cron = "${currency.rates.check}")
     public void updateCurrencyExchangeRates() {
         JsonNode jsonNode = currencyApiService.getCurrencyRates();
@@ -40,9 +51,14 @@ public class CurrencyExchangeRateUpdater {
             currencyRate.setExchangeRate(exchangeRate);
             currencyExchangeRateDatabaseService.create(currencyRate);
         });
-
     }
 
+    /**
+     * Converts a JsonNode to a HashMap of currency codes and exchange rates.
+     *
+     * @param jsonNode The JsonNode representing the currency rates.
+     * @return The HashMap of currency codes and exchange rates.
+     */
     public Map<String, BigDecimal> jsonToHashMap(JsonNode jsonNode) {
         Map<String, BigDecimal> currencyMap = new HashMap<>();
         Iterator<String> currencyCodes = jsonNode.fieldNames();

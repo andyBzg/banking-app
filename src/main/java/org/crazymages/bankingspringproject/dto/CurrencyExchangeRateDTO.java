@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-
+/**
+ * Data transfer object (DTO) class representing a Currency exchange rate.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
