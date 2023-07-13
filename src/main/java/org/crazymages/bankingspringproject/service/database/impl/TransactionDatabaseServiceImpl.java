@@ -4,20 +4,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.AccountDTO;
 import org.crazymages.bankingspringproject.dto.TransactionDTO;
+import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
+import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.exception.TransactionNotAllowedException;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.exception.InsufficientFundsException;
 import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.TransactionDTOMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,6 +39,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     private final TransactionDTOMapper transactionDTOMapper;
     private final AccountDatabaseService accountDatabaseService;
     private final ClientDatabaseService clientDatabaseService;
+    private final CurrencyExchangeRateDatabaseService currencyExchangeRateDatabaseService;
 
 
     @Override
@@ -110,13 +115,49 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
             throw new TransactionNotAllowedException();
         }
 
+        CurrencyCode senderCurrency = senderAccount.getCurrencyCode();
+        CurrencyCode recipientCurrency = recipientAccount.getCurrencyCode();
+
+        transaction.setCurrencyCode(senderCurrency);
         senderAccount.setBalance(senderAccount.getBalance().subtract(amount));
-        recipientAccount.setBalance(recipientAccount.getBalance().add(amount));
+
+        if (recipientCurrency.equals(senderCurrency)) {
+            recipientAccount.setBalance(recipientAccount.getBalance().add(amount));
+        } else {
+            performCurrencyConversion(amount, recipientAccount, senderAccount);
+        }
 
         accountDatabaseService.update(senderAccount.getUuid(), senderAccount);
         accountDatabaseService.update(recipientAccount.getUuid(), recipientAccount);
         transactionRepository.save(transaction);
         log.info("transfer saved to db");
+    }
+
+    private void performCurrencyConversion(BigDecimal amount, AccountDTO recipientAccount, AccountDTO senderAccount) {
+        // Курс валюты получателя по отношению к доллару (базовой валюте)
+        String recipientCurrencyCode = recipientAccount.getCurrencyCode().name();
+        CurrencyExchangeRate recipientToBaseCurrencyRate = currencyExchangeRateDatabaseService.findById(recipientCurrencyCode);
+        BigDecimal recipientCurrencyRate = recipientToBaseCurrencyRate.getExchangeRate();
+        log.info("Курс валюты получателя к доллару {}", recipientCurrencyRate);
+
+        // Курс валюты отправителя по отношению к доллару (базовой валюте)
+        String senderCurrencyCode = senderAccount.getCurrencyCode().name();
+        BigDecimal senderCurrencyRate = currencyExchangeRateDatabaseService
+                .findById(senderCurrencyCode)
+                .getExchangeRate();
+        log.info("Курс валюты отправителя к доллару {}", senderCurrencyRate);
+
+        // Расчет суммы в базовой валюте (долларах)
+        BigDecimal baseCurrencyAmount = amount.divide(senderCurrencyRate, 2, RoundingMode.HALF_UP);
+        log.info("сумма в долларах: {}", baseCurrencyAmount);
+
+        // Расчет суммы в валюте получателя
+        BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientCurrencyRate);
+        log.info("сумма в валюте получателя: {}", recipientAmount);
+
+        // Обновление баланса счета получателя
+        BigDecimal recipientBalance = recipientAccount.getBalance();
+        recipientAccount.setBalance(recipientBalance.add(recipientAmount));
     }
 
     @Override
