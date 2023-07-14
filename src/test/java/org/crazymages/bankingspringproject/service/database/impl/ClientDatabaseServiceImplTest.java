@@ -6,6 +6,7 @@ import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
@@ -64,23 +65,41 @@ class ClientDatabaseServiceImplTest {
     }
 
     @Test
-    void create_success() {
+    void create_success_withNullManagerUuid() {
         // given
-        List<Manager> managers = List.of();
+        List<Manager> managers = List.of(new Manager(), new Manager());
         ManagerStatus status = ManagerStatus.ACTIVE;
-        Manager manager = new Manager();
+        Manager firstManager = new Manager();
         when(clientDTOMapper.mapDtoToEntity(clientDTO1)).thenReturn(client1);
         when(managerDatabaseService.findManagersSortedByClientQuantityWhereManagerStatusIs(status))
                 .thenReturn(managers);
-        when(managerDatabaseService.getFirstManager(managers)).thenReturn(manager);
+        when(managerDatabaseService.getFirstManager(managers)).thenReturn(firstManager);
 
         // when
         clientDatabaseService.create(clientDTO1);
 
         // then
+        assertEquals(firstManager.getUuid(), client1.getManagerUuid());
         verify(clientDTOMapper).mapDtoToEntity(clientDTO1);
         verify(managerDatabaseService).findManagersSortedByClientQuantityWhereManagerStatusIs(status);
         verify(managerDatabaseService).getFirstManager(managers);
+        verify(clientRepository).save(client1);
+    }
+
+    @Test
+    void create_success_withExistingManagerUuid() {
+        // given
+        UUID managerUuid = UUID.randomUUID();
+        client1.setManagerUuid(managerUuid);
+        clientDTO1.setManagerUuid(managerUuid);
+        when(clientDTOMapper.mapDtoToEntity(clientDTO1)).thenReturn(client1);
+
+        // when
+        clientDatabaseService.create(clientDTO1);
+
+        // then
+        assertEquals(managerUuid, client1.getManagerUuid());
+        verify(clientDTOMapper).mapDtoToEntity(clientDTO1);
         verify(clientRepository).save(client1);
     }
 
@@ -149,6 +168,16 @@ class ClientDatabaseServiceImplTest {
     }
 
     @Test
+    void findById_clientNotFound_throwsDataNotFoundException() {
+        // given
+        when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.findById(uuid));
+        verify(clientRepository).findById(uuid);
+    }
+
+    @Test
     void update() {
         // given
         ClientDTO updatedClientDTO = clientDTO1;
@@ -172,6 +201,17 @@ class ClientDatabaseServiceImplTest {
     }
 
     @Test
+    void update_clientNotFound_throwsDataNotFoundException() {
+        // given
+        ClientDTO updatedClientDTO = clientDTO1;
+        when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(uuid, updatedClientDTO));
+        verify(clientRepository).findById(uuid);
+    }
+
+    @Test
     void delete_success() {
         // given
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(client1));
@@ -183,6 +223,16 @@ class ClientDatabaseServiceImplTest {
         assertTrue(client1.isDeleted());
         verify(clientRepository).findById(uuid);
         verify(clientRepository).save(client1);
+    }
+
+    @Test
+    void delete_clientNotFound_throwsDataNotFoundException() {
+        // given
+        when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.delete(uuid));
+        verify(clientRepository).findById(uuid);
     }
 
     @Test
@@ -237,7 +287,7 @@ class ClientDatabaseServiceImplTest {
     }
 
     @Test
-    void calculateTotalBalanceByClientUuid() {
+    void calculateTotalBalanceByClientUuid_withPositiveBalance_success() {
         // given
         BigDecimal expected = BigDecimal.valueOf(100);
         when(clientRepository.calculateTotalBalanceByClientUuid(uuid)).thenReturn(BigDecimal.valueOf(100));
@@ -251,10 +301,38 @@ class ClientDatabaseServiceImplTest {
     }
 
     @Test
-    void isClientStatusActive_success() {
+    void calculateTotalBalanceByClientUuid_withZeroBalance_success() {
+        // given
+        BigDecimal expected = BigDecimal.ZERO;
+        when(clientRepository.calculateTotalBalanceByClientUuid(uuid)).thenReturn(expected);
+
+        // when
+        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
+
+        // then
+        assertEquals(expected, actual);
+        verify(clientRepository).calculateTotalBalanceByClientUuid(uuid);
+    }
+
+    @Test
+    void isClientStatusActive_clientIsActive_success() {
         // given
         Boolean expected = true;
         when(clientRepository.isClientStatusBlocked(uuid)).thenReturn(true);
+
+        // when
+        Boolean actual = clientDatabaseService.isClientStatusActive(uuid);
+
+        // then
+        assertEquals(expected, actual);
+        verify(clientRepository).isClientStatusBlocked(uuid);
+    }
+
+    @Test
+    void isClientStatusActive_clientStatusBlocked_success() {
+        // given
+        Boolean expected = false;
+        when(clientRepository.isClientStatusBlocked(uuid)).thenReturn(false);
 
         // when
         Boolean actual = clientDatabaseService.isClientStatusActive(uuid);

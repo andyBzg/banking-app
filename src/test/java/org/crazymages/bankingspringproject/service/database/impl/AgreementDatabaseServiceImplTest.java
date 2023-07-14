@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import org.crazymages.bankingspringproject.dto.AgreementDTO;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDTOMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
@@ -13,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,6 +82,18 @@ class AgreementDatabaseServiceImplTest {
     }
 
     @Test
+    void findAllNotDeleted_emptyListReturned() {
+        // given
+        when(agreementRepository.findAllNotDeleted()).thenReturn(Collections.emptyList());
+
+        // when
+        List<AgreementDTO> actual = agreementDatabaseService.findAllNotDeleted();
+
+        // then
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
     void findDeletedAccounts_success() {
         // given
         List<AgreementDTO> expected = List.of(agreementDTO1, agreementDTO2);
@@ -97,6 +111,18 @@ class AgreementDatabaseServiceImplTest {
     }
 
     @Test
+    void findDeletedAgreements_nullListReturned() {
+        // given
+        when(agreementRepository.findAllDeleted()).thenReturn(null);
+
+        // when
+        List<AgreementDTO> actual = agreementDatabaseService.findDeletedAgreements();
+
+        // then
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
     void findById_success() {
         // given
         AgreementDTO expected = agreementDTO1;
@@ -110,6 +136,15 @@ class AgreementDatabaseServiceImplTest {
         assertEquals(expected, actual);
         verify(agreementRepository).findById(uuid);
         verify(agreementDTOMapper).mapEntityToDto(agreement1);
+    }
+
+    @Test
+    void findById_throws_dataNotFoundException() {
+        // given
+        when(agreementRepository.findById(uuid)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.findById(uuid));
     }
 
     @Test
@@ -148,6 +183,18 @@ class AgreementDatabaseServiceImplTest {
         verify(agreementRepository).findById(uuid);
         verify(agreementUpdateService).update(agreementToUpdate, updatedAgreement);
         verify(agreementRepository).save(agreement1);
+    }
+
+    @Test
+    void update_throws_dataNotFoundException() {
+        // given
+        AgreementDTO updatedAgreementDTO = agreementDTO1;
+
+        when(agreementDTOMapper.mapDtoToEntity(updatedAgreementDTO)).thenReturn(agreement1);
+        when(agreementRepository.findById(uuid)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.update(uuid, updatedAgreementDTO));
     }
 
     @Test
