@@ -33,6 +33,9 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     @Override
     @Transactional
     public void create(ManagerDTO managerDTO) {
+        if (managerDTO == null) {
+            throw new IllegalArgumentException();
+        }
         Manager manager = managerDTOMapper.mapDtoToEntity(managerDTO);
         managerRepository.save(manager);
         log.info("manager created");
@@ -97,7 +100,7 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     public List<Manager> findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus status) {
         log.info("retrieving list of managers sorted by status {}", status);
         List<Manager> managers = managerRepository.findManagersSortedByClientCountWhereManagerStatusIs(status);
-        return checkListForNull(managers);
+        return managers == null ? Collections.emptyList() : managers;
     }
 
     @Override
@@ -105,18 +108,14 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     public List<Manager> findManagersSortedByProductQuantityWhereManagerStatusIs(ManagerStatus status) {
         log.info("retrieving list of managers sorted by status {}", status);
         List<Manager> managers = managerRepository.findAllManagersSortedByProductQuantityWhereManagerStatusIs(status);
-        return checkListForNull(managers);
+        return managers == null ? Collections.emptyList() : managers;
     }
 
     @Override
-    public Manager getFirstManager(List<Manager> activeManagers) {
-        return activeManagers
+    public Manager getFirstManager(List<Manager> managers) {
+        return managers
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new DataNotFoundException("null"));
-    }
-
-    private List<Manager> checkListForNull(List<Manager> list) {
-        return list == null ? Collections.emptyList() : list;
     }
 }
