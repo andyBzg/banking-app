@@ -47,7 +47,7 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     @Override
     @Transactional
-    public List<AgreementDTO> findDeletedAccounts() {
+    public List<AgreementDTO> findDeletedAgreements() {
         log.info("retrieving list of deleted agreements");
         List<Agreement> deletedAgreements = agreementRepository.findAllDeleted();
         return agreementDTOMapper.getListOfDTOs(deletedAgreements);

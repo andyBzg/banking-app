@@ -31,7 +31,7 @@ public interface AgreementDatabaseService {
      *
      * @return A list of all deleted Agreement entities.
      */
-    List<AgreementDTO> findDeletedAccounts();
+    List<AgreementDTO> findDeletedAgreements();
 
     /**
      * Retrieves an Agreement entity from the database by its UUID.
