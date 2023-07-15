@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.ClientDTO;
+import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -10,7 +10,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ClientDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.ClientDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class ClientDatabaseServiceImplTest {
     @Mock
     ClientRepository clientRepository;
     @Mock
-    ClientDTOMapper clientDTOMapper;
+    ClientDtoMapper clientDTOMapper;
     @Mock
     EntityUpdateService<Client> clientUpdateService;
     @Mock
@@ -47,21 +47,21 @@ class ClientDatabaseServiceImplTest {
 
     Client client1;
     Client client2;
-    ClientDTO clientDTO1;
-    ClientDTO clientDTO2;
+    ClientDto clientDto1;
+    ClientDto clientDto2;
     UUID uuid;
     List<Client> clients;
-    List<ClientDTO> clientDTOList;
+    List<ClientDto> clientDtoList;
 
     @BeforeEach
     void setUp() {
         client1 = new Client();
         client2 = new Client();
-        clientDTO1 = new ClientDTO();
-        clientDTO2 = new ClientDTO();
+        clientDto1 = new ClientDto();
+        clientDto2 = new ClientDto();
         uuid = UUID.randomUUID();
         clients = List.of(client1, client2);
-        clientDTOList = List.of(clientDTO1, clientDTO2);
+        clientDtoList = List.of(clientDto1, clientDto2);
     }
 
     @Test
@@ -70,17 +70,17 @@ class ClientDatabaseServiceImplTest {
         List<Manager> managers = List.of(new Manager(), new Manager());
         ManagerStatus status = ManagerStatus.ACTIVE;
         Manager firstManager = new Manager();
-        when(clientDTOMapper.mapDtoToEntity(clientDTO1)).thenReturn(client1);
+        when(clientDTOMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
         when(managerDatabaseService.findManagersSortedByClientQuantityWhereManagerStatusIs(status))
                 .thenReturn(managers);
         when(managerDatabaseService.getFirstManager(managers)).thenReturn(firstManager);
 
         // when
-        clientDatabaseService.create(clientDTO1);
+        clientDatabaseService.create(clientDto1);
 
         // then
         assertEquals(firstManager.getUuid(), client1.getManagerUuid());
-        verify(clientDTOMapper).mapDtoToEntity(clientDTO1);
+        verify(clientDTOMapper).mapDtoToEntity(clientDto1);
         verify(managerDatabaseService).findManagersSortedByClientQuantityWhereManagerStatusIs(status);
         verify(managerDatabaseService).getFirstManager(managers);
         verify(clientRepository).save(client1);
@@ -91,75 +91,75 @@ class ClientDatabaseServiceImplTest {
         // given
         UUID managerUuid = UUID.randomUUID();
         client1.setManagerUuid(managerUuid);
-        clientDTO1.setManagerUuid(managerUuid);
-        when(clientDTOMapper.mapDtoToEntity(clientDTO1)).thenReturn(client1);
+        clientDto1.setManagerUuid(String.valueOf(managerUuid));
+        when(clientDTOMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
 
         // when
-        clientDatabaseService.create(clientDTO1);
+        clientDatabaseService.create(clientDto1);
 
         // then
         assertEquals(managerUuid, client1.getManagerUuid());
-        verify(clientDTOMapper).mapDtoToEntity(clientDTO1);
+        verify(clientDTOMapper).mapDtoToEntity(clientDto1);
         verify(clientRepository).save(client1);
     }
 
     @Test
     void findAll_success() {
         // given
-        List<ClientDTO> expected = List.of(clientDTO1, clientDTO2);
+        List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findAll()).thenReturn(clients);
-        when(clientDTOMapper.getListOfDTOs(clients)).thenReturn(clientDTOList);
+        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
 
         // when
-        List<ClientDTO> actual = clientDatabaseService.findAll();
+        List<ClientDto> actual = clientDatabaseService.findAll();
 
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAll();
-        verify(clientDTOMapper).getListOfDTOs(clients);
+        verify(clientDTOMapper).getDtoList(clients);
     }
 
     @Test
     void findAllNotDeleted_success() {
         // given
-        List<ClientDTO> expected = List.of(clientDTO1, clientDTO2);
+        List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findAllNotDeleted()).thenReturn(clients);
-        when(clientDTOMapper.getListOfDTOs(clients)).thenReturn(clientDTOList);
+        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
 
         // when
-        List<ClientDTO> actual = clientDatabaseService.findAllNotDeleted();
+        List<ClientDto> actual = clientDatabaseService.findAllNotDeleted();
 
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllNotDeleted();
-        verify(clientDTOMapper).getListOfDTOs(clients);
+        verify(clientDTOMapper).getDtoList(clients);
     }
 
     @Test
     void findDeletedClients_success() {
         // given
-        List<ClientDTO> expected = List.of(clientDTO1, clientDTO2);
+        List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findAllDeleted()).thenReturn(clients);
-        when(clientDTOMapper.getListOfDTOs(clients)).thenReturn(clientDTOList);
+        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
 
         // when
-        List<ClientDTO> actual = clientDatabaseService.findDeletedClients();
+        List<ClientDto> actual = clientDatabaseService.findDeletedClients();
 
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllDeleted();
-        verify(clientDTOMapper).getListOfDTOs(clients);
+        verify(clientDTOMapper).getDtoList(clients);
     }
 
     @Test
     void findById_success() {
         // given
-        ClientDTO expected = clientDTO1;
+        ClientDto expected = clientDto1;
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(client1));
-        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDTO1);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
 
         // when
-        ClientDTO actual = clientDatabaseService.findById(uuid);
+        ClientDto actual = clientDatabaseService.findById(uuid);
 
         // then
         assertEquals(expected, actual);
@@ -180,21 +180,21 @@ class ClientDatabaseServiceImplTest {
     @Test
     void update() {
         // given
-        ClientDTO updatedClientDTO = clientDTO1;
+        ClientDto updatedClientDto = clientDto1;
         Client updatedClient = client1;
         Client clientToUpdate = client2;
 
-        when(clientDTOMapper.mapDtoToEntity(updatedClientDTO)).thenReturn(updatedClient);
+        when(clientDTOMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(clientToUpdate));
         when(clientUpdateService.update(clientToUpdate, updatedClient)).thenReturn(client1);
 
 
         // when
-        clientDatabaseService.update(uuid, updatedClientDTO);
+        clientDatabaseService.update(uuid, updatedClientDto);
 
 
         // then
-        verify(clientDTOMapper).mapDtoToEntity(updatedClientDTO);
+        verify(clientDTOMapper).mapDtoToEntity(updatedClientDto);
         verify(clientRepository).findById(uuid);
         verify(clientUpdateService).update(clientToUpdate, updatedClient);
         verify(clientRepository).save(client1);
@@ -203,11 +203,11 @@ class ClientDatabaseServiceImplTest {
     @Test
     void update_clientNotFound_throwsDataNotFoundException() {
         // given
-        ClientDTO updatedClientDTO = clientDTO1;
+        ClientDto updatedClientDto = clientDto1;
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(uuid, updatedClientDTO));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(uuid, updatedClientDto));
         verify(clientRepository).findById(uuid);
     }
 
@@ -239,51 +239,51 @@ class ClientDatabaseServiceImplTest {
     void findActiveClients_success() {
         // given
         ClientStatus status = ClientStatus.ACTIVE;
-        List<ClientDTO> expected = List.of(clientDTO1, clientDTO2);
+        List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findClientsByStatusIs(status)).thenReturn(clients);
-        when(clientDTOMapper.getListOfDTOs(clients)).thenReturn(clientDTOList);
+        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
 
         // when
-        List<ClientDTO> actual = clientDatabaseService.findActiveClients();
+        List<ClientDto> actual = clientDatabaseService.findActiveClients();
 
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findClientsByStatusIs(status);
-        verify(clientDTOMapper).getListOfDTOs(clients);
+        verify(clientDTOMapper).getDtoList(clients);
     }
 
     @Test
     void findClientsWhereBalanceMoreThan_success() {
         // given
-        List<ClientDTO> expected = List.of(clientDTO1, clientDTO2);
+        List<ClientDto> expected = List.of(clientDto1, clientDto2);
         BigDecimal balance = BigDecimal.valueOf(100);
         when(clientRepository.findAllClientsWhereBalanceMoreThan(balance)).thenReturn(clients);
-        when(clientDTOMapper.getListOfDTOs(clients)).thenReturn(clientDTOList);
+        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
 
         // when
-        List<ClientDTO> actual = clientDatabaseService.findClientsWhereBalanceMoreThan(balance);
+        List<ClientDto> actual = clientDatabaseService.findClientsWhereBalanceMoreThan(balance);
 
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllClientsWhereBalanceMoreThan(balance);
-        verify(clientDTOMapper).getListOfDTOs(clients);
+        verify(clientDTOMapper).getDtoList(clients);
     }
 
     @Test
     void findClientsWhereTransactionMoreThan_success() {
         // given
-        List<ClientDTO> expected = List.of(clientDTO1, clientDTO2);
+        List<ClientDto> expected = List.of(clientDto1, clientDto2);
         Integer count = 10;
         when(clientRepository.findAllClientsWhereTransactionMoreThan(count)).thenReturn(clients);
-        when(clientDTOMapper.getListOfDTOs(clients)).thenReturn(clientDTOList);
+        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
 
         // when
-        List<ClientDTO> actual = clientDatabaseService.findClientsWhereTransactionMoreThan(count);
+        List<ClientDto> actual = clientDatabaseService.findClientsWhereTransactionMoreThan(count);
 
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllClientsWhereTransactionMoreThan(count);
-        verify(clientDTOMapper).getListOfDTOs(clients);
+        verify(clientDTOMapper).getDtoList(clients);
     }
 
     @Test

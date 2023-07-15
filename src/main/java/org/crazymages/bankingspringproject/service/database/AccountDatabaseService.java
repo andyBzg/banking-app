@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.entity.Account;
-import org.crazymages.bankingspringproject.dto.AccountDTO;
+import org.crazymages.bankingspringproject.dto.AccountDto;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 
@@ -17,17 +17,17 @@ public interface AccountDatabaseService {
     /**
      * Creates a new Account entity in the database.
      *
-     * @param accountDTO The Account entity to be created.
+     * @param accountDto The Account entity to be created.
      */
-    void create(AccountDTO accountDTO);
+    void create(AccountDto accountDto);
 
     /**
      * Creates a new Account entity in the database with the specified Client UUID.
      *
-     * @param accountDTO    The Account entity to be created.
+     * @param accountDto The Account entity to be created.
      * @param clientUuid The Client UUID to be assigned to the Account entity.
      */
-    void create(AccountDTO accountDTO, UUID clientUuid);
+    void create(AccountDto accountDto, UUID clientUuid);
 
     /**
      * Retrieves an Account entity from the database by its UUID.
@@ -35,21 +35,21 @@ public interface AccountDatabaseService {
      * @param uuid The UUID of the Account entity to retrieve.
      * @return The retrieved Account entity, or null if not found.
      */
-    AccountDTO findById(UUID uuid);
+    AccountDto findById(UUID uuid);
 
     /**
      * Retrieves all non-deleted Account entities from the database.
      *
      * @return A list of all non-deleted Account entities.
      */
-    List<AccountDTO> findAllNotDeleted();
+    List<AccountDto> findAllNotDeleted();
 
     /**
      * Retrieves all deleted Account entities from the database.
      *
      * @return A list of all deleted Account entities.
      */
-    List<AccountDTO> findDeletedAccounts();
+    List<AccountDto> findDeletedAccounts();
 
     /**
      * Retrieves all Account entities from the database with the specified status.
@@ -57,15 +57,15 @@ public interface AccountDatabaseService {
      * @param status The status to filter Account entities by.
      * @return A list of Account entities with the specified status.
      */
-    List<AccountDTO> findAllByStatus(String status);
+    List<AccountDto> findAllByStatus(String status);
 
     /**
      * Updates an Account entity in the database with the specified UUID.
      *
      * @param uuid              The UUID of the Account entity to update.
-     * @param updatedAccountDTO The Account entity containing the updated values.
+     * @param updatedAccountDto The Account entity containing the updated values.
      */
-    void update(UUID uuid, AccountDTO updatedAccountDTO);
+    void update(UUID uuid, AccountDto updatedAccountDto);
 
     /**
      * Deletes an Account entity from the database by its UUID.
@@ -88,7 +88,7 @@ public interface AccountDatabaseService {
      * @param status      The status of the product to filter Account entities by.
      * @return A list of Account entities with the specified product UUID and status.
      */
-    List<AccountDTO> findAccountsByProductIdAndStatus(UUID productUuid, ProductStatus status);
+    List<AccountDto> findAccountsByProductIdAndStatus(UUID productUuid, ProductStatus status);
 
     /**
      * Retrieves all AccountDTOs from the database associated with a client UUID.
@@ -96,7 +96,7 @@ public interface AccountDatabaseService {
      * @param clientUuid The UUID of the client to filter AccountDTOs by.
      * @return A list of AccountDTOs associated with the specified client UUID.
      */
-    List<AccountDTO> findAllDtoByClientId(UUID clientUuid);
+    List<AccountDto> findAllDtoByClientId(UUID clientUuid);
 
     /**
      * Retrieves all Account entities from the database associated with a client UUID.

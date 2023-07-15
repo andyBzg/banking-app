@@ -1,11 +1,11 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.ManagerDTO;
+import org.crazymages.bankingspringproject.dto.ManagerDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ManagerDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,15 +29,15 @@ class ManagerDatabaseServiceImplTest {
     @Mock
     EntityUpdateService<Manager> managerUpdateService;
     @Mock
-    ManagerDTOMapper managerDTOMapper;
+    ManagerDtoMapper managerDTOMapper;
 
     @InjectMocks
     ManagerDatabaseServiceImpl managerDatabaseService;
 
     Manager manager1;
     Manager manager2;
-    ManagerDTO managerDTO1;
-    ManagerDTO managerDTO2;
+    ManagerDto managerDto1;
+    ManagerDto managerDto2;
     UUID uuid;
     List<Manager> managers;
 
@@ -45,8 +45,8 @@ class ManagerDatabaseServiceImplTest {
     void setUp() {
         manager1 = new Manager();
         manager2 = new Manager();
-        managerDTO1 = new ManagerDTO();
-        managerDTO2 = new ManagerDTO();
+        managerDto1 = new ManagerDto();
+        managerDto2 = new ManagerDto();
         uuid = UUID.randomUUID();
         managers = List.of(manager1, manager2);
     }
@@ -54,13 +54,13 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void create_success() {
         // given
-        when(managerDTOMapper.mapDtoToEntity(managerDTO1)).thenReturn(manager1);
+        when(managerDTOMapper.mapDtoToEntity(managerDto1)).thenReturn(manager1);
 
         // when
-        managerDatabaseService.create(managerDTO1);
+        managerDatabaseService.create(managerDto1);
 
         // then
-        verify(managerDTOMapper).mapDtoToEntity(managerDTO1);
+        verify(managerDTOMapper).mapDtoToEntity(managerDto1);
         verify(managerRepository).save(manager1);
     }
 
@@ -76,60 +76,60 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void findAll_success() {
         // given
-        List<ManagerDTO> expected = List.of(managerDTO1, managerDTO2);
+        List<ManagerDto> expected = List.of(managerDto1, managerDto2);
         when(managerRepository.findAll()).thenReturn(managers);
-        when(managerDTOMapper.getListOfDTOs(managers)).thenReturn(expected);
+        when(managerDTOMapper.getDtoList(managers)).thenReturn(expected);
 
         // when
-        List<ManagerDTO> actual = managerDatabaseService.findAll();
+        List<ManagerDto> actual = managerDatabaseService.findAll();
 
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAll();
-        verify(managerDTOMapper).getListOfDTOs(managers);
+        verify(managerDTOMapper).getDtoList(managers);
     }
 
     @Test
     void findAllNotDeleted_success() {
         // given
-        List<ManagerDTO> expected = List.of(managerDTO1, managerDTO2);
+        List<ManagerDto> expected = List.of(managerDto1, managerDto2);
         when(managerRepository.findAllNotDeleted()).thenReturn(managers);
-        when(managerDTOMapper.getListOfDTOs(managers)).thenReturn(expected);
+        when(managerDTOMapper.getDtoList(managers)).thenReturn(expected);
 
         // when
-        List<ManagerDTO> actual = managerDatabaseService.findAllNotDeleted();
+        List<ManagerDto> actual = managerDatabaseService.findAllNotDeleted();
 
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAllNotDeleted();
-        verify(managerDTOMapper).getListOfDTOs(managers);
+        verify(managerDTOMapper).getDtoList(managers);
     }
 
     @Test
     void findDeletedAccounts_success() {
         // given
-        List<ManagerDTO> expected = List.of(managerDTO1, managerDTO2);
+        List<ManagerDto> expected = List.of(managerDto1, managerDto2);
         when(managerRepository.findAllDeleted()).thenReturn(managers);
-        when(managerDTOMapper.getListOfDTOs(managers)).thenReturn(expected);
+        when(managerDTOMapper.getDtoList(managers)).thenReturn(expected);
 
         // when
-        List<ManagerDTO> actual = managerDatabaseService.findDeletedAccounts();
+        List<ManagerDto> actual = managerDatabaseService.findDeletedAccounts();
 
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAllDeleted();
-        verify(managerDTOMapper).getListOfDTOs(managers);
+        verify(managerDTOMapper).getDtoList(managers);
     }
 
     @Test
     void findById_success() {
         // given
-        ManagerDTO expected = managerDTO1;
+        ManagerDto expected = managerDto1;
         when(managerRepository.findById(uuid)).thenReturn(Optional.ofNullable(manager1));
-        when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDTO1);
+        when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDto1);
 
         // when
-        ManagerDTO actual = managerDatabaseService.findById(uuid);
+        ManagerDto actual = managerDatabaseService.findById(uuid);
 
         // then
         assertEquals(expected, actual);
@@ -152,21 +152,21 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void update_success() {
         // given
-        ManagerDTO updatedManagerDTO = managerDTO1;
+        ManagerDto updatedManagerDto = managerDto1;
         Manager updatedManager = manager1;
         Manager managerToUpdate = manager2;
 
-        when(managerDTOMapper.mapDtoToEntity(updatedManagerDTO)).thenReturn(updatedManager);
+        when(managerDTOMapper.mapDtoToEntity(updatedManagerDto)).thenReturn(updatedManager);
         when(managerRepository.findById(uuid)).thenReturn(Optional.ofNullable(managerToUpdate));
         when(managerUpdateService.update(managerToUpdate, updatedManager)).thenReturn(manager1);
 
 
         // when
-        managerDatabaseService.update(uuid, updatedManagerDTO);
+        managerDatabaseService.update(uuid, updatedManagerDto);
 
 
         // then
-        verify(managerDTOMapper).mapDtoToEntity(updatedManagerDTO);
+        verify(managerDTOMapper).mapDtoToEntity(updatedManagerDto);
         verify(managerRepository).findById(uuid);
         verify(managerUpdateService).update(managerToUpdate, updatedManager);
         verify(managerRepository).save(manager1);
@@ -175,12 +175,12 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void update_nonExistentManager_throwsDataNotFoundException() {
         // given
-        ManagerDTO updatedManagerDTO = managerDTO1;
+        ManagerDto updatedManagerDto = managerDto1;
 
         when(managerRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.update(uuid, updatedManagerDTO));
+        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.update(uuid, updatedManagerDto));
 
         // then
         verify(managerRepository).findById(uuid);

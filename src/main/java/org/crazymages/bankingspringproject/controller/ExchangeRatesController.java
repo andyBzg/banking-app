@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDTO;
+import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +26,8 @@ public class ExchangeRatesController {
      * @return The ResponseEntity containing the list of exchange rates.
      */
     @GetMapping(value = "/get-exchange-rates")
-    public ResponseEntity<List<CurrencyExchangeRateDTO>> getExchangeRates() {
-        List<CurrencyExchangeRateDTO> exchangeRates = currencyExchangeRateDatabaseService.findAllDTOs();
+    public ResponseEntity<List<CurrencyExchangeRateDto>> getExchangeRates() {
+        List<CurrencyExchangeRateDto> exchangeRates = currencyExchangeRateDatabaseService.findAllRates();
         return ResponseEntity.ok(exchangeRates);
     }
 }

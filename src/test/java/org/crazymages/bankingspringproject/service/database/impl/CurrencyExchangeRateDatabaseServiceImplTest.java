@@ -1,10 +1,10 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDTO;
+import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExchangeRateDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExchangeRateDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,23 +24,23 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
     @Mock
     CurrencyExchangeRateRepository currencyExchangeRateRepository;
     @Mock
-    CurrencyExchangeRateDTOMapper currencyExchangeRateDTOMapper;
+    CurrencyExchangeRateDtoMapper currencyExchangeRateDTOMapper;
 
     @InjectMocks
     CurrencyExchangeRateDatabaseServiceImpl currencyExchangeRateDatabaseService;
 
     CurrencyExchangeRate currencyExchangeRate1;
     CurrencyExchangeRate currencyExchangeRate2;
-    CurrencyExchangeRateDTO currencyExchangeRateDTO1;
-    CurrencyExchangeRateDTO currencyExchangeRateDTO2;
+    CurrencyExchangeRateDto currencyExchangeRateDto1;
+    CurrencyExchangeRateDto currencyExchangeRateDto2;
     String currencyCode;
 
     @BeforeEach
     void setUp() {
         currencyExchangeRate1 = new CurrencyExchangeRate();
         currencyExchangeRate2 = new CurrencyExchangeRate();
-        currencyExchangeRateDTO1 = new CurrencyExchangeRateDTO();
-        currencyExchangeRateDTO2 = new CurrencyExchangeRateDTO();
+        currencyExchangeRateDto1 = new CurrencyExchangeRateDto();
+        currencyExchangeRateDto2 = new CurrencyExchangeRateDto();
         currencyCode = "EUR";
     }
 
@@ -70,18 +70,18 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
     @Test
     void findAllDTOs_success() {
         // given
-        List<CurrencyExchangeRateDTO> expected = List.of(currencyExchangeRateDTO1, currencyExchangeRateDTO2);
+        List<CurrencyExchangeRateDto> expected = List.of(currencyExchangeRateDto1, currencyExchangeRateDto2);
         List<CurrencyExchangeRate> currencyExchangeRates = List.of(currencyExchangeRate1, currencyExchangeRate2);
         when(currencyExchangeRateRepository.findAllNotDeleted()).thenReturn(currencyExchangeRates);
-        when(currencyExchangeRateDTOMapper.getListOfDTOs(currencyExchangeRates)).thenReturn(expected);
+        when(currencyExchangeRateDTOMapper.getDtoList(currencyExchangeRates)).thenReturn(expected);
 
         // when
-        List<CurrencyExchangeRateDTO> actual = currencyExchangeRateDatabaseService.findAllDTOs();
+        List<CurrencyExchangeRateDto> actual = currencyExchangeRateDatabaseService.findAllRates();
 
         // then
         assertEquals(expected, actual);
         verify(currencyExchangeRateRepository).findAllNotDeleted();
-        verify(currencyExchangeRateDTOMapper).getListOfDTOs(currencyExchangeRates);
+        verify(currencyExchangeRateDTOMapper).getDtoList(currencyExchangeRates);
     }
 
     @Test

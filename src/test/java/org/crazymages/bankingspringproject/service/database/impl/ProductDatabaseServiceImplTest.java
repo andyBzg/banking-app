@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.ProductDTO;
+import org.crazymages.bankingspringproject.dto.ProductDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -10,7 +10,7 @@ import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ProductDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.ProductDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,15 +36,15 @@ class ProductDatabaseServiceImplTest {
     @Mock
     ManagerDatabaseService managerDatabaseService;
     @Mock
-    ProductDTOMapper productDTOMapper;
+    ProductDtoMapper productDTOMapper;
 
     @InjectMocks
     ProductDatabaseServiceImpl productDatabaseService;
 
     Product product1;
     Product product2;
-    ProductDTO productDTO1;
-    ProductDTO productDTO2;
+    ProductDto productDto1;
+    ProductDto productDto2;
     UUID uuid;
     List<Product> products;
 
@@ -52,8 +52,8 @@ class ProductDatabaseServiceImplTest {
     void setUp() {
         product1 = new Product();
         product2 = new Product();
-        productDTO1 = new ProductDTO();
-        productDTO2 = new ProductDTO();
+        productDto1 = new ProductDto();
+        productDto2 = new ProductDto();
         uuid = UUID.randomUUID();
         products = List.of(product1, product2);
     }
@@ -65,17 +65,17 @@ class ProductDatabaseServiceImplTest {
         List<Manager> managers = List.of(new Manager(), new Manager());
         Manager firstManager = new Manager();
         firstManager.setUuid(uuid);
-        when(productDTOMapper.mapDtoToEntity(productDTO1)).thenReturn(product1);
+        when(productDTOMapper.mapDtoToEntity(productDto1)).thenReturn(product1);
         when(managerDatabaseService.findManagersSortedByProductQuantityWhereManagerStatusIs(status))
                 .thenReturn(managers);
         when(managerDatabaseService.getFirstManager(managers)).thenReturn(firstManager);
 
         // when
-        productDatabaseService.create(productDTO1);
+        productDatabaseService.create(productDto1);
 
         // then
         assertEquals(product1.getManagerUuid(), firstManager.getUuid());
-        verify(productDTOMapper).mapDtoToEntity(productDTO1);
+        verify(productDTOMapper).mapDtoToEntity(productDto1);
         verify(managerDatabaseService).findManagersSortedByProductQuantityWhereManagerStatusIs(status);
         verify(managerDatabaseService).getFirstManager(managers);
         verify(productRepository).save(product1);
@@ -86,15 +86,15 @@ class ProductDatabaseServiceImplTest {
         // given
         UUID managerUuid = uuid;
         product1.setManagerUuid(managerUuid);
-        productDTO1.setManagerUuid(managerUuid);
-        when(productDTOMapper.mapDtoToEntity(productDTO1)).thenReturn(product1);
+        productDto1.setManagerUuid(String.valueOf(managerUuid));
+        when(productDTOMapper.mapDtoToEntity(productDto1)).thenReturn(product1);
 
         // when
-        productDatabaseService.create(productDTO1);
+        productDatabaseService.create(productDto1);
 
         // then
         assertEquals(managerUuid, product1.getManagerUuid());
-        verify(productDTOMapper).mapDtoToEntity(productDTO1);
+        verify(productDTOMapper).mapDtoToEntity(productDto1);
         verify(productRepository).save(product1);
         verify(managerDatabaseService, times(0))
                 .findManagersSortedByProductQuantityWhereManagerStatusIs(any(ManagerStatus.class));
@@ -104,60 +104,60 @@ class ProductDatabaseServiceImplTest {
     @Test
     void findAll_success() {
         // given
-        List<ProductDTO> expected = List.of(productDTO1, productDTO2);
+        List<ProductDto> expected = List.of(productDto1, productDto2);
         when(productRepository.findAll()).thenReturn(products);
-        when(productDTOMapper.getListOfDTOs(products)).thenReturn(expected);
+        when(productDTOMapper.getDtoList(products)).thenReturn(expected);
 
         // when
-        List<ProductDTO> actual = productDatabaseService.findAll();
+        List<ProductDto> actual = productDatabaseService.findAll();
 
         // then
         assertEquals(expected, actual);
         verify(productRepository).findAll();
-        verify(productDTOMapper).getListOfDTOs(products);
+        verify(productDTOMapper).getDtoList(products);
     }
 
     @Test
     void findAllNotDeleted_success() {
         // given
-        List<ProductDTO> expected = List.of(productDTO1, productDTO2);
+        List<ProductDto> expected = List.of(productDto1, productDto2);
         when(productRepository.findAllNotDeleted()).thenReturn(products);
-        when(productDTOMapper.getListOfDTOs(products)).thenReturn(expected);
+        when(productDTOMapper.getDtoList(products)).thenReturn(expected);
 
         // when
-        List<ProductDTO> actual = productDatabaseService.findAllNotDeleted();
+        List<ProductDto> actual = productDatabaseService.findAllNotDeleted();
 
         // then
         assertEquals(expected, actual);
         verify(productRepository).findAllNotDeleted();
-        verify(productDTOMapper).getListOfDTOs(products);
+        verify(productDTOMapper).getDtoList(products);
     }
 
     @Test
     void findDeletedProducts_success() {
         // given
-        List<ProductDTO> expected = List.of(productDTO1, productDTO2);
+        List<ProductDto> expected = List.of(productDto1, productDto2);
         when(productRepository.findAllDeleted()).thenReturn(products);
-        when(productDTOMapper.getListOfDTOs(products)).thenReturn(expected);
+        when(productDTOMapper.getDtoList(products)).thenReturn(expected);
 
         // when
-        List<ProductDTO> actual = productDatabaseService.findDeletedProducts();
+        List<ProductDto> actual = productDatabaseService.findDeletedProducts();
 
         // then
         assertEquals(expected, actual);
         verify(productRepository).findAllDeleted();
-        verify(productDTOMapper).getListOfDTOs(products);
+        verify(productDTOMapper).getDtoList(products);
     }
 
     @Test
     void findById_existingProduct_success() {
         // given
-        ProductDTO expected = productDTO1;
+        ProductDto expected = productDto1;
         when(productRepository.findById(uuid)).thenReturn(Optional.ofNullable(product1));
-        when(productDTOMapper.mapEntityToDto(product1)).thenReturn(productDTO1);
+        when(productDTOMapper.mapEntityToDto(product1)).thenReturn(productDto1);
 
         // when
-        ProductDTO actual = productDatabaseService.findById(uuid);
+        ProductDto actual = productDatabaseService.findById(uuid);
 
         // then
         assertEquals(expected, actual);
@@ -200,19 +200,19 @@ class ProductDatabaseServiceImplTest {
     @Test
     void update_success() {
         // given
-        ProductDTO productDTOUpdate = productDTO1;
+        ProductDto productDtoUpdate = productDto1;
         Product productUpdate = product1;
         Product product = product2;
 
-        when(productDTOMapper.mapDtoToEntity(productDTOUpdate)).thenReturn(productUpdate);
+        when(productDTOMapper.mapDtoToEntity(productDtoUpdate)).thenReturn(productUpdate);
         when(productRepository.findById(uuid)).thenReturn(Optional.ofNullable(product));
         when(productUpdateService.update(product, productUpdate)).thenReturn(product1);
 
         // when
-        productDatabaseService.update(uuid, productDTOUpdate);
+        productDatabaseService.update(uuid, productDtoUpdate);
 
         // then
-        verify(productDTOMapper).mapDtoToEntity(productDTOUpdate);
+        verify(productDTOMapper).mapDtoToEntity(productDtoUpdate);
         verify(productRepository).findById(uuid);
         verify(productUpdateService).update(product, productUpdate);
         verify(productRepository).save(product1);
@@ -224,10 +224,10 @@ class ProductDatabaseServiceImplTest {
         when(productRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> productDatabaseService.update(uuid, productDTO1));
+        assertThrows(DataNotFoundException.class, () -> productDatabaseService.update(uuid, productDto1));
 
         // then
-        verify(productDTOMapper).mapDtoToEntity(productDTO1);
+        verify(productDTOMapper).mapDtoToEntity(productDto1);
         verify(productUpdateService, times(0)).update(any(Product.class), any(Product.class));
         verify(productRepository, times(0)).save(any(Product.class));
     }

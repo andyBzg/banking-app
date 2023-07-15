@@ -2,13 +2,13 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.ManagerDTO;
+import org.crazymages.bankingspringproject.dto.ManagerDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ManagerDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,57 +27,57 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     private final ManagerRepository managerRepository;
     private final EntityUpdateService<Manager> managerUpdateService;
-    private final ManagerDTOMapper managerDTOMapper;
+    private final ManagerDtoMapper managerDtoMapper;
 
 
     @Override
     @Transactional
-    public void create(ManagerDTO managerDTO) {
-        if (managerDTO == null) {
+    public void create(ManagerDto managerDto) {
+        if (managerDto == null) {
             throw new IllegalArgumentException();
         }
-        Manager manager = managerDTOMapper.mapDtoToEntity(managerDTO);
+        Manager manager = managerDtoMapper.mapDtoToEntity(managerDto);
         managerRepository.save(manager);
         log.info("manager created");
     }
 
     @Override
     @Transactional
-    public List<ManagerDTO> findAll() {
+    public List<ManagerDto> findAll() {
         log.info("retrieving list of managers");
         List<Manager> managers = managerRepository.findAll();
-        return managerDTOMapper.getListOfDTOs(managers);
+        return managerDtoMapper.getDtoList(managers);
     }
 
     @Override
     @Transactional
-    public List<ManagerDTO> findAllNotDeleted() {
+    public List<ManagerDto> findAllNotDeleted() {
         log.info("retrieving list of managers");
         List<Manager> managers = managerRepository.findAllNotDeleted();
-        return managerDTOMapper.getListOfDTOs(managers);
+        return managerDtoMapper.getDtoList(managers);
     }
 
     @Override
     @Transactional
-    public List<ManagerDTO> findDeletedAccounts() {
+    public List<ManagerDto> findDeletedAccounts() {
         log.info("retrieving list of deleted managers");
         List<Manager> deletedManagers = managerRepository.findAllDeleted();
-        return managerDTOMapper.getListOfDTOs(deletedManagers);
+        return managerDtoMapper.getDtoList(deletedManagers);
     }
 
     @Override
     @Transactional
-    public ManagerDTO findById(UUID uuid) {
+    public ManagerDto findById(UUID uuid) {
         log.info("retrieving manager by id {}", uuid);
-        return managerDTOMapper.mapEntityToDto(
+        return managerDtoMapper.mapEntityToDto(
                 managerRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
+                        .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
     @Override
     @Transactional
-    public void update(UUID uuid, ManagerDTO updatedManagerDTO) {
-        Manager managerUpdate = managerDTOMapper.mapDtoToEntity(updatedManagerDTO);
+    public void update(UUID uuid, ManagerDto updatedManagerDto) {
+        Manager managerUpdate = managerDtoMapper.mapDtoToEntity(updatedManagerDto);
         Manager manager = managerRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         manager = managerUpdateService.update(manager, managerUpdate);
