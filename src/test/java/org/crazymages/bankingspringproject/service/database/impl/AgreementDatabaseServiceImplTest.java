@@ -1,11 +1,11 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.AgreementDTO;
+import org.crazymages.bankingspringproject.dto.AgreementDto;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,21 +31,21 @@ class AgreementDatabaseServiceImplTest {
     @Mock
     EntityUpdateService<Agreement> agreementUpdateService;
     @Mock
-    AgreementDTOMapper agreementDTOMapper;
+    AgreementDtoMapper agreementDTOMapper;
 
     @InjectMocks
     AgreementDatabaseServiceImpl agreementDatabaseService;
 
-    AgreementDTO agreementDTO1;
-    AgreementDTO agreementDTO2;
+    AgreementDto agreementDto1;
+    AgreementDto agreementDto2;
     Agreement agreement1;
     Agreement agreement2;
     UUID uuid;
 
     @BeforeEach
     void setUp() {
-        agreementDTO1 = new AgreementDTO();
-        agreementDTO2 = new AgreementDTO();
+        agreementDto1 = new AgreementDto();
+        agreementDto2 = new AgreementDto();
         agreement1 = new Agreement();
         agreement2 = new Agreement();
         uuid = UUID.randomUUID();
@@ -54,31 +54,31 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void create_success() {
         // given
-        when(agreementDTOMapper.mapDtoToEntity(agreementDTO1)).thenReturn(agreement1);
+        when(agreementDTOMapper.mapDtoToEntity(agreementDto1)).thenReturn(agreement1);
 
         // when
-        agreementDatabaseService.create(agreementDTO1);
+        agreementDatabaseService.create(agreementDto1);
 
         // then
-        verify(agreementDTOMapper).mapDtoToEntity(agreementDTO1);
+        verify(agreementDTOMapper).mapDtoToEntity(agreementDto1);
         verify(agreementRepository).save(agreement1);
     }
 
     @Test
     void findAllNotDeleted_success() {
         // given
-        List<AgreementDTO> expected = List.of(agreementDTO1, agreementDTO2);
+        List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAllNotDeleted()).thenReturn(agreements);
-        when(agreementDTOMapper.getListOfDTOs(agreements)).thenReturn(expected);
+        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(expected);
 
         // when
-        List<AgreementDTO> actual = agreementDatabaseService.findAllNotDeleted();
+        List<AgreementDto> actual = agreementDatabaseService.findAllNotDeleted();
 
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAllNotDeleted();
-        verify(agreementDTOMapper).getListOfDTOs(agreements);
+        verify(agreementDTOMapper).getDtoList(agreements);
     }
 
     @Test
@@ -87,7 +87,7 @@ class AgreementDatabaseServiceImplTest {
         when(agreementRepository.findAllNotDeleted()).thenReturn(Collections.emptyList());
 
         // when
-        List<AgreementDTO> actual = agreementDatabaseService.findAllNotDeleted();
+        List<AgreementDto> actual = agreementDatabaseService.findAllNotDeleted();
 
         // then
         assertTrue(actual.isEmpty());
@@ -96,18 +96,18 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void findDeletedAccounts_success() {
         // given
-        List<AgreementDTO> expected = List.of(agreementDTO1, agreementDTO2);
+        List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> deletedAgreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAllDeleted()).thenReturn(deletedAgreements);
-        when(agreementDTOMapper.getListOfDTOs(deletedAgreements)).thenReturn(expected);
+        when(agreementDTOMapper.getDtoList(deletedAgreements)).thenReturn(expected);
 
         // when
-        List<AgreementDTO> actual = agreementDatabaseService.findDeletedAgreements();
+        List<AgreementDto> actual = agreementDatabaseService.findDeletedAgreements();
 
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAllDeleted();
-        verify(agreementDTOMapper).getListOfDTOs(deletedAgreements);
+        verify(agreementDTOMapper).getDtoList(deletedAgreements);
     }
 
     @Test
@@ -116,7 +116,7 @@ class AgreementDatabaseServiceImplTest {
         when(agreementRepository.findAllDeleted()).thenReturn(null);
 
         // when
-        List<AgreementDTO> actual = agreementDatabaseService.findDeletedAgreements();
+        List<AgreementDto> actual = agreementDatabaseService.findDeletedAgreements();
 
         // then
         assertTrue(actual.isEmpty());
@@ -125,12 +125,12 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void findById_success() {
         // given
-        AgreementDTO expected = agreementDTO1;
+        AgreementDto expected = agreementDto1;
         when(agreementRepository.findById(uuid)).thenReturn(Optional.ofNullable(agreement1));
-        when(agreementDTOMapper.mapEntityToDto(agreement1)).thenReturn(agreementDTO1);
+        when(agreementDTOMapper.mapEntityToDto(agreement1)).thenReturn(agreementDto1);
 
         // when
-        AgreementDTO actual = agreementDatabaseService.findById(uuid);
+        AgreementDto actual = agreementDatabaseService.findById(uuid);
 
         // then
         assertEquals(expected, actual);
@@ -166,20 +166,20 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void update_success() {
         // given
-        AgreementDTO updatedAgreementDTO = agreementDTO1;
+        AgreementDto updatedAgreementDto = agreementDto1;
         Agreement updatedAgreement = agreement1;
         Agreement agreementToUpdate = agreement2;
 
-        when(agreementDTOMapper.mapDtoToEntity(updatedAgreementDTO)).thenReturn(updatedAgreement);
+        when(agreementDTOMapper.mapDtoToEntity(updatedAgreementDto)).thenReturn(updatedAgreement);
         when(agreementRepository.findById(uuid)).thenReturn(Optional.ofNullable(agreementToUpdate));
         when(agreementUpdateService.update(agreementToUpdate, updatedAgreement)).thenReturn(agreement1);
 
 
         // when
-        agreementDatabaseService.update(uuid, updatedAgreementDTO);
+        agreementDatabaseService.update(uuid, updatedAgreementDto);
 
         // then
-        verify(agreementDTOMapper).mapDtoToEntity(updatedAgreementDTO);
+        verify(agreementDTOMapper).mapDtoToEntity(updatedAgreementDto);
         verify(agreementRepository).findById(uuid);
         verify(agreementUpdateService).update(agreementToUpdate, updatedAgreement);
         verify(agreementRepository).save(agreement1);
@@ -188,13 +188,13 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void update_throws_dataNotFoundException() {
         // given
-        AgreementDTO updatedAgreementDTO = agreementDTO1;
+        AgreementDto updatedAgreementDto = agreementDto1;
 
-        when(agreementDTOMapper.mapDtoToEntity(updatedAgreementDTO)).thenReturn(agreement1);
+        when(agreementDTOMapper.mapDtoToEntity(updatedAgreementDto)).thenReturn(agreement1);
         when(agreementRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.update(uuid, updatedAgreementDTO));
+        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.update(uuid, updatedAgreementDto));
     }
 
     @Test
@@ -214,35 +214,35 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void findAgreementsByManagerUuid_success() {
         // given
-        List<AgreementDTO> expected = List.of(agreementDTO1, agreementDTO2);
+        List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAgreementsWhereManagerIdIs(uuid)).thenReturn(agreements);
-        when(agreementDTOMapper.getListOfDTOs(agreements)).thenReturn(List.of(agreementDTO1, agreementDTO2));
+        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
 
         // when
-        List<AgreementDTO> actual = agreementDatabaseService.findAgreementsByManagerUuid(uuid);
+        List<AgreementDto> actual = agreementDatabaseService.findAgreementsByManagerUuid(uuid);
 
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAgreementsWhereManagerIdIs(uuid);
-        verify(agreementDTOMapper).getListOfDTOs(agreements);
+        verify(agreementDTOMapper).getDtoList(agreements);
     }
 
     @Test
     void findAgreementDTOsByClientUuid_success() {
         // given
-        List<AgreementDTO> expected = List.of(agreementDTO1, agreementDTO2);
+        List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAgreementsWhereClientIdIs(uuid)).thenReturn(agreements);
-        when(agreementDTOMapper.getListOfDTOs(agreements)).thenReturn(List.of(agreementDTO1, agreementDTO2));
+        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
 
         // when
-        List<AgreementDTO> actual = agreementDatabaseService.findAgreementDTOsByClientUuid(uuid);
+        List<AgreementDto> actual = agreementDatabaseService.findAgreementDtoListByClientUuid(uuid);
 
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAgreementsWhereClientIdIs(uuid);
-        verify(agreementDTOMapper).getListOfDTOs(agreements);
+        verify(agreementDTOMapper).getDtoList(agreements);
     }
 
     @Test

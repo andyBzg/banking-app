@@ -3,9 +3,6 @@ package org.crazymages.bankingspringproject.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
-
-import java.util.UUID;
 
 /**
  * Data transfer object (DTO) class representing a Manager.
@@ -13,10 +10,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ManagerDTO {
-    private UUID uuid;
+public class ManagerDto {
+    private String uuid;
     private String firstName;
     private String lastName;
-    private ManagerStatus status;
+    private String status;
     private String description;
 }

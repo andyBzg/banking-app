@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDTO;
+import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public interface CurrencyExchangeRateDatabaseService {
      *
      * @return A list of all currency exchange rate DTOs.
      */
-    List<CurrencyExchangeRateDTO> findAllDTOs();
+    List<CurrencyExchangeRateDto> findAllRates();
 
     /**
      * Retrieves a currency exchange rate from the database by its currency code.
