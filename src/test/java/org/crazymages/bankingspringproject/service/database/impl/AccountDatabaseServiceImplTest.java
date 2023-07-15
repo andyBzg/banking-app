@@ -81,7 +81,7 @@ class AccountDatabaseServiceImplTest {
     }
 
     @Test
-    void create_withClientId_() {
+    void create_withClientId_success() {
         // given
         Product product = new Product();
         ProductType type = ProductType.CURRENT_ACCOUNT;
