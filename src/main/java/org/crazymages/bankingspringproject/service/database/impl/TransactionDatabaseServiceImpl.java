@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.AccountDto;
 import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Account;
-import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -15,15 +14,14 @@ import org.crazymages.bankingspringproject.exception.InsufficientFundsException;
 import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
-import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.converter.CurrencyConverter;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.TransactionDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
@@ -42,7 +40,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     private final AccountDatabaseService accountDatabaseService;
     private final AccountDtoMapper accountDtoMapper;
     private final ClientDatabaseService clientDatabaseService;
-    private final CurrencyExchangeRateDatabaseService currencyExchangeRateDatabaseService;
+    private final CurrencyConverter currencyConverter;
 
 
     @Override
@@ -102,8 +100,8 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         AccountDto recipientAccountDto = accountDatabaseService.findById(transaction.getCreditAccountUuid());
         Account senderAccount = accountDtoMapper.mapDtoToEntity(senderAccountDto);
         Account recipientAccount = accountDtoMapper.mapDtoToEntity(recipientAccountDto);
-        boolean senderStatus = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
-        boolean recipientStatus = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
+        boolean isSenderActive = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
+        boolean isRecipientActive = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
 
         if (senderAccount.getBalance() == null || senderAccount.getStatus() == null ||
                 recipientAccount.getBalance() == null || recipientAccount.getStatus() == null) {
@@ -116,7 +114,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
                 !recipientAccount.getStatus().equals(AccountStatus.ACTIVE)) {
             throw new TransactionNotAllowedException();
         }
-        if (senderStatus || recipientStatus) {
+        if (!isSenderActive || !isRecipientActive) {
             throw new TransactionNotAllowedException();
         }
 
@@ -129,37 +127,15 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         if (recipientCurrency.equals(senderCurrency)) {
             recipientAccount.setBalance(recipientAccount.getBalance().add(amount));
         } else {
-            performCurrencyConversion(amount, recipientAccount, senderAccount);
+            recipientAccount = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
         }
 
         senderAccountDto = accountDtoMapper.mapEntityToDto(senderAccount);
-        recipientAccountDto = accountDtoMapper.mapEntityToDto(senderAccount);
+        recipientAccountDto = accountDtoMapper.mapEntityToDto(recipientAccount);
         accountDatabaseService.update(senderAccount.getUuid(), senderAccountDto);
         accountDatabaseService.update(recipientAccount.getUuid(), recipientAccountDto);
         transactionRepository.save(transaction);
         log.info("transfer saved to db");
-    }
-
-    private void performCurrencyConversion(BigDecimal amount, Account recipientAccount, Account senderAccount) {
-        String recipientCurrencyCode = recipientAccount.getCurrencyCode().name();
-        CurrencyExchangeRate recipientToBaseCurrencyRate = currencyExchangeRateDatabaseService.findById(recipientCurrencyCode);
-        BigDecimal recipientCurrencyRate = recipientToBaseCurrencyRate.getExchangeRate();
-        log.info("Курс валюты получателя к доллару {}", recipientCurrencyRate);
-
-        String senderCurrencyCode = senderAccount.getCurrencyCode().name();
-        BigDecimal senderCurrencyRate = currencyExchangeRateDatabaseService
-                .findById(senderCurrencyCode)
-                .getExchangeRate();
-        log.info("Курс валюты отправителя к доллару {}", senderCurrencyRate);
-
-        BigDecimal baseCurrencyAmount = amount.divide(senderCurrencyRate, 2, RoundingMode.HALF_UP);
-        log.info("сумма в долларах: {}", baseCurrencyAmount);
-
-        BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientCurrencyRate);
-        log.info("сумма в валюте получателя: {}", recipientAmount);
-
-        BigDecimal recipientBalance = recipientAccount.getBalance();
-        recipientAccount.setBalance(recipientBalance.add(recipientAmount));
     }
 
     @Override
