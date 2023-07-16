@@ -279,7 +279,7 @@ class TransactionDatabaseServiceImplTest {
         verify(accountDtoMapper, times(2)).mapDtoToEntity(any(AccountDto.class));
         verify(clientDatabaseService, times(2)).isClientStatusActive(any());
         verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
-        verify(currencyConverter).performCurrencyConversion(amount, recipientAccount, senderAccount);;
+        verify(currencyConverter).performCurrencyConversion(amount, recipientAccount, senderAccount);
         verify(accountDatabaseService, times(2)).update(any(UUID.class), any(AccountDto.class));
         verify(accountDatabaseService, times(2)).update(any(UUID.class), any(AccountDto.class));
         verify(transactionRepository).save(transaction);
