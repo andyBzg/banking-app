@@ -14,13 +14,13 @@ public class ClientUpdateServiceImpl implements EntityUpdateService<Client> {
     @Override
     public Client update(Client client, Client clientUpdate) {
         if (client != null && clientUpdate != null) {
-            updateProperties(client, clientUpdate);
+            client = updateProperties(client, clientUpdate);
         }
         return client;
     }
 
     @Override
-    public void updateProperties(Client client, Client clientUpdate) {
+    public Client updateProperties(Client client, Client clientUpdate) {
         if (clientUpdate.getManagerUuid() != null) {
             client.setManagerUuid(clientUpdate.getManagerUuid());
         }
@@ -45,5 +45,6 @@ public class ClientUpdateServiceImpl implements EntityUpdateService<Client> {
         if (clientUpdate.getPhone() != null) {
             client.setPhone(clientUpdate.getPhone());
         }
+        return client;
     }
 }
