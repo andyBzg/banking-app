@@ -25,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -440,6 +442,42 @@ class TransactionDatabaseServiceImplTest {
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsByClientIdBetweenDates(uuid, start, end);
         verify(transactionDtoMapper).getDtoList(transactions);
+    }
+
+    @Test
+    void findTransactionsByClientIdBetweenDates_invalidDate_throwsDateTimeParseException() {
+        // given
+        String from = "2023-07-15";
+        String to = "0000-00-00";
+
+        // when
+        assertThrows(DateTimeParseException.class, () -> transactionDatabaseService
+                .findTransactionsByClientIdBetweenDates(uuid, from, to));
+
+        // then
+        verifyNoInteractions(transactionRepository);
+        verifyNoInteractions(transactionDtoMapper);
+    }
+
+    @Test
+    void findTransactionsByClientIdBetweenDates_noTransactions_returnsEmptyList() {
+        // given
+        String from = "2023-07-15";
+        String to = "2023-07-16";
+        Timestamp start = Timestamp.valueOf(LocalDate.parse(from).atStartOfDay());
+        Timestamp end = Timestamp.valueOf(LocalDate.parse(to).atStartOfDay());
+        when(transactionRepository
+                .findTransactionsByClientIdBetweenDates(uuid, start, end))
+                .thenReturn(Collections.emptyList());
+
+        // when
+        List<TransactionDto> actual = transactionDatabaseService
+                .findTransactionsByClientIdBetweenDates(uuid, "2023-07-15", "2023-07-16");
+
+        // then
+        assertTrue(actual.isEmpty());
+        verify(transactionRepository).findTransactionsByClientIdBetweenDates(uuid, start, end);
+        verify(transactionDtoMapper).getDtoList(anyList());
     }
 
     @Test

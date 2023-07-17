@@ -36,7 +36,7 @@ public class ManagerDtoMapper implements DtoMapper<Manager, ManagerDto> {
         manager.setFirstName(managerDto.getFirstName());
         manager.setLastName(managerDto.getLastName());
         manager.setStatus(ManagerStatus.valueOf(managerDto.getStatus()));
-        manager.setDescription(manager.getDescription());
+        manager.setDescription(managerDto.getDescription());
         return manager;
     }
 

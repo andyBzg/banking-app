@@ -14,13 +14,13 @@ public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement
     @Override
     public Agreement update(Agreement agreement, Agreement agreementUpdate) {
         if (agreement != null && agreementUpdate != null) {
-            updateProperties(agreement, agreementUpdate);
+            agreement = updateProperties(agreement, agreementUpdate);
         }
         return agreement;
     }
 
     @Override
-    public void updateProperties(Agreement agreement, Agreement agreementUpdate) {
+    public Agreement updateProperties(Agreement agreement, Agreement agreementUpdate) {
         if (agreementUpdate.getAccountUuid() != null) {
             agreement.setAccountUuid(agreementUpdate.getAccountUuid());
         }
@@ -36,5 +36,6 @@ public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement
         if (agreementUpdate.getAmount() != null) {
             agreement.setAmount(agreementUpdate.getAmount());
         }
+        return agreement;
     }
 }
