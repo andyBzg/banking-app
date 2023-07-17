@@ -11,7 +11,7 @@ import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
+import org.crazymages.bankingspringproject.service.utils.creator.AgreementInitializer;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
@@ -34,7 +34,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     private final EntityUpdateService<Account> accountUpdateService;
     private final ProductDatabaseService productDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
-    private final AgreementCreator agreementCreator;
+    private final AgreementInitializer agreementInitializer;
     private final AgreementDtoMapper agreementDtoMapper;
     private final ProductTypeMatcher productTypeMatcher;
 
@@ -59,7 +59,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         CurrencyCode currencyCode = account.getCurrencyCode();
         Product product = productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
 
-        Agreement agreement = agreementCreator.apply(account.getUuid(), product);
+        Agreement agreement = agreementInitializer.initializeAgreement(account.getUuid(), product);
         AgreementDto agreementDto = agreementDtoMapper.mapEntityToDto(agreement);
         agreementDatabaseService.create(agreementDto);
     }

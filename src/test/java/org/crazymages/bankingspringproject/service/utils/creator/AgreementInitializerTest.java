@@ -11,15 +11,15 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AgreementCreatorTest {
+class AgreementInitializerTest {
 
-    AgreementCreator agreementCreator;
+    AgreementInitializer agreementInitializer;
     UUID accountUuid;
     Product product;
 
     @BeforeEach
     void SetUp() {
-        agreementCreator = new AgreementCreator();
+        agreementInitializer = new AgreementInitializer();
         accountUuid = UUID.randomUUID();
         product = new Product();
         product.setUuid(accountUuid);
@@ -29,7 +29,7 @@ class AgreementCreatorTest {
     @Test
     void apply_createsAgreementWithCorrectProperties() {
         // when
-        Agreement agreement = agreementCreator.apply(accountUuid, product);
+        Agreement agreement = agreementInitializer.initializeAgreement(accountUuid, product);
 
         // then
         assertEquals(accountUuid, agreement.getAccountUuid());
@@ -41,8 +41,8 @@ class AgreementCreatorTest {
     @Test
     void apply_returnsNewAgreementInstance() {
         // when
-        Agreement agreement1 = agreementCreator.apply(accountUuid, product);
-        Agreement agreement2 = agreementCreator.apply(accountUuid, product);
+        Agreement agreement1 = agreementInitializer.initializeAgreement(accountUuid, product);
+        Agreement agreement2 = agreementInitializer.initializeAgreement(accountUuid, product);
 
         // then
         assertNotSame(agreement1, agreement2);
@@ -51,7 +51,7 @@ class AgreementCreatorTest {
     @Test
     void apply_withNullAccountUuid_returnsAgreementWithNullAccountId() {
         // when
-        Agreement agreement = agreementCreator.apply(null, product);
+        Agreement agreement = agreementInitializer.initializeAgreement(null, product);
 
         // then
         assertNull(agreement.getAccountUuid());
@@ -60,6 +60,6 @@ class AgreementCreatorTest {
     @Test
     void apply_withNullProduct_throwsNullPointerException() {
         // when, then
-        assertThrows(NullPointerException.class, () -> agreementCreator.apply(accountUuid, null));
+        assertThrows(NullPointerException.class, () -> agreementInitializer.initializeAgreement(accountUuid, null));
     }
 }

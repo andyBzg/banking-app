@@ -6,17 +6,15 @@ import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
-import java.util.function.BiFunction;
 
 /**
  * A component class that implements the BiFunction interface to create an Agreement object
  * based on the provided account UUID and product information.
  */
 @Component
-public class AgreementCreator implements BiFunction<UUID, Product, Agreement> {
+public class AgreementInitializer {
 
-    @Override
-    public Agreement apply(UUID accountUuid, Product product) {
+    public Agreement initializeAgreement(UUID accountUuid, Product product) {
         Agreement agreement = new Agreement();
         agreement.setAccountUuid(accountUuid);
         agreement.setProductUuid(product.getUuid());

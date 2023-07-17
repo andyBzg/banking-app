@@ -8,7 +8,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
+import org.crazymages.bankingspringproject.service.utils.creator.AgreementInitializer;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
@@ -41,7 +41,7 @@ class AccountDatabaseServiceImplTest {
     @Mock
     AgreementDatabaseService agreementDatabaseService;
     @Mock
-    AgreementCreator agreementCreator;
+    AgreementInitializer agreementInitializer;
     @Mock
     AgreementDtoMapper agreementDTOMapper;
     @Mock
@@ -95,7 +95,7 @@ class AccountDatabaseServiceImplTest {
         when(productTypeMatcher.matchTypes(account1.getType())).thenReturn(type);
         when(productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode))
                 .thenReturn(product);
-        when(agreementCreator.apply(account1.getUuid(), product)).thenReturn(agreement);
+        when(agreementInitializer.initializeAgreement(account1.getUuid(), product)).thenReturn(agreement);
         when(agreementDTOMapper.mapEntityToDto(agreement)).thenReturn(agreementDto);
 
 
@@ -109,7 +109,7 @@ class AccountDatabaseServiceImplTest {
         verify(accountRepository).save(account1);
         verify(productTypeMatcher).matchTypes(account1.getType());
         verify(productDatabaseService).findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
-        verify(agreementCreator).apply(account1.getUuid(), product);
+        verify(agreementInitializer).initializeAgreement(account1.getUuid(), product);
         verify(agreementDTOMapper).mapEntityToDto(agreement);
         verify(agreementDatabaseService).create(agreementDto);
     }
