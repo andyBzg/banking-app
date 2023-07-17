@@ -9,7 +9,7 @@ import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.service.database.*;
-import org.crazymages.bankingspringproject.service.utils.creator.TransactionCreator;
+import org.crazymages.bankingspringproject.service.utils.creator.TransactionInitializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class DepositScheduler {
     private final AgreementDatabaseService agreementDatabaseService;
     private final ClientDatabaseService clientDatabaseService;
     private final TransactionDatabaseService transactionDatabaseService;
-    private final TransactionCreator transactionCreator;
+    private final TransactionInitializer transactionInitializer;
 
     /**
      * Executes deposit interest payments based on a scheduled cron expression.
@@ -146,7 +146,7 @@ public class DepositScheduler {
      * @param updatedBalance   The interest rate to apply to the payment.
      */
     public void performInterestPayment(Account bankAccount, Account recipientAccount, BigDecimal updatedBalance) {
-        Transaction transaction = transactionCreator.apply(bankAccount, recipientAccount);
+        Transaction transaction = transactionInitializer.initializeTransaction(bankAccount, recipientAccount);
         transaction.setType(TransactionType.DEPOSIT);
         transaction.setAmount(updatedBalance);
         transaction.setDescription("Deposit Interest Payment");
