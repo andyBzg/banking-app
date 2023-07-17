@@ -19,26 +19,20 @@ import java.util.UUID;
 public class ClientDtoMapper implements DtoMapper<Client, ClientDto> {
 
     @Override
-    public ClientDto mapEntityToDto(Client client) {
-        return new ClientDto(
-                String.valueOf(client.getUuid()),
-                String.valueOf(client.getManagerUuid()),
-                String.valueOf(client.getStatus()),
-                client.getTaxCode(),
-                client.getFirstName(),
-                client.getLastName(),
-                client.getEmail(),
-                client.getAddress(),
-                client.getPhone()
-        );
+    public ClientDto mapEntityToDto(Client entity) {
+        return ClientDto.builder()
+                .taxCode(entity.getTaxCode())
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
+                .email(entity.getEmail())
+                .address(entity.getAddress())
+                .phone(entity.getPhone())
+                .build();
     }
 
     @Override
     public Client mapDtoToEntity(ClientDto clientDto) {
         Client client = new Client();
-        client.setUuid(UUID.fromString(clientDto.getUuid()));
-        client.setManagerUuid(UUID.fromString(clientDto.getManagerUuid()));
-        client.setStatus(ClientStatus.valueOf(clientDto.getStatus()));
         client.setTaxCode(clientDto.getTaxCode());
         client.setFirstName(clientDto.getFirstName());
         client.setLastName(clientDto.getLastName());
