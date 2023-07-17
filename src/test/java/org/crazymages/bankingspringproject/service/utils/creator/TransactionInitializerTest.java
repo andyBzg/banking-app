@@ -10,15 +10,15 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TransactionCreatorTest {
+class TransactionInitializerTest {
 
-    TransactionCreator transactionCreator;
+    TransactionInitializer transactionInitializer;
     Account sender;
     Account recipient;
 
     @BeforeEach
     void setUp() {
-        transactionCreator = new TransactionCreator();
+        transactionInitializer = new TransactionInitializer();
 
         sender = new Account();
         sender.setUuid(UUID.randomUUID());
@@ -32,7 +32,7 @@ class TransactionCreatorTest {
     @Test
     void apply_createsTransactionWithCorrectProperties() {
         // when
-        Transaction transaction = transactionCreator.apply(sender, recipient);
+        Transaction transaction = transactionInitializer.initializeTransaction(sender, recipient);
 
         // then
         assertEquals(sender.getUuid(), transaction.getDebitAccountUuid());
@@ -43,22 +43,22 @@ class TransactionCreatorTest {
     @Test
     void apply_withNullSender_throwsNullPointerException() {
         // when, then
-        assertThrows(NullPointerException.class, () -> transactionCreator.apply(null, recipient));
+        assertThrows(NullPointerException.class, () -> transactionInitializer.initializeTransaction(null, recipient));
     }
 
     @Test
     void apply_withNullRecipient_throwsNullPointerException() {
         // when, then
-        assertThrows(NullPointerException.class, () -> transactionCreator.apply(sender, null));
+        assertThrows(NullPointerException.class, () -> transactionInitializer.initializeTransaction(sender, null));
     }
 
     @Test
     void apply_returnsNewTransactionInstance() {
         // when
-        Transaction transaction = transactionCreator.apply(sender, recipient);
+        Transaction transaction = transactionInitializer.initializeTransaction(sender, recipient);
 
         // then
         assertNotNull(transaction);
-        assertNotSame(transaction, transactionCreator.apply(sender, recipient));
+        assertNotSame(transaction, transactionInitializer.initializeTransaction(sender, recipient));
     }
 }
