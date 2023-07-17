@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.TransactionDTO;
+import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Transaction;
 
 import java.util.List;
@@ -15,16 +15,16 @@ public interface TransactionDatabaseService {
     /**
      * Creates a new Transaction entity in the database.
      *
-     * @param transactionDTO The Transaction entity to be created.
+     * @param transactionDto The Transaction entity to be created.
      */
-    void create(TransactionDTO transactionDTO);
+    void create(TransactionDto transactionDto);
 
     /**
      * Retrieves all Transaction entities from the database.
      *
      * @return A list of all Transaction entities.
      */
-    List<TransactionDTO> findAll();
+    List<TransactionDto> findAll();
 
     /**
      * Retrieves a Transaction entity from the database by its UUID.
@@ -32,7 +32,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the Transaction to retrieve.
      * @return The Transaction entity with the specified UUID, or null if not found.
      */
-    TransactionDTO findById(UUID uuid);
+    TransactionDto findById(UUID uuid);
 
     /**
      * Retrieves all outgoing Transaction entities associated with the specified UUID.
@@ -40,7 +40,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the client/account.
      * @return A list of outgoing Transaction entities.
      */
-    List<TransactionDTO> findOutgoingTransactions(UUID uuid);
+    List<TransactionDto> findOutgoingTransactions(UUID uuid);
 
     /**
      * Retrieves all incoming Transaction entities associated with the specified UUID.
@@ -48,7 +48,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the client/account.
      * @return A list of incoming Transaction entities.
      */
-    List<TransactionDTO> findIncomingTransactions(UUID uuid);
+    List<TransactionDto> findIncomingTransactions(UUID uuid);
 
     /**
      * Retrieves all Transaction entities associated with the specified client UUID.
@@ -56,7 +56,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the client.
      * @return A list of Transaction entities.
      */
-    List<TransactionDTO> findAllTransactionsByClientId(UUID uuid);
+    List<TransactionDto> findAllTransactionsByClientId(UUID uuid);
 
     /**
      * Transfers funds between accounts based on the provided Transaction entity.
@@ -73,7 +73,7 @@ public interface TransactionDatabaseService {
      * @param to         The ending date (inclusive) in the format "yyyy-MM-dd".
      * @return A list of Transaction entities within the specified date range.
      */
-    List<TransactionDTO> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to);
+    List<TransactionDto> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to);
 
     /**
      * Retrieves all Transaction entities between the specified dates.
@@ -82,5 +82,5 @@ public interface TransactionDatabaseService {
      * @param to   The ending date (inclusive) in the format "yyyy-MM-dd".
      * @return A list of Transaction entities within the specified date range.
      */
-    List<TransactionDTO> findTransactionsBetweenDates(String from, String to);
+    List<TransactionDto> findTransactionsBetweenDates(String from, String to);
 }

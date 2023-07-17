@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.AccountDTO;
+import org.crazymages.bankingspringproject.dto.AccountDto;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.springframework.http.HttpStatus;
@@ -25,28 +25,28 @@ public class AccountController {
     /**
      * Create a new account.
      *
-     * @param accountDTO the account to create
+     * @param accountDto the account to create
      * @return the created account
      */
     @PostMapping(value = "/account/create")
-    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO accountDTO) {
+    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
         log.info("endpoint request: create account");
-        accountDatabaseService.create(accountDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountDTO);
+        accountDatabaseService.create(accountDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountDto);
     }
 
     /**
      * Create a new account for a specific client.
      *
-     * @param accountDTO the account to create
+     * @param accountDto the account to create
      * @param uuid       the UUID of the client
      * @return the created account
      */
     @PostMapping(value = "/account/create/by-client/{uuid}")
-    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO accountDTO, @PathVariable UUID uuid) {
+    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto, @PathVariable UUID uuid) {
         log.info("endpoint request: create account");
-        accountDatabaseService.create(accountDTO, uuid);
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountDTO);
+        accountDatabaseService.create(accountDto, uuid);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountDto);
     }
 
     /**
@@ -55,10 +55,10 @@ public class AccountController {
      * @return the list of all accounts
      */
     @GetMapping(value = "/account/find/all")
-    public ResponseEntity<List<AccountDTO>> findAllAccounts() {
+    public ResponseEntity<List<AccountDto>> findAllAccounts() {
         log.info("endpoint request: find all accounts");
-        List<AccountDTO> accountDTOs = accountDatabaseService.findAllNotDeleted();
-        return accountDTOs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountDTOs);
+        List<AccountDto> accountDtoList = accountDatabaseService.findAllNotDeleted();
+        return accountDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountDtoList);
     }
 
     /**
@@ -68,10 +68,10 @@ public class AccountController {
      * @return the found account
      */
     @GetMapping(value = "/account/find/{uuid}")
-    public ResponseEntity<AccountDTO> findAccountByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<AccountDto> findAccountByUuid(@PathVariable UUID uuid) {
         log.info("endpoint request: find account by uuid {}", uuid);
-        AccountDTO accountDTO = accountDatabaseService.findById(uuid);
-        return ResponseEntity.ok(accountDTO);
+        AccountDto accountDto = accountDatabaseService.findById(uuid);
+        return ResponseEntity.ok(accountDto);
     }
 
     /**
@@ -81,24 +81,24 @@ public class AccountController {
      * @return the list of accounts with the specified status
      */
     @GetMapping(value = "/account/find/all/by-status/{status}")
-    public ResponseEntity<List<AccountDTO>> findAllAccountsByStatus(@PathVariable String status) {
+    public ResponseEntity<List<AccountDto>> findAllAccountsByStatus(@PathVariable String status) {
         log.info("endpoint request: find all accounts by status {}", status);
-        List<AccountDTO> accountList = accountDatabaseService.findAllByStatus(status);
-        return accountList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountList);
+        List<AccountDto> accountDtoList = accountDatabaseService.findAllByStatus(status);
+        return accountDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountDtoList);
     }
 
     /**
      * Update an account.
      *
      * @param uuid              the UUID of the account to update
-     * @param updatedAccountDTO the updated account data
+     * @param updatedAccountDto the updated account data
      * @return the updated account
      */
     @PutMapping(value = "/account/update/{uuid}")
-    public ResponseEntity<AccountDTO> updateAccount(@PathVariable UUID uuid, @RequestBody AccountDTO updatedAccountDTO) {
+    public ResponseEntity<AccountDto> updateAccount(@PathVariable UUID uuid, @RequestBody AccountDto updatedAccountDto) {
         log.info("endpoint request: update account uuid {}", uuid);
-        accountDatabaseService.update(uuid, updatedAccountDTO);
-        return ResponseEntity.ok(updatedAccountDTO);
+        accountDatabaseService.update(uuid, updatedAccountDto);
+        return ResponseEntity.ok(updatedAccountDto);
     }
 
     /**
@@ -135,11 +135,11 @@ public class AccountController {
      * @return the list of accounts with the specified product ID and status
      */
     @GetMapping(value = "/account/find/all/by-product/{uuid}/product-status/{status}")
-    public ResponseEntity<List<AccountDTO>> findAllAccountsByProductIdAndStatus(
+    public ResponseEntity<List<AccountDto>> findAllAccountsByProductIdAndStatus(
             @PathVariable UUID uuid, @PathVariable ProductStatus status) {
         log.info("endpoint request: find all accounts by product id {} and product status {}", uuid, status);
-        List<AccountDTO> accountList = accountDatabaseService.findAccountsByProductIdAndStatus(uuid, status);
-        return accountList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountList);
+        List<AccountDto> accountDtoList = accountDatabaseService.findAccountsByProductIdAndStatus(uuid, status);
+        return accountDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountDtoList);
     }
 
     /**
@@ -149,9 +149,9 @@ public class AccountController {
      * @return the list of accounts associated with the specified client UUID
      */
     @GetMapping(value = "/account/find/all/by-client/{uuid}")
-    public ResponseEntity<List<AccountDTO>> findAllAccountsByClientUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<List<AccountDto>> findAllAccountsByClientUuid(@PathVariable UUID uuid) {
         log.info("endpoint request: find all accounts by client id {} ", uuid);
-        List<AccountDTO> accountList = accountDatabaseService.findAllDtoByClientId(uuid);
-        return accountList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountList);
+        List<AccountDto> accountDtoList = accountDatabaseService.findAllDtoByClientId(uuid);
+        return accountDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(accountDtoList);
     }
 }

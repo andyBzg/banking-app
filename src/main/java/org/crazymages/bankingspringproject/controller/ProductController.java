@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crazymages.bankingspringproject.dto.ProductDTO;
+import org.crazymages.bankingspringproject.dto.ProductDto;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +22,13 @@ public class ProductController {
     /**
      * Creates a new product.
      *
-     * @param productDTO The product to create.
+     * @param productDto The product to create.
      * @return The created product.
      */
     @PostMapping(value = "/product/create")
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
-        productDatabaseService.create(productDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        productDatabaseService.create(productDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDto);
     }
 
     /**
@@ -37,9 +37,9 @@ public class ProductController {
      * @return The list of products.
      */
     @GetMapping(value = "/product/find/all")
-    public ResponseEntity<List<ProductDTO>> findAllProducts() {
-        List<ProductDTO> productList = productDatabaseService.findAllNotDeleted();
-        return productList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productList);
+    public ResponseEntity<List<ProductDto>> findAllProducts() {
+        List<ProductDto> productDtoList = productDatabaseService.findAllNotDeleted();
+        return productDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productDtoList);
     }
 
     /**
@@ -49,23 +49,23 @@ public class ProductController {
      * @return The product.
      */
     @GetMapping(value = "/product/find/{uuid}")
-    public ResponseEntity<ProductDTO> findProductByUuid(@PathVariable UUID uuid) {
-        ProductDTO productDTO = productDatabaseService.findById(uuid);
-        return ResponseEntity.ok(productDTO);
+    public ResponseEntity<ProductDto> findProductByUuid(@PathVariable UUID uuid) {
+        ProductDto productDto = productDatabaseService.findById(uuid);
+        return ResponseEntity.ok(productDto);
     }
 
     /**
      * Updates an existing product.
      *
-     * @param uuid           The UUID of the product to update.
-     * @param updatedProductDTO The updated product.
+     * @param uuid              The UUID of the product to update.
+     * @param updatedProductDto The updated product.
      * @return The updated product.
      */
     @PutMapping(value = "/product/update/{uuid}")
-    public ResponseEntity<ProductDTO> updateProduct(
-            @PathVariable UUID uuid, @RequestBody ProductDTO updatedProductDTO) {
-        productDatabaseService.update(uuid, updatedProductDTO);
-        return ResponseEntity.ok(updatedProductDTO);
+    public ResponseEntity<ProductDto> updateProduct(
+            @PathVariable UUID uuid, @RequestBody ProductDto updatedProductDto) {
+        productDatabaseService.update(uuid, updatedProductDto);
+        return ResponseEntity.ok(updatedProductDto);
     }
 
     /**

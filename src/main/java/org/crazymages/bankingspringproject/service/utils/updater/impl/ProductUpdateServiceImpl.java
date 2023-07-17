@@ -14,13 +14,13 @@ public class ProductUpdateServiceImpl implements EntityUpdateService<Product> {
     @Override
     public Product update(Product product, Product productUpdate) {
         if (product != null && productUpdate != null) {
-            updateProperties(product, productUpdate);
+            product = updateProperties(product, productUpdate);
         }
         return product;
     }
 
     @Override
-    public void updateProperties(Product product, Product productUpdate) {
+    public Product updateProperties(Product product, Product productUpdate) {
         if (productUpdate.getManagerUuid() != null) {
             product.setManagerUuid(productUpdate.getManagerUuid());
         }
@@ -39,5 +39,6 @@ public class ProductUpdateServiceImpl implements EntityUpdateService<Product> {
         if (productUpdate.getLimitation() != null) {
             product.setLimitation(productUpdate.getLimitation());
         }
+        return product;
     }
 }
