@@ -9,7 +9,7 @@ import java.util.List;
  * @param <E> Type of the entity object.
  * @param <D> Type of the DTO object.
  */
-public interface DTOMapper<E, D> {
+public interface DtoMapper<E, D> {
 
     /**
      * Maps an entity object to a DTO object.
@@ -33,5 +33,5 @@ public interface DTOMapper<E, D> {
      * @param entityList The list of entity objects to be mapped.
      * @return The mapped list of DTO objects.
      */
-    List<D> getListOfDTOs(List<E> entityList);
+    List<D> getDtoList(List<E> entityList);
 }

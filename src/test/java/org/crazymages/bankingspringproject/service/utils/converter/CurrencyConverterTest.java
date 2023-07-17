@@ -1,0 +1,210 @@
+package org.crazymages.bankingspringproject.service.utils.converter;
+
+import org.crazymages.bankingspringproject.entity.Account;
+import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
+import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
+import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class CurrencyConverterTest {
+
+    @Mock
+    CurrencyExchangeRateDatabaseService currencyExchangeRateDatabaseService;
+
+    @InjectMocks
+    CurrencyConverter currencyConverter;
+
+    @BeforeEach
+    void setUp() {
+    }
+
+    @Test
+    void performCurrencyConversion_success() {
+        BigDecimal amount = BigDecimal.valueOf(100);
+
+        String recipientCurrencyCode = "EUR";
+        CurrencyExchangeRate recipientToBaseCurrencyRate = new CurrencyExchangeRate();
+        recipientToBaseCurrencyRate.setCurrencyCode(recipientCurrencyCode);
+        recipientToBaseCurrencyRate.setExchangeRate(BigDecimal.valueOf(0.89));
+
+        Account recipientAccount = new Account();
+        recipientAccount.setBalance(BigDecimal.ZERO);
+        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
+
+        when(currencyExchangeRateDatabaseService
+                .findById(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
+
+        String senderCurrencyCode = "AUD";
+        CurrencyExchangeRate senderToBaseCurrencyRate = new CurrencyExchangeRate();
+        senderToBaseCurrencyRate.setCurrencyCode(senderCurrencyCode);
+        senderToBaseCurrencyRate.setExchangeRate(BigDecimal.valueOf(1.46));
+
+        Account senderAccount = new Account();
+        senderAccount.setCurrencyCode(CurrencyCode.AUD);
+        senderAccount.setBalance(BigDecimal.valueOf(200));
+
+        when(currencyExchangeRateDatabaseService
+                .findById(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
+
+        BigDecimal baseCurrencyAmount = amount.divide(senderToBaseCurrencyRate.getExchangeRate(), 2, RoundingMode.HALF_UP);
+        BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientToBaseCurrencyRate.getExchangeRate());
+        BigDecimal recipientBalance = recipientAccount.getBalance();
+        Account expected = new Account();
+        expected.setBalance(recipientBalance.add(recipientAmount));
+
+
+        // when
+        Account actual = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
+        System.out.println(actual.getBalance());
+
+        //then
+        verify(currencyExchangeRateDatabaseService).findById(recipientCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findById(senderCurrencyCode);
+        assertEquals(expected.getBalance(), actual.getBalance());
+    }
+
+    @Test
+    void performCurrencyConversion_withZEROAmount_returnsZERO() {
+        BigDecimal amount = BigDecimal.ZERO;
+
+        String recipientCurrencyCode = "EUR";
+        CurrencyExchangeRate recipientToBaseCurrencyRate = new CurrencyExchangeRate();
+        recipientToBaseCurrencyRate.setCurrencyCode(recipientCurrencyCode);
+        recipientToBaseCurrencyRate.setExchangeRate(BigDecimal.valueOf(0.89));
+
+        Account recipientAccount = new Account();
+        recipientAccount.setBalance(BigDecimal.ZERO);
+        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
+
+        when(currencyExchangeRateDatabaseService
+                .findById(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
+
+        String senderCurrencyCode = "AUD";
+        CurrencyExchangeRate senderToBaseCurrencyRate = new CurrencyExchangeRate();
+        senderToBaseCurrencyRate.setCurrencyCode(senderCurrencyCode);
+        senderToBaseCurrencyRate.setExchangeRate(BigDecimal.valueOf(1.46));
+
+        Account senderAccount = new Account();
+        senderAccount.setCurrencyCode(CurrencyCode.AUD);
+        senderAccount.setBalance(BigDecimal.valueOf(200));
+
+        when(currencyExchangeRateDatabaseService
+                .findById(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
+
+        BigDecimal baseCurrencyAmount = amount.divide(senderToBaseCurrencyRate.getExchangeRate(), 2, RoundingMode.HALF_UP);
+        BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientToBaseCurrencyRate.getExchangeRate());
+        BigDecimal recipientBalance = recipientAccount.getBalance();
+        Account expected = new Account();
+        expected.setBalance(recipientBalance.add(recipientAmount));
+
+
+        // when
+        Account actual = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
+        System.out.println(actual.getBalance());
+
+        //then
+        verify(currencyExchangeRateDatabaseService).findById(recipientCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findById(senderCurrencyCode);
+        assertEquals(expected.getBalance(), actual.getBalance());
+    }
+
+
+    @Test
+    void performCurrencyConversion_withNegativeAmount_settsNegativeBalance() {
+        BigDecimal amount = BigDecimal.valueOf(-100);
+
+        String recipientCurrencyCode = "EUR";
+        CurrencyExchangeRate recipientToBaseCurrencyRate = new CurrencyExchangeRate();
+        recipientToBaseCurrencyRate.setCurrencyCode(recipientCurrencyCode);
+        recipientToBaseCurrencyRate.setExchangeRate(BigDecimal.valueOf(0.89));
+
+        Account recipientAccount = new Account();
+        recipientAccount.setBalance(BigDecimal.ZERO);
+        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
+
+        when(currencyExchangeRateDatabaseService
+                .findById(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
+
+        String senderCurrencyCode = "AUD";
+        CurrencyExchangeRate senderToBaseCurrencyRate = new CurrencyExchangeRate();
+        senderToBaseCurrencyRate.setCurrencyCode(senderCurrencyCode);
+        senderToBaseCurrencyRate.setExchangeRate(BigDecimal.valueOf(1.46));
+
+        Account senderAccount = new Account();
+        senderAccount.setCurrencyCode(CurrencyCode.AUD);
+        senderAccount.setBalance(BigDecimal.valueOf(200));
+
+        when(currencyExchangeRateDatabaseService
+                .findById(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
+
+        BigDecimal baseCurrencyAmount = amount.divide(senderToBaseCurrencyRate.getExchangeRate(), 2, RoundingMode.HALF_UP);
+        BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientToBaseCurrencyRate.getExchangeRate());
+        BigDecimal recipientBalance = recipientAccount.getBalance();
+        Account expected = new Account();
+        expected.setBalance(recipientBalance.add(recipientAmount));
+
+
+        // when
+        Account actual = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
+        System.out.println(actual.getBalance());
+
+        //then
+        verify(currencyExchangeRateDatabaseService).findById(recipientCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findById(senderCurrencyCode);
+        assertEquals(expected.getBalance(), actual.getBalance());
+    }
+
+    @Test
+    void performCurrencyConversion_withNullRecipientAccount_throwsNullPointerException() {
+        BigDecimal amount = BigDecimal.valueOf(100);
+
+        Account recipientAccount = null;
+        Account senderAccount = new Account();
+        senderAccount.setCurrencyCode(CurrencyCode.AUD);
+        senderAccount.setBalance(BigDecimal.valueOf(200));
+
+        assertThrows(NullPointerException.class, () -> currencyConverter
+                .performCurrencyConversion(amount, recipientAccount, senderAccount));
+    }
+
+    @Test
+    void performCurrencyConversion_withNullSenderAccount_throwsNullPointerException() {
+        BigDecimal amount = BigDecimal.valueOf(100);
+
+        Account recipientAccount = new Account();
+        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
+        recipientAccount.setBalance(BigDecimal.ZERO);
+        Account senderAccount = null;
+
+        assertThrows(NullPointerException.class, () -> currencyConverter
+                .performCurrencyConversion(amount, recipientAccount, senderAccount));
+    }
+
+    @Test
+    void performCurrencyConversion_withNullAmount_throwsNullPointerException() {
+        BigDecimal amount = null;
+
+        Account recipientAccount = new Account();
+        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
+        recipientAccount.setBalance(BigDecimal.ZERO);
+        Account senderAccount = new Account();
+        senderAccount.setCurrencyCode(CurrencyCode.AUD);
+        senderAccount.setBalance(BigDecimal.valueOf(200));
+
+        assertThrows(NullPointerException.class, () -> currencyConverter
+                .performCurrencyConversion(amount, recipientAccount, senderAccount));
+    }
+}

@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.ClientDTO;
+import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -13,7 +13,7 @@ import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ClientDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.ClientDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +33,7 @@ import java.util.UUID;
 public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     private final ClientRepository clientRepository;
-    private final ClientDTOMapper clientDTOMapper;
+    private final ClientDtoMapper clientDtoMapper;
     private final EntityUpdateService<Client> clientUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
     private final AccountDatabaseService accountDatabaseService;
@@ -41,8 +41,8 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public void create(ClientDTO clientDTO) {
-        Client client = clientDTOMapper.mapDtoToEntity(clientDTO);
+    public void create(ClientDto clientDTO) {
+        Client client = clientDtoMapper.mapDtoToEntity(clientDTO);
         if (client.getManagerUuid() == null) {
             List<Manager> activeManagers = managerDatabaseService
                     .findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
@@ -55,41 +55,41 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public List<ClientDTO> findAll() {
+    public List<ClientDto> findAll() {
         log.info("retrieving list of clients");
         List<Client> clients = clientRepository.findAll();
-        return clientDTOMapper.getListOfDTOs(clients);
+        return clientDtoMapper.getDtoList(clients);
     }
 
     @Override
     @Transactional
-    public List<ClientDTO> findAllNotDeleted() {
+    public List<ClientDto> findAllNotDeleted() {
         log.info("retrieving list of clients");
         List<Client> clients = clientRepository.findAllNotDeleted();
-        return clientDTOMapper.getListOfDTOs(clients);
+        return clientDtoMapper.getDtoList(clients);
     }
 
     @Override
     @Transactional
-    public List<ClientDTO> findDeletedClients() {
+    public List<ClientDto> findDeletedClients() {
         log.info("retrieving list of deleted agreements");
         List<Client> deletedClients = clientRepository.findAllDeleted();
-        return clientDTOMapper.getListOfDTOs(deletedClients);
+        return clientDtoMapper.getDtoList(deletedClients);
     }
 
     @Override
     @Transactional
-    public ClientDTO findById(UUID uuid) {
+    public ClientDto findById(UUID uuid) {
         log.info("retrieving client by id {}", uuid);
-        return clientDTOMapper.mapEntityToDto(
+        return clientDtoMapper.mapEntityToDto(
                 clientRepository.findById(uuid)
                         .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
     @Override
     @Transactional
-    public void update(UUID uuid, ClientDTO updatedClientDTO) {
-        Client updatedClient = clientDTOMapper.mapDtoToEntity(updatedClientDTO);
+    public void update(UUID uuid, ClientDto updatedClientDto) {
+        Client updatedClient = clientDtoMapper.mapDtoToEntity(updatedClientDto);
         Client client = clientRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         client = clientUpdateService.update(client, updatedClient);
@@ -109,26 +109,26 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public List<ClientDTO> findActiveClients() {
+    public List<ClientDto> findActiveClients() {
         log.info("retrieving list of active clients");
         List<Client> clients = clientRepository.findClientsByStatusIs(ClientStatus.ACTIVE);
-        return clientDTOMapper.getListOfDTOs(clients);
+        return clientDtoMapper.getDtoList(clients);
     }
 
     @Override
     @Transactional
-    public List<ClientDTO> findClientsWhereBalanceMoreThan(BigDecimal balance) {
+    public List<ClientDto> findClientsWhereBalanceMoreThan(BigDecimal balance) {
         log.info("retrieving list of clients where balance is more than {}", balance);
         List<Client> clients = clientRepository.findAllClientsWhereBalanceMoreThan(balance);
-        return clientDTOMapper.getListOfDTOs(clients);
+        return clientDtoMapper.getDtoList(clients);
     }
 
     @Override
     @Transactional
-    public List<ClientDTO> findClientsWhereTransactionMoreThan(Integer count) {
+    public List<ClientDto> findClientsWhereTransactionMoreThan(Integer count) {
         log.info("retrieving list of clients where transaction count is more than {}", count);
         List<Client> clients = clientRepository.findAllClientsWhereTransactionMoreThan(count);
-        return clientDTOMapper.getListOfDTOs(clients);
+        return clientDtoMapper.getDtoList(clients);
     }
 
     @Override

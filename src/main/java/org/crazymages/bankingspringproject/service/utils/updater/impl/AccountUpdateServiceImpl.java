@@ -14,13 +14,13 @@ public class AccountUpdateServiceImpl implements EntityUpdateService<Account> {
     @Override
     public Account update(Account account, Account accountUpdate) {
         if (account != null && accountUpdate != null) {
-            updateProperties(account, accountUpdate);
+            account = updateProperties(account, accountUpdate);
         }
         return account;
     }
 
     @Override
-    public void updateProperties(Account account, Account accountUpdate) {
+    public Account updateProperties(Account account, Account accountUpdate) {
         if (accountUpdate.getClientUuid() != null) {
             account.setClientUuid(accountUpdate.getClientUuid());
         }
@@ -39,5 +39,6 @@ public class AccountUpdateServiceImpl implements EntityUpdateService<Account> {
         if (accountUpdate.getCurrencyCode() != null) {
             account.setCurrencyCode(accountUpdate.getCurrencyCode());
         }
+        return account;
     }
 }
