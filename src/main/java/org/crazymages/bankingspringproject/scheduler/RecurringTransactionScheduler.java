@@ -12,7 +12,7 @@ import org.crazymages.bankingspringproject.service.database.AccountDatabaseServi
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.TransactionCreator;
+import org.crazymages.bankingspringproject.service.utils.creator.TransactionInitializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class RecurringTransactionScheduler {
     private final TransactionDatabaseService transactionDatabaseService;
     private final AccountDatabaseService accountDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
-    private final TransactionCreator transactionCreator;
+    private final TransactionInitializer transactionInitializer;
 
     /**
      * Executes recurring transactions based on a scheduled cron expression.
@@ -68,7 +68,7 @@ public class RecurringTransactionScheduler {
         Account savingsAccount = accountDatabaseService.findSavingsByClientId(client.getUuid());
         Agreement agreement = agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid());
 
-        Transaction transaction = transactionCreator.apply(currentAccount, savingsAccount);
+        Transaction transaction = transactionInitializer.initializeTransaction(currentAccount, savingsAccount);
         transaction.setType(TransactionType.RECURRING_PAYMENT);
         transaction.setAmount(agreement.getAmount());
         transaction.setDescription("Recurring payment");
