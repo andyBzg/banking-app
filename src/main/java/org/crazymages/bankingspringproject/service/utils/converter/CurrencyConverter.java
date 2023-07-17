@@ -19,14 +19,15 @@ public class CurrencyConverter {
 
     public Account performCurrencyConversion(BigDecimal amount, Account recipientAccount, Account senderAccount) {
         String recipientCurrencyCode = recipientAccount.getCurrencyCode().name();
-        CurrencyExchangeRate recipientToBaseCurrencyRate = currencyExchangeRateDatabaseService.findById(recipientCurrencyCode);
+        CurrencyExchangeRate recipientToBaseCurrencyRate = currencyExchangeRateDatabaseService
+                .findById(recipientCurrencyCode);
         BigDecimal recipientCurrencyRate = recipientToBaseCurrencyRate.getExchangeRate();
         log.info("Курс валюты получателя к доллару {}", recipientCurrencyRate);
 
         String senderCurrencyCode = senderAccount.getCurrencyCode().name();
-        BigDecimal senderCurrencyRate = currencyExchangeRateDatabaseService
-                .findById(senderCurrencyCode)
-                .getExchangeRate();
+        CurrencyExchangeRate senderToBaseCurrencyRate = currencyExchangeRateDatabaseService
+                .findById(senderCurrencyCode);
+        BigDecimal senderCurrencyRate = senderToBaseCurrencyRate.getExchangeRate();
         log.info("Курс валюты отправителя к доллару {}", senderCurrencyRate);
 
         BigDecimal baseCurrencyAmount = amount.divide(senderCurrencyRate, 2, RoundingMode.HALF_UP);
