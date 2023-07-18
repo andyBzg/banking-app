@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing transactions.
@@ -54,7 +53,7 @@ public class TransactionController {
      * @return The transaction.
      */
     @GetMapping(value = "/transaction/find/{uuid}")
-    public ResponseEntity<TransactionDto> findTransactionByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<TransactionDto> findTransactionByUuid(@PathVariable String uuid) {
         log.info("endpoint request: find transaction by uuid {}", uuid);
         TransactionDto transaction = transactionDatabaseService.findById(uuid);
         return ResponseEntity.ok(transaction);
@@ -67,7 +66,7 @@ public class TransactionController {
      * @return The list of outgoing transactions.
      */
     @GetMapping(value = "/transaction/find/outgoing/{uuid}")
-    public ResponseEntity<List<TransactionDto>> findOutgoingTransactions(@PathVariable UUID uuid) {
+    public ResponseEntity<List<TransactionDto>> findOutgoingTransactions(@PathVariable String uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
         List<TransactionDto> transactionList = transactionDatabaseService.findOutgoingTransactions(uuid);
         return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
@@ -80,7 +79,7 @@ public class TransactionController {
      * @return The list of incoming transactions.
      */
     @GetMapping(value = "/transaction/find/incoming/{uuid}")
-    public ResponseEntity<List<TransactionDto>> findIncomingTransactions(@PathVariable UUID uuid) {
+    public ResponseEntity<List<TransactionDto>> findIncomingTransactions(@PathVariable String uuid) {
         log.info("endpoint request: find transactions by uuid {}", uuid);
         List<TransactionDto> transactionList = transactionDatabaseService.findIncomingTransactions(uuid);
         return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
@@ -106,7 +105,7 @@ public class TransactionController {
      * @return The list of transactions.
      */
     @GetMapping(value = "/transaction/find-all-by-client/{uuid}")
-    public ResponseEntity<List<TransactionDto>> findAllTransactions(@PathVariable UUID uuid) {
+    public ResponseEntity<List<TransactionDto>> findAllTransactions(@PathVariable String uuid) {
         log.info("endpoint request: find all transactions by client id {}", uuid);
         List<TransactionDto> transactionList = transactionDatabaseService.findAllTransactionsByClientId(uuid);
         return transactionList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactionList);
@@ -122,7 +121,7 @@ public class TransactionController {
      */
     @GetMapping(value = "/transaction/get/client/{uuid}/statement")
     public ResponseEntity<List<TransactionDto>> getTransactionStatement(
-            @PathVariable("uuid") UUID uuid,
+            @PathVariable("uuid") String uuid,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
         List<TransactionDto> statement = transactionDatabaseService

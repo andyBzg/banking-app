@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing managers.
@@ -49,7 +48,7 @@ public class ManagerController {
      * @return The manager.
      */
     @GetMapping(value = "/manager/find/{uuid}")
-    public ResponseEntity<ManagerDto> findManagerByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<ManagerDto> findManagerByUuid(@PathVariable String uuid) {
         ManagerDto managerDto = managerDatabaseService.findById(uuid);
         return ResponseEntity.ok(managerDto);
     }
@@ -63,7 +62,7 @@ public class ManagerController {
      */
     @PutMapping(value = "/manager/update/{uuid}")
     public ResponseEntity<ManagerDto> updateManager(
-            @PathVariable UUID uuid, @RequestBody ManagerDto updatedManagerDto) {
+            @PathVariable String uuid, @RequestBody ManagerDto updatedManagerDto) {
         managerDatabaseService.update(uuid, updatedManagerDto);
         return ResponseEntity.ok(updatedManagerDto);
     }
@@ -75,7 +74,7 @@ public class ManagerController {
      * @return A response indicating the success of the operation.
      */
     @DeleteMapping(value = "/manager/delete/{uuid}")
-    public ResponseEntity<String> deleteManager(@PathVariable UUID uuid) {
+    public ResponseEntity<String> deleteManager(@PathVariable String uuid) {
         managerDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }

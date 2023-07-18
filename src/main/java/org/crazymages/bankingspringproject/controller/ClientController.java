@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing clients.
@@ -52,7 +51,7 @@ public class ClientController {
      * @return The client.
      */
     @GetMapping(value = "/client/find/{uuid}")
-    public ResponseEntity<ClientDto> findClientByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<ClientDto> findClientByUuid(@PathVariable String uuid) {
         ClientDto clientDto = clientDatabaseService.findById(uuid);
         return ResponseEntity.ok(clientDto);
     }
@@ -65,7 +64,7 @@ public class ClientController {
      * @return The updated client.
      */
     @PutMapping(value = "/client/update/{uuid}")
-    public ResponseEntity<ClientDto> updateClient(@PathVariable UUID uuid, @RequestBody ClientDto updatedClientDto) {
+    public ResponseEntity<ClientDto> updateClient(@PathVariable String uuid, @RequestBody ClientDto updatedClientDto) {
         clientDatabaseService.update(uuid, updatedClientDto);
         return ResponseEntity.ok(updatedClientDto);
     }
@@ -77,7 +76,7 @@ public class ClientController {
      * @return A response indicating the success of the operation.
      */
     @DeleteMapping(value = "/client/delete/{uuid}")
-    public ResponseEntity<String> deleteClient(@PathVariable UUID uuid) {
+    public ResponseEntity<String> deleteClient(@PathVariable String uuid) {
         clientDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }
@@ -126,7 +125,7 @@ public class ClientController {
      * @return The total balance.
      */
     @GetMapping(value = "/client/calculate-total-balance/{uuid}")
-    public ResponseEntity<BigDecimal> calculateTotalBalanceByClientUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<BigDecimal> calculateTotalBalanceByClientUuid(@PathVariable String uuid) {
         BigDecimal result = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
         return ResponseEntity.ok(result);
     }

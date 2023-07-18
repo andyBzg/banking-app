@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing products.
@@ -49,7 +48,7 @@ public class ProductController {
      * @return The product.
      */
     @GetMapping(value = "/product/find/{uuid}")
-    public ResponseEntity<ProductDto> findProductByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<ProductDto> findProductByUuid(@PathVariable String uuid) {
         ProductDto productDto = productDatabaseService.findById(uuid);
         return ResponseEntity.ok(productDto);
     }
@@ -63,7 +62,7 @@ public class ProductController {
      */
     @PutMapping(value = "/product/update/{uuid}")
     public ResponseEntity<ProductDto> updateProduct(
-            @PathVariable UUID uuid, @RequestBody ProductDto updatedProductDto) {
+            @PathVariable String uuid, @RequestBody ProductDto updatedProductDto) {
         productDatabaseService.update(uuid, updatedProductDto);
         return ResponseEntity.ok(updatedProductDto);
     }
@@ -75,7 +74,7 @@ public class ProductController {
      * @return A response indicating the success of the operation.
      */
     @DeleteMapping(value = "/product/delete/{uuid}")
-    public ResponseEntity<String> deleteProduct(@PathVariable UUID uuid) {
+    public ResponseEntity<String> deleteProduct(@PathVariable String uuid) {
         productDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }
