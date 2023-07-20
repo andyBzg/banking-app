@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 public class CurrencyExchangeRate {
 
     @Id
-    @Column(name = "currency_code")
+    @Column(name = "currency_code") //unique
     private String currencyCode;
 
     @Column(name = "exchange_rate")
