@@ -1,17 +1,14 @@
 package org.crazymages.bankingspringproject.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Data transfer object (DTO) class representing a Client.
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class ClientDto {
-    private String uuid;
     private String managerUuid;
     private String status;
     private String taxCode;
