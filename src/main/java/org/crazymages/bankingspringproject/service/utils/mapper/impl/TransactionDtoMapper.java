@@ -21,28 +21,32 @@ public class TransactionDtoMapper implements DtoMapper<Transaction, TransactionD
 
     @Override
     public TransactionDto mapEntityToDto(Transaction transaction) {
-        TransactionDto transactionDto = new TransactionDto();
-        transactionDto.setUuid(String.valueOf(transaction.getUuid()));
-        transactionDto.setDebitAccountUuid(String.valueOf(transaction.getDebitAccountUuid()));
-        transactionDto.setCreditAccountUuid(String.valueOf(transaction.getCreditAccountUuid()));
-        transactionDto.setType(String.valueOf(transaction.getType()));
-        transactionDto.setCurrencyCode(String.valueOf(transaction.getCurrencyCode()));
-        transactionDto.setAmount(transaction.getAmount());
-        transactionDto.setDescription(transaction.getDescription());
-        return transactionDto;
+        if (transaction == null) {
+            throw new IllegalArgumentException("transaction cannot be null");
+        }
+        return TransactionDto.builder()
+                .debitAccountUuid(String.valueOf(transaction.getDebitAccountUuid()))
+                .creditAccountUuid(String.valueOf(transaction.getCreditAccountUuid()))
+                .type(String.valueOf(transaction.getType()))
+                .currencyCode(String.valueOf(transaction.getCurrencyCode()))
+                .amount(transaction.getAmount())
+                .description(transaction.getDescription())
+                .build();
     }
 
     @Override
     public Transaction mapDtoToEntity(TransactionDto transactionDto) {
-        Transaction transaction = new Transaction();
-        transaction.setUuid(UUID.fromString(transactionDto.getUuid()));
-        transaction.setDebitAccountUuid(UUID.fromString(transactionDto.getDebitAccountUuid()));
-        transaction.setCreditAccountUuid(UUID.fromString(transactionDto.getCreditAccountUuid()));
-        transaction.setType(TransactionType.valueOf(transactionDto.getType()));
-        transaction.setCurrencyCode(CurrencyCode.valueOf(transactionDto.getCurrencyCode()));
-        transaction.setAmount(transactionDto.getAmount());
-        transaction.setDescription(transactionDto.getDescription());
-        return transaction;
+        if (transactionDto == null) {
+            throw new IllegalArgumentException("transactionDto cannot be null");
+        }
+        return Transaction.builder()
+                .debitAccountUuid(UUID.fromString(transactionDto.getDebitAccountUuid()))
+                .creditAccountUuid(UUID.fromString(transactionDto.getCreditAccountUuid()))
+                .type(TransactionType.valueOf(transactionDto.getType()))
+                .currencyCode(CurrencyCode.valueOf(transactionDto.getCurrencyCode()))
+                .amount(transactionDto.getAmount())
+                .description(transactionDto.getDescription())
+                .build();
     }
 
     @Override

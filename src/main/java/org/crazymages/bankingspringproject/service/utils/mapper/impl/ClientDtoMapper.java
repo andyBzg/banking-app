@@ -19,27 +19,37 @@ import java.util.UUID;
 public class ClientDtoMapper implements DtoMapper<Client, ClientDto> {
 
     @Override
-    public ClientDto mapEntityToDto(Client entity) {
+    public ClientDto mapEntityToDto(Client client) {
+        if (client == null) {
+            throw new IllegalArgumentException("client cannot be null");
+        }
         return ClientDto.builder()
-                .taxCode(entity.getTaxCode())
-                .firstName(entity.getFirstName())
-                .lastName(entity.getLastName())
-                .email(entity.getEmail())
-                .address(entity.getAddress())
-                .phone(entity.getPhone())
+                .managerUuid(String.valueOf(client.getManagerUuid()))
+                .status(client.getStatus().name())
+                .taxCode(client.getTaxCode())
+                .firstName(client.getFirstName())
+                .lastName(client.getLastName())
+                .email(client.getEmail())
+                .address(client.getAddress())
+                .phone(client.getPhone())
                 .build();
     }
 
     @Override
     public Client mapDtoToEntity(ClientDto clientDto) {
-        Client client = new Client();
-        client.setTaxCode(clientDto.getTaxCode());
-        client.setFirstName(clientDto.getFirstName());
-        client.setLastName(clientDto.getLastName());
-        client.setEmail(clientDto.getEmail());
-        client.setAddress(clientDto.getAddress());
-        client.setPhone(clientDto.getPhone());
-        return client;
+        if (clientDto == null) {
+            throw new IllegalArgumentException("clientDto cannot be null");
+        }
+        return Client.builder()
+                .managerUuid(UUID.fromString(clientDto.getManagerUuid()))
+                .status(ClientStatus.valueOf(clientDto.getStatus()))
+                .taxCode(clientDto.getTaxCode())
+                .firstName(clientDto.getFirstName())
+                .lastName(clientDto.getLastName())
+                .email(clientDto.getEmail())
+                .address(clientDto.getAddress())
+                .phone(clientDto.getPhone())
+                .build();
     }
 
     @Override

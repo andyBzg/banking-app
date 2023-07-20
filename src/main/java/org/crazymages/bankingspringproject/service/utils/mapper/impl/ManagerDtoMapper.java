@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Component class that provides mapping functionality between Manager and ManagerDTO objects.
@@ -20,24 +19,28 @@ public class ManagerDtoMapper implements DtoMapper<Manager, ManagerDto> {
 
     @Override
     public ManagerDto mapEntityToDto(Manager manager) {
-        return new ManagerDto(
-                String.valueOf(manager.getUuid()),
-                manager.getFirstName(),
-                manager.getLastName(),
-                String.valueOf(manager.getStatus()),
-                manager.getDescription()
-        );
+        if (manager == null) {
+            throw new IllegalArgumentException("client cannot be null");
+        }
+        return ManagerDto.builder()
+                .firstName(manager.getFirstName())
+                .lastName(manager.getLastName())
+                .status(String.valueOf(manager.getStatus()))
+                .description(manager.getDescription())
+                .build();
     }
 
     @Override
     public Manager mapDtoToEntity(ManagerDto managerDto) {
-        Manager manager = new Manager();
-        manager.setUuid(UUID.fromString(managerDto.getUuid()));
-        manager.setFirstName(managerDto.getFirstName());
-        manager.setLastName(managerDto.getLastName());
-        manager.setStatus(ManagerStatus.valueOf(managerDto.getStatus()));
-        manager.setDescription(managerDto.getDescription());
-        return manager;
+        if (managerDto == null) {
+            throw new IllegalArgumentException("clientDto cannot be null");
+        }
+        return Manager.builder()
+                .firstName(managerDto.getFirstName())
+                .lastName(managerDto.getLastName())
+                .status(ManagerStatus.valueOf(managerDto.getStatus()))
+                .description(managerDto.getDescription())
+                .build();
     }
 
     @Override

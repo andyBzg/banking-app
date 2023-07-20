@@ -22,28 +22,32 @@ public class AccountDtoMapper implements DtoMapper<Account, AccountDto> {
 
     @Override
     public AccountDto mapEntityToDto(Account account) {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setUuid(String.valueOf(account.getUuid()));
-        accountDto.setClientUuid(String.valueOf(account.getClientUuid()));
-        accountDto.setName(account.getName());
-        accountDto.setType(String.valueOf(account.getType()));
-        accountDto.setStatus(String.valueOf(account.getStatus()));
-        accountDto.setBalance(account.getBalance());
-        accountDto.setCurrencyCode(String.valueOf(account.getCurrencyCode()));
-        return accountDto;
+        if (account == null) {
+            throw new IllegalArgumentException("account cannot be null");
+        }
+        return AccountDto.builder()
+                .clientUuid(String.valueOf(account.getClientUuid()))
+                .name(account.getName())
+                .type(String.valueOf(account.getType()))
+                .status(String.valueOf(account.getStatus()))
+                .balance(account.getBalance())
+                .currencyCode(String.valueOf(account.getCurrencyCode()))
+                .build();
     }
 
     @Override
     public Account mapDtoToEntity(AccountDto accountDto) {
-        Account account = new Account();
-        account.setUuid(UUID.fromString(accountDto.getUuid()));
-        account.setClientUuid(UUID.fromString(accountDto.getClientUuid()));
-        account.setName(accountDto.getName());
-        account.setType(AccountType.valueOf(accountDto.getType()));
-        account.setStatus(AccountStatus.valueOf(accountDto.getStatus()));
-        account.setBalance(accountDto.getBalance());
-        account.setCurrencyCode(CurrencyCode.valueOf(accountDto.getCurrencyCode()));
-        return account;
+        if (accountDto == null) {
+            throw new IllegalArgumentException("account cannot be null");
+        }
+        return Account.builder()
+                .clientUuid(UUID.fromString(accountDto.getClientUuid()))
+                .name(accountDto.getName())
+                .type(AccountType.valueOf(accountDto.getType()))
+                .status(AccountStatus.valueOf(accountDto.getStatus()))
+                .balance(accountDto.getBalance())
+                .currencyCode(CurrencyCode.valueOf(accountDto.getCurrencyCode()))
+                .build();
     }
 
     @Override

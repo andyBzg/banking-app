@@ -22,30 +22,34 @@ public class ProductDtoMapper implements DtoMapper<Product, ProductDto> {
 
     @Override
     public ProductDto mapEntityToDto(Product product) {
-        ProductDto productDto = new ProductDto();
-        productDto.setUuid(String.valueOf(product.getUuid()));
-        productDto.setManagerUuid(String.valueOf(product.getManagerUuid()));
-        productDto.setName(product.getName());
-        productDto.setStatus(String.valueOf(product.getStatus()));
-        productDto.setType(String.valueOf(product.getType()));
-        productDto.setCurrencyCode(String.valueOf(product.getCurrencyCode()));
-        productDto.setInterestRate(product.getInterestRate());
-        productDto.setLimitation(product.getLimitation());
-        return productDto;
+        if (product == null) {
+            throw new IllegalArgumentException("product cannot be null");
+        }
+        return ProductDto.builder()
+                .managerUuid(String.valueOf(product.getManagerUuid()))
+                .name(product.getName())
+                .status(String.valueOf(product.getStatus()))
+                .type(String.valueOf(product.getType()))
+                .currencyCode(String.valueOf(product.getCurrencyCode()))
+                .interestRate(product.getInterestRate())
+                .limitation(product.getLimitation())
+                .build();
     }
 
     @Override
     public Product mapDtoToEntity(ProductDto productDto) {
-        Product product = new Product();
-        product.setUuid(UUID.fromString(productDto.getUuid()));
-        product.setManagerUuid(UUID.fromString(productDto.getManagerUuid()));
-        product.setName(productDto.getName());
-        product.setStatus(ProductStatus.valueOf(productDto.getStatus()));
-        product.setType(ProductType.valueOf(productDto.getType()));
-        product.setCurrencyCode(CurrencyCode.valueOf(productDto.getCurrencyCode()));
-        product.setInterestRate(productDto.getInterestRate());
-        product.setLimitation(productDto.getLimitation());
-        return product;
+        if (productDto == null) {
+            throw new IllegalArgumentException("productDto cannot be null");
+        }
+        return Product.builder()
+                .managerUuid(UUID.fromString(productDto.getManagerUuid()))
+                .name(productDto.getName())
+                .status(ProductStatus.valueOf(productDto.getStatus()))
+                .type(ProductType.valueOf(productDto.getType()))
+                .currencyCode(CurrencyCode.valueOf(productDto.getCurrencyCode()))
+                .interestRate(productDto.getInterestRate())
+                .limitation(productDto.getLimitation())
+                .build();
     }
 
     @Override
