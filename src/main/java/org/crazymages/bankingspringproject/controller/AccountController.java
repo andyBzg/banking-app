@@ -68,7 +68,7 @@ public class AccountController {
     @GetMapping(value = "/account/find/{uuid}")
     public ResponseEntity<AccountDto> findAccountByUuid(@PathVariable String uuid) {
         log.info("endpoint request: find account by uuid {}", uuid);
-        AccountDto accountDto = accountDatabaseService.findById(uuid);
+        AccountDto accountDto = accountDatabaseService.findDtoById(uuid);
         return ResponseEntity.ok(accountDto);
     }
 
@@ -95,7 +95,7 @@ public class AccountController {
     @PutMapping(value = "/account/update/{uuid}")
     public ResponseEntity<AccountDto> updateAccount(@PathVariable String uuid, @RequestBody AccountDto updatedAccountDto) {
         log.info("endpoint request: update account uuid {}", uuid);
-        accountDatabaseService.update(uuid, updatedAccountDto);
+        accountDatabaseService.updateAccountDto(uuid, updatedAccountDto);
         return ResponseEntity.ok(updatedAccountDto);
     }
 
