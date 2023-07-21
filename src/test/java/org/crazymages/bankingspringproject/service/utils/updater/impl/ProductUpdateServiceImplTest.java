@@ -15,6 +15,7 @@ class ProductUpdateServiceImplTest {
 
     ProductUpdateServiceImpl productUpdateService;
     Product product;
+    Product productUpdate;
 
     @BeforeEach
     void setUp() {
@@ -27,18 +28,17 @@ class ProductUpdateServiceImplTest {
         product.setCurrencyCode(CurrencyCode.EUR);
         product.setInterestRate(BigDecimal.valueOf(0.05));
         product.setLimitation(BigDecimal.valueOf(1000));
-    }
 
-    @Test
-    void update_withValidFields_updatesProductProperties() {
-        // given
-        Product productUpdate = new Product();
+        productUpdate = new Product();
         productUpdate.setName("Updated Product");
         productUpdate.setStatus(ProductStatus.UNAVAILABLE);
         productUpdate.setCurrencyCode(CurrencyCode.USD);
         productUpdate.setInterestRate(BigDecimal.valueOf(0.1));
         productUpdate.setLimitation(BigDecimal.valueOf(2000));
+    }
 
+    @Test
+    void update_withValidFields_updatesProductProperties() {
         // when
         Product actual = productUpdateService.update(product, productUpdate);
 
@@ -51,47 +51,59 @@ class ProductUpdateServiceImplTest {
     }
 
     @Test
+    void update_withNullProduct_doesNotUpdateProduct_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> productUpdateService.update(null, productUpdate));
+    }
+
+    @Test
+    void update_withNullProductUpdate_doesNotUpdateProduct_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> productUpdateService.update(productUpdate, null));
+    }
+
+    @Test
     void updateProperties_productUpdateWithNullFields_updatesOnlyExistentProperties() {
         // given
         Product productUpdate = new Product();
-        productUpdate.setName(null);
-        productUpdate.setStatus(null);
-        productUpdate.setCurrencyCode(CurrencyCode.USD);
-        productUpdate.setInterestRate(BigDecimal.valueOf(0.1));
+        productUpdate.setName("Updated Product");
+        productUpdate.setStatus(ProductStatus.UNAVAILABLE);
+        productUpdate.setCurrencyCode(null);
+        productUpdate.setInterestRate(null);
         productUpdate.setLimitation(null);
 
         // when
         Product actual = productUpdateService.updateProperties(product, productUpdate);
 
         // then
-        assertEquals(product.getName(), actual.getName());
-        assertEquals(product.getStatus(), actual.getStatus());
-        assertEquals(productUpdate.getCurrencyCode(), actual.getCurrencyCode());
-        assertEquals(productUpdate.getInterestRate(), actual.getInterestRate());
+        assertEquals(productUpdate.getName(), actual.getName());
+        assertEquals(productUpdate.getStatus(), actual.getStatus());
+        assertEquals(product.getCurrencyCode(), actual.getCurrencyCode());
+        assertEquals(product.getInterestRate(), actual.getInterestRate());
         assertEquals(product.getLimitation(), actual.getLimitation());
     }
 
     @Test
-    void update_withNullProduct_doesNotUpdateProductProperties_returnsNull() {
+    void updateProperties_productWithNullProperties_returnsProductWithUpdatedProperties() {
         // given
-        Product productUpdate = new Product();
-        productUpdate.setName("Updated Product");
-        productUpdate.setStatus(ProductStatus.UNAVAILABLE);
+        Product product = new Product();
 
         // when
-        Product actual = productUpdateService.update(null, productUpdate);
+        Product actual = productUpdateService.updateProperties(product, productUpdate);
 
         // then
-        assertNull(actual);
+        assertEquals(productUpdate.getName(), actual.getName());
+        assertEquals(productUpdate.getStatus(), actual.getStatus());
+        assertEquals(productUpdate.getCurrencyCode(), actual.getCurrencyCode());
+        assertEquals(productUpdate.getInterestRate(), actual.getInterestRate());
+        assertEquals(productUpdate.getLimitation(), actual.getLimitation());
     }
 
     @Test
-    void update_withNullProductUpdate_doesNotUpdateProductProperties() {
+    void updateProperties_updateWithNullProperties_doesNotUpdateProductProperties() {
         // given
-        Product productUpdate = null;
+        Product productUpdate1 = new Product();
 
         // when
-        Product actual = productUpdateService.update(product, productUpdate);
+        Product actual = productUpdateService.updateProperties(product, productUpdate1);
 
         // then
         assertEquals(product.getName(), actual.getName());
@@ -99,14 +111,5 @@ class ProductUpdateServiceImplTest {
         assertEquals(product.getCurrencyCode(), actual.getCurrencyCode());
         assertEquals(product.getInterestRate(), actual.getInterestRate());
         assertEquals(product.getLimitation(), actual.getLimitation());
-    }
-
-    @Test
-    void updateProperties_withNullProductUpdate_throwsNullPointerException() {
-        // given
-        Product productUpdate = null;
-
-        // when, then
-        assertThrows(NullPointerException.class, () -> productUpdateService.updateProperties(product, productUpdate));
     }
 }
