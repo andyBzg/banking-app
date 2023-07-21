@@ -104,7 +104,7 @@ class AgreementDtoMapperTest {
     }
 
     @Test
-    void mapDtoToEntity_missingAgreementDtoProperties_throwsNullPointerException() {
+    void mapDtoToEntity_missingAgreementDtoProperties_returnsAgreementWithNullProperties() {
         // given
         AgreementDto agreementDto = AgreementDto.builder().build();
 
