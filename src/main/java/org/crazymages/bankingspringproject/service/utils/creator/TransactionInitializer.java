@@ -19,8 +19,8 @@ public class TransactionInitializer {
      * @throws IllegalArgumentException if the provided recipient is null.
      */
     public Transaction initializeTransaction(Account sender, Account recipient) {
-        if (recipient == null) {
-            throw new IllegalArgumentException("recipient is null");
+        if (sender == null || recipient == null) {
+            throw new IllegalArgumentException("argument is null");
         }
         Transaction transaction = new Transaction();
         transaction.setDebitAccountUuid(sender.getUuid());
