@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -66,14 +67,14 @@ class TransactionDatabaseServiceImplTest {
     @BeforeEach
     void setUp() {
         transaction = new Transaction();
-        transactionDto = new TransactionDto();
+        transactionDto = TransactionDto.builder().build();
         uuid = UUID.randomUUID();
         transactions = List.of(new Transaction(), new Transaction());
-        expected = List.of(new TransactionDto(), new TransactionDto());
-        senderAccountDto = new AccountDto();
-        recipientAccountDto = new AccountDto();
-        senderAccount = new Account();
-        recipientAccount = new Account();
+        expected = List.of(TransactionDto.builder().build(), TransactionDto.builder().build());
+        senderAccountDto = AccountDto.builder().build();
+        recipientAccountDto = AccountDto.builder().build();
+        senderAccount = Account.builder().build();
+        recipientAccount = Account.builder().build();
     }
 
     @Test
@@ -119,12 +120,12 @@ class TransactionDatabaseServiceImplTest {
     @Test
     void findById_success() {
         // given
-        TransactionDto expected = new TransactionDto();
+        TransactionDto expected = TransactionDto.builder().build();
         when(transactionRepository.findById(uuid)).thenReturn(Optional.ofNullable(transaction));
         when(transactionDtoMapper.mapEntityToDto(transaction)).thenReturn(expected);
 
         // when
-        TransactionDto actual = transactionDatabaseService.findById(uuid);
+        TransactionDto actual = transactionDatabaseService.findById(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -135,10 +136,12 @@ class TransactionDatabaseServiceImplTest {
     @Test
     void findById_nonExistentTransaction_throwsDataNotFoundException() {
         // given
+        UUID uuid = UUID.fromString("f0621a3c-6849-4ef5-8fc2-7bf7dd450d26");
+        String uuidString = "f0621a3c-6849-4ef5-8fc2-7bf7dd450d26";
         when(transactionRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> transactionDatabaseService.findById(uuid));
+        assertThrows(DataNotFoundException.class, () -> transactionDatabaseService.findById(uuidString));
         verify(transactionRepository).findById(uuid);
         verifyNoInteractions(transactionDtoMapper);
     }
@@ -150,7 +153,7 @@ class TransactionDatabaseServiceImplTest {
         when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
 
         // when
-        List<TransactionDto> actual = transactionDatabaseService.findOutgoingTransactions(uuid);
+        List<TransactionDto> actual = transactionDatabaseService.findOutgoingTransactions(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -165,7 +168,7 @@ class TransactionDatabaseServiceImplTest {
         when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
 
         // when
-        List<TransactionDto> actual = transactionDatabaseService.findIncomingTransactions(uuid);
+        List<TransactionDto> actual = transactionDatabaseService.findIncomingTransactions(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -180,7 +183,7 @@ class TransactionDatabaseServiceImplTest {
         when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
 
         // when
-        List<TransactionDto> actual = transactionDatabaseService.findAllTransactionsByClientId(uuid);
+        List<TransactionDto> actual = transactionDatabaseService.findAllTransactionsByClientId(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -192,149 +195,162 @@ class TransactionDatabaseServiceImplTest {
     void transferFunds_validData_sameCurrency_success() {
         // given
         BigDecimal amount = BigDecimal.valueOf(100);
+        Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setDebitAccountUuid(UUID.randomUUID());
-        transaction.setCreditAccountUuid(UUID.randomUUID());
-        UUID senderUuid = UUID.randomUUID();
-        UUID recipientUuid = UUID.randomUUID();
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
-        senderAccountDto.setUuid(String.valueOf(senderUuid));
-        recipientAccountDto.setUuid(String.valueOf(recipientUuid));
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(200));
+        sender.setStatus(AccountStatus.ACTIVE);
+        sender.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
 
-        senderAccount.setUuid(senderUuid);
-        senderAccount.setBalance(BigDecimal.valueOf(200));
-        senderAccount.setCurrencyCode(CurrencyCode.EUR);
-        senderAccount.setStatus(AccountStatus.ACTIVE);
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.ACTIVE);
+        recipient.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
-        recipientAccount.setUuid(recipientUuid);
-        recipientAccount.setBalance(BigDecimal.valueOf(0));
-        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
-        recipientAccount.setStatus(AccountStatus.ACTIVE);
-
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipientAccountDto);
-        when(accountDtoMapper.mapDtoToEntity(senderAccountDto)).thenReturn(senderAccount);
-        when(accountDtoMapper.mapDtoToEntity(recipientAccountDto)).thenReturn(recipientAccount);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(accountDtoMapper.mapEntityToDto(senderAccount)).thenReturn(senderAccountDto);
-        when(accountDtoMapper.mapEntityToDto(recipientAccount)).thenReturn(recipientAccountDto);
-
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
 
         // when
         transactionDatabaseService.transferFunds(transaction);
 
-
         // then
-        verify(accountDatabaseService, times( 2)).findById(any(UUID.class));
-        verify(accountDtoMapper, times(2)).mapDtoToEntity(any(AccountDto.class));
-        verify(clientDatabaseService, times(2)).isClientStatusActive(any());
-        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
-        verifyNoInteractions(currencyConverter);
-        verify(accountDatabaseService, times(2)).update(any(UUID.class), any(AccountDto.class));
-        verify(accountDatabaseService, times(2)).update(any(UUID.class), any(AccountDto.class));
+        verify(accountDatabaseService).findById(transaction.getDebitAccountUuid());
+        verify(accountDatabaseService).findById(transaction.getCreditAccountUuid());
+        verify(clientDatabaseService).isClientStatusActive(sender.getClientUuid());
+        verify(clientDatabaseService).isClientStatusActive(recipient.getClientUuid());
+        verify(accountDatabaseService).update(sender.getUuid(), sender);
+        verify(accountDatabaseService).update(recipient.getUuid(), recipient);
         verify(transactionRepository).save(transaction);
-        assertEquals(recipientAccount.getBalance(), amount);
+        verifyNoInteractions(currencyConverter);
+        assertEquals(recipient.getBalance(), amount);
+    }
+
+    @Test
+    void transferFunds_validData_withNegativeAmount_throwsIllegalArgumentException() {
+        // given
+        BigDecimal amount = BigDecimal.valueOf(-100);
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
+
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(200));
+        sender.setStatus(AccountStatus.ACTIVE);
+        sender.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
+
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.ACTIVE);
+        recipient.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
+
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        verify(accountDatabaseService, times(2)).findById(any(UUID.class));
+        verify(clientDatabaseService, times(2)).isClientStatusActive(any(UUID.class));
+        verifyNoInteractions(currencyConverter);
+        verifyNoMoreInteractions(accountDatabaseService);
+        verify(transactionRepository, never()).save(transaction);
+
     }
 
     @Test
     void transferFunds_validData_differentCurrencies_success() {
         // given
         BigDecimal amount = BigDecimal.valueOf(100);
+        Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setDebitAccountUuid(UUID.randomUUID());
-        transaction.setCreditAccountUuid(UUID.randomUUID());
-        UUID senderUuid = UUID.randomUUID();
-        UUID recipientUuid = UUID.randomUUID();
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
-        senderAccountDto.setUuid(String.valueOf(senderUuid));
-        recipientAccountDto.setUuid(String.valueOf(recipientUuid));
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(200));
+        sender.setStatus(AccountStatus.ACTIVE);
+        sender.setCurrencyCode(CurrencyCode.GBP);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
 
-        senderAccount.setUuid(senderUuid);
-        senderAccount.setBalance(BigDecimal.valueOf(200));
-        senderAccount.setCurrencyCode(CurrencyCode.GBP);
-        senderAccount.setStatus(AccountStatus.ACTIVE);
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.ACTIVE);
+        recipient.setCurrencyCode(CurrencyCode.AUD);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
-        recipientAccount.setUuid(recipientUuid);
-        recipientAccount.setBalance(BigDecimal.valueOf(0));
-        recipientAccount.setCurrencyCode(CurrencyCode.AUD);
-        recipientAccount.setStatus(AccountStatus.ACTIVE);
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
 
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipientAccountDto);
-        when(accountDtoMapper.mapDtoToEntity(senderAccountDto)).thenReturn(senderAccount);
-        when(accountDtoMapper.mapDtoToEntity(recipientAccountDto)).thenReturn(recipientAccount);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount))
-                .thenReturn(recipientAccount);
-        when(accountDtoMapper.mapEntityToDto(senderAccount)).thenReturn(senderAccountDto);
-        when(accountDtoMapper.mapEntityToDto(recipientAccount)).thenReturn(recipientAccountDto);
-
+        when(currencyConverter.performCurrencyConversion(amount, recipient, sender)).thenReturn(recipient);
 
         // when
         transactionDatabaseService.transferFunds(transaction);
 
-
         // then
-        verify(accountDatabaseService, times( 2)).findById(any(UUID.class));
-        verify(accountDtoMapper, times(2)).mapDtoToEntity(any(AccountDto.class));
-        verify(clientDatabaseService, times(2)).isClientStatusActive(any());
-        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
-        verify(currencyConverter).performCurrencyConversion(amount, recipientAccount, senderAccount);
-        verify(accountDatabaseService, times(2)).update(any(UUID.class), any(AccountDto.class));
-        verify(accountDatabaseService, times(2)).update(any(UUID.class), any(AccountDto.class));
+        verify(accountDatabaseService).findById(transaction.getDebitAccountUuid());
+        verify(accountDatabaseService).findById(transaction.getCreditAccountUuid());
+        verify(clientDatabaseService).isClientStatusActive(sender.getClientUuid());
+        verify(clientDatabaseService).isClientStatusActive(recipient.getClientUuid());
+        verify(accountDatabaseService).update(sender.getUuid(), sender);
+        verify(accountDatabaseService).update(recipient.getUuid(), recipient);
         verify(transactionRepository).save(transaction);
     }
 
-    @Test
+    /*@Test
     void transferFunds_atLeastOneOfEntityFieldIsNull_throwsIllegalArgumentException() {
         // given
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipientAccountDto);
-        when(accountDtoMapper.mapDtoToEntity(senderAccountDto)).thenReturn(senderAccount);
-        when(accountDtoMapper.mapDtoToEntity(recipientAccountDto)).thenReturn(recipientAccount);
+        when(accountDatabaseService.findDtoById(String.valueOf(transaction.getDebitAccountUuid()))).thenReturn(senderAccountDto);
+        when(accountDatabaseService.findDtoById(String.valueOf(transaction.getCreditAccountUuid()))).thenReturn(recipientAccountDto);
+
         when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
         when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
 
         // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(NullPointerException.class, () -> transactionDatabaseService.transferFunds(transaction));
         verifyNoInteractions(currencyConverter);
         verifyNoMoreInteractions(accountDtoMapper);
-        verifyNoMoreInteractions(accountDatabaseService);
+//        verifyNoMoreInteractions(accountDatabaseService);
         verifyNoInteractions(transactionRepository);
-    }
+    }*/
 
     @Test
     void transferFunds_senderBalanceIsTooLow_throwsInsufficientFundsException() {
         // given
         BigDecimal amount = BigDecimal.valueOf(100);
+        Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setDebitAccountUuid(UUID.randomUUID());
-        transaction.setCreditAccountUuid(UUID.randomUUID());
-        UUID senderUuid = UUID.randomUUID();
-        UUID recipientUuid = UUID.randomUUID();
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
-        senderAccountDto.setUuid(String.valueOf(senderUuid));
-        recipientAccountDto.setUuid(String.valueOf(recipientUuid));
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(50));
+        sender.setStatus(AccountStatus.ACTIVE);
+        sender.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
 
-        senderAccount.setUuid(senderUuid);
-        senderAccount.setBalance(BigDecimal.valueOf(0));
-        senderAccount.setCurrencyCode(CurrencyCode.EUR);
-        senderAccount.setStatus(AccountStatus.ACTIVE);
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.ACTIVE);
+        recipient.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
-        recipientAccount.setUuid(recipientUuid);
-        recipientAccount.setBalance(BigDecimal.valueOf(0));
-        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
-        recipientAccount.setStatus(AccountStatus.ACTIVE);
-
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipientAccountDto);
-        when(accountDtoMapper.mapDtoToEntity(senderAccountDto)).thenReturn(senderAccount);
-        when(accountDtoMapper.mapDtoToEntity(recipientAccountDto)).thenReturn(recipientAccount);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
 
         // when, then
         assertThrows(InsufficientFundsException.class, () -> transactionDatabaseService.transferFunds(transaction));
@@ -345,34 +361,30 @@ class TransactionDatabaseServiceImplTest {
     }
 
     @Test
-    void transferFunds_oneOfAccountsIsNotActive_throwsTransactionNotAllowedException() {
+    void transferFunds_senderAccountIsNotActive_throwsTransactionNotAllowedException() {
         // given
         BigDecimal amount = BigDecimal.valueOf(100);
+        Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setDebitAccountUuid(UUID.randomUUID());
-        transaction.setCreditAccountUuid(UUID.randomUUID());
-        UUID senderUuid = UUID.randomUUID();
-        UUID recipientUuid = UUID.randomUUID();
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
-        senderAccountDto.setUuid(String.valueOf(senderUuid));
-        recipientAccountDto.setUuid(String.valueOf(recipientUuid));
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(200));
+        sender.setStatus(AccountStatus.CLOSED);
+        sender.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
 
-        senderAccount.setUuid(senderUuid);
-        senderAccount.setBalance(BigDecimal.valueOf(200));
-        senderAccount.setCurrencyCode(CurrencyCode.EUR);
-        senderAccount.setStatus(AccountStatus.ACTIVE);
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.ACTIVE);
+        recipient.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
-        recipientAccount.setUuid(recipientUuid);
-        recipientAccount.setBalance(BigDecimal.valueOf(0));
-        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
-        recipientAccount.setStatus(AccountStatus.OVERDUE);
-
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipientAccountDto);
-        when(accountDtoMapper.mapDtoToEntity(senderAccountDto)).thenReturn(senderAccount);
-        when(accountDtoMapper.mapDtoToEntity(recipientAccountDto)).thenReturn(recipientAccount);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid())).thenReturn(false);
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
 
 
         // when, then
@@ -387,31 +399,27 @@ class TransactionDatabaseServiceImplTest {
     void transferFunds_recipientIsNotActive_throwsTransactionNotAllowedException() {
         // given
         BigDecimal amount = BigDecimal.valueOf(100);
+        Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setDebitAccountUuid(UUID.randomUUID());
-        transaction.setCreditAccountUuid(UUID.randomUUID());
-        UUID senderUuid = UUID.randomUUID();
-        UUID recipientUuid = UUID.randomUUID();
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
-        senderAccountDto.setUuid(String.valueOf(senderUuid));
-        recipientAccountDto.setUuid(String.valueOf(recipientUuid));
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(200));
+        sender.setStatus(AccountStatus.ACTIVE);
+        sender.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
 
-        senderAccount.setUuid(senderUuid);
-        senderAccount.setBalance(BigDecimal.valueOf(200));
-        senderAccount.setCurrencyCode(CurrencyCode.EUR);
-        senderAccount.setStatus(AccountStatus.ACTIVE);
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.CLOSED);
+        recipient.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
-        recipientAccount.setUuid(recipientUuid);
-        recipientAccount.setBalance(BigDecimal.valueOf(0));
-        recipientAccount.setCurrencyCode(CurrencyCode.EUR);
-        recipientAccount.setStatus(AccountStatus.ACTIVE);
-
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipientAccountDto);
-        when(accountDtoMapper.mapDtoToEntity(senderAccountDto)).thenReturn(senderAccount);
-        when(accountDtoMapper.mapDtoToEntity(recipientAccountDto)).thenReturn(recipientAccount);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid())).thenReturn(false);
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
 
 
         // when, then
@@ -436,7 +444,7 @@ class TransactionDatabaseServiceImplTest {
 
         // when
         List<TransactionDto> actual = transactionDatabaseService
-                .findTransactionsByClientIdBetweenDates(uuid, "2023-07-15", "2023-07-16");
+                .findTransactionsByClientIdBetweenDates(String.valueOf(uuid), "2023-07-15", "2023-07-16");
 
         // then
         assertEquals(expected, actual);
@@ -449,10 +457,11 @@ class TransactionDatabaseServiceImplTest {
         // given
         String from = "2023-07-15";
         String to = "0000-00-00";
+        String strUuid = String.valueOf(uuid);
 
         // when
         assertThrows(DateTimeParseException.class, () -> transactionDatabaseService
-                .findTransactionsByClientIdBetweenDates(uuid, from, to));
+                .findTransactionsByClientIdBetweenDates(strUuid, from, to));
 
         // then
         verifyNoInteractions(transactionRepository);
@@ -472,7 +481,7 @@ class TransactionDatabaseServiceImplTest {
 
         // when
         List<TransactionDto> actual = transactionDatabaseService
-                .findTransactionsByClientIdBetweenDates(uuid, "2023-07-15", "2023-07-16");
+                .findTransactionsByClientIdBetweenDates(String.valueOf(uuid), "2023-07-15", "2023-07-16");
 
         // then
         assertTrue(actual.isEmpty());

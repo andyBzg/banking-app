@@ -55,11 +55,11 @@ class ClientDatabaseServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        client1 = new Client();
-        client2 = new Client();
-        clientDto1 = new ClientDto();
-        clientDto2 = new ClientDto();
-        uuid = UUID.randomUUID();
+        client1 = Client.builder().build();
+        client2 = Client.builder().build();
+        clientDto1 = ClientDto.builder().build();
+        clientDto2 = ClientDto.builder().build();
+        uuid = UUID.fromString("d358838e-1134-4101-85ac-5d99e8debfae");
         clients = List.of(client1, client2);
         clientDtoList = List.of(clientDto1, clientDto2);
     }
@@ -159,7 +159,7 @@ class ClientDatabaseServiceImplTest {
         when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
 
         // when
-        ClientDto actual = clientDatabaseService.findById(uuid);
+        ClientDto actual = clientDatabaseService.findById(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -170,10 +170,11 @@ class ClientDatabaseServiceImplTest {
     @Test
     void findById_clientNotFound_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.findById(uuid));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.findById(strUuid));
         verify(clientRepository).findById(uuid);
     }
 
@@ -190,7 +191,7 @@ class ClientDatabaseServiceImplTest {
 
 
         // when
-        clientDatabaseService.update(uuid, updatedClientDto);
+        clientDatabaseService.update(String.valueOf(uuid), updatedClientDto);
 
 
         // then
@@ -203,11 +204,12 @@ class ClientDatabaseServiceImplTest {
     @Test
     void update_clientNotFound_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         ClientDto updatedClientDto = clientDto1;
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(uuid, updatedClientDto));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(strUuid, updatedClientDto));
         verify(clientRepository).findById(uuid);
     }
 
@@ -217,7 +219,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(client1));
 
         // when
-        clientDatabaseService.delete(uuid);
+        clientDatabaseService.delete(String.valueOf(uuid));
 
         // then
         assertTrue(client1.isDeleted());
@@ -228,10 +230,11 @@ class ClientDatabaseServiceImplTest {
     @Test
     void delete_clientNotFound_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.delete(uuid));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.delete(strUuid));
         verify(clientRepository).findById(uuid);
     }
 
@@ -293,7 +296,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.calculateTotalBalanceByClientUuid(uuid)).thenReturn(BigDecimal.valueOf(100));
 
         // when
-        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
+        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -307,7 +310,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.calculateTotalBalanceByClientUuid(uuid)).thenReturn(expected);
 
         // when
-        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
+        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -376,10 +379,10 @@ class ClientDatabaseServiceImplTest {
     @Test
     void blockClientById_success() {
         // when
-        clientDatabaseService.blockClientById(uuid);
+        clientDatabaseService.blockClientById(String.valueOf(uuid));
 
         // then
         verify(clientRepository).blockClientById(uuid);
-        verify(accountDatabaseService).blockAccountsByClientUuid(uuid);
+        verify(accountDatabaseService).blockAccountsByClientUuid(String.valueOf(uuid));
     }
 }

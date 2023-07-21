@@ -63,8 +63,8 @@ class AccountDatabaseServiceImplTest {
         account2 = new Account();
         clientUuid = UUID.randomUUID();
         uuid = UUID.randomUUID();
-        accountDto1 = new AccountDto();
-        accountDto2 = new AccountDto();
+        accountDto1 = AccountDto.builder().build();
+        accountDto2 = AccountDto.builder().build();
     }
 
     @Test
@@ -89,7 +89,7 @@ class AccountDatabaseServiceImplTest {
         CurrencyCode currencyCode = account1.getCurrencyCode();
 
         Agreement agreement = new Agreement();
-        AgreementDto agreementDto = new AgreementDto();
+        AgreementDto agreementDto = AgreementDto.builder().build();
 
         when(accountDtoMapper.mapDtoToEntity(accountDto1)).thenReturn(account1);
         when(productTypeMatcher.matchTypes(account1.getType())).thenReturn(type);
@@ -100,7 +100,7 @@ class AccountDatabaseServiceImplTest {
 
 
         // when
-        accountDatabaseService.create(accountDto1, uuid);
+        accountDatabaseService.create(accountDto1, String.valueOf(uuid));
 
 
         // then
@@ -161,7 +161,7 @@ class AccountDatabaseServiceImplTest {
         when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
 
         // when
-        AccountDto actual = accountDatabaseService.findById(uuid);
+        AccountDto actual = accountDatabaseService.findDtoById(String.valueOf(uuid));
 
         // then
         assertEquals(accountDto1, actual);
@@ -171,11 +171,11 @@ class AccountDatabaseServiceImplTest {
 
     @Test
     void findById_invalidUuid_throwsException() {
-        UUID invalidUuid = UUID.randomUUID();
-        when(accountRepository.findById(invalidUuid)).thenReturn(Optional.empty());
+        String invalidUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
+        when(accountRepository.findById(UUID.fromString(invalidUuid))).thenReturn(Optional.empty());
 
-        assertThrows(DataNotFoundException.class, () -> accountDatabaseService.findById(invalidUuid));
-        verify(accountRepository).findById(invalidUuid);
+        assertThrows(DataNotFoundException.class, () -> accountDatabaseService.findDtoById(invalidUuid));
+        verify(accountRepository).findById(UUID.fromString(invalidUuid));
     }
 
     @Test
@@ -213,7 +213,7 @@ class AccountDatabaseServiceImplTest {
 
 
         //when
-        accountDatabaseService.update(uuid, updatedAccountDto);
+        accountDatabaseService.updateAccountDto(String.valueOf(uuid), updatedAccountDto);
 
 
         //then
@@ -229,7 +229,7 @@ class AccountDatabaseServiceImplTest {
         when(accountRepository.findById(uuid)).thenReturn(Optional.of(account1));
 
         // when
-        accountDatabaseService.delete(uuid);
+        accountDatabaseService.delete(String.valueOf(uuid));
 
         // then
         verify(accountRepository).findById(uuid);
@@ -240,7 +240,7 @@ class AccountDatabaseServiceImplTest {
     @Test
     void blockAccountsByClientUuid_success() {
         // when
-        accountDatabaseService.blockAccountsByClientUuid(uuid);
+        accountDatabaseService.blockAccountsByClientUuid(String.valueOf(uuid));
 
         // then
         verify(accountRepository).blockAccountsByClientUuid(uuid);
@@ -259,7 +259,8 @@ class AccountDatabaseServiceImplTest {
 
 
         // when
-        List<AccountDto> actual = accountDatabaseService.findAccountsByProductIdAndStatus(productUuid, status);
+        List<AccountDto> actual = accountDatabaseService
+                .findAccountsByProductIdAndStatus(String.valueOf(productUuid), String.valueOf(status));
 
 
         // then
@@ -277,7 +278,7 @@ class AccountDatabaseServiceImplTest {
         when(accountDtoMapper.getDtoList(accounts)).thenReturn(expected);
 
         // when
-        List<AccountDto> actual = accountDatabaseService.findAllDtoByClientId(clientUuid);
+        List<AccountDto> actual = accountDatabaseService.findAllDtoByClientId(String.valueOf(clientUuid));
 
         // then
         assertEquals(expected, actual);

@@ -52,9 +52,9 @@ class ProductDatabaseServiceImplTest {
     void setUp() {
         product1 = new Product();
         product2 = new Product();
-        productDto1 = new ProductDto();
-        productDto2 = new ProductDto();
-        uuid = UUID.randomUUID();
+        productDto1 = ProductDto.builder().build();
+        productDto2 = ProductDto.builder().build();
+        uuid = UUID.fromString("d358838e-1134-4101-85ac-5d99e8debfae");
         products = List.of(product1, product2);
     }
 
@@ -157,7 +157,7 @@ class ProductDatabaseServiceImplTest {
         when(productDTOMapper.mapEntityToDto(product1)).thenReturn(productDto1);
 
         // when
-        ProductDto actual = productDatabaseService.findById(uuid);
+        ProductDto actual = productDatabaseService.findById(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -168,10 +168,11 @@ class ProductDatabaseServiceImplTest {
     @Test
     void findById_nonExistingProduct_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(productRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> productDatabaseService.findById(uuid));
+        assertThrows(DataNotFoundException.class, () -> productDatabaseService.findById(strUuid));
 
         // then
         verify(productRepository).findById(uuid);
@@ -209,7 +210,7 @@ class ProductDatabaseServiceImplTest {
         when(productUpdateService.update(product, productUpdate)).thenReturn(product1);
 
         // when
-        productDatabaseService.update(uuid, productDtoUpdate);
+        productDatabaseService.update(String.valueOf(uuid), productDtoUpdate);
 
         // then
         verify(productDTOMapper).mapDtoToEntity(productDtoUpdate);
@@ -221,10 +222,11 @@ class ProductDatabaseServiceImplTest {
     @Test
     void update_nonExistentProduct_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(productRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> productDatabaseService.update(uuid, productDto1));
+        assertThrows(DataNotFoundException.class, () -> productDatabaseService.update(strUuid, productDto1));
 
         // then
         verify(productDTOMapper).mapDtoToEntity(productDto1);
@@ -238,7 +240,7 @@ class ProductDatabaseServiceImplTest {
         when(productRepository.findById(uuid)).thenReturn(Optional.ofNullable(product1));
 
         // when
-        productDatabaseService.delete(uuid);
+        productDatabaseService.delete(String.valueOf(uuid));
 
         // then
         assertTrue(product1.isDeleted());
@@ -249,10 +251,11 @@ class ProductDatabaseServiceImplTest {
     @Test
     void delete_nonExistentProduct_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(productRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> productDatabaseService.delete(uuid));
+        assertThrows(DataNotFoundException.class, () -> productDatabaseService.delete(strUuid));
 
         // then
         verify(productRepository).findById(uuid);
