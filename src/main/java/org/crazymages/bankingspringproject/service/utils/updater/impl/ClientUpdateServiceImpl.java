@@ -13,10 +13,10 @@ public class ClientUpdateServiceImpl implements EntityUpdateService<Client> {
 
     @Override
     public Client update(Client client, Client clientUpdate) {
-        if (client != null && clientUpdate != null) {
-            client = updateProperties(client, clientUpdate);
+        if (client == null || clientUpdate == null) {
+            throw new IllegalArgumentException("argument is null");
         }
-        return client;
+        return updateProperties(client, clientUpdate);
     }
 
     @Override

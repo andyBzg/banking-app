@@ -13,10 +13,10 @@ public class AccountUpdateServiceImpl implements EntityUpdateService<Account> {
 
     @Override
     public Account update(Account account, Account accountUpdate) {
-        if (account != null && accountUpdate != null) {
-            account = updateProperties(account, accountUpdate);
+        if (account == null || accountUpdate == null) {
+            throw new IllegalArgumentException("argument is null");
         }
-        return account;
+        return updateProperties(account, accountUpdate);
     }
 
     @Override

@@ -13,10 +13,10 @@ public class AgreementUpdateServiceImpl implements EntityUpdateService<Agreement
 
     @Override
     public Agreement update(Agreement agreement, Agreement agreementUpdate) {
-        if (agreement != null && agreementUpdate != null) {
-            agreement = updateProperties(agreement, agreementUpdate);
+        if (agreement == null || agreementUpdate == null) {
+            throw new IllegalArgumentException("argument is null");
         }
-        return agreement;
+        return updateProperties(agreement, agreementUpdate);
     }
 
     @Override
