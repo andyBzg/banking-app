@@ -24,8 +24,8 @@ public class ClientDtoMapper implements DtoMapper<Client, ClientDto> {
             throw new IllegalArgumentException("client cannot be null");
         }
         return ClientDto.builder()
-                .managerUuid(String.valueOf(client.getManagerUuid()))
-                .status(client.getStatus().name())
+                .managerUuid(client.getManagerUuid() != null ? client.getManagerUuid().toString() : null)
+                .status(client.getStatus() != null ? client.getStatus().name() : null)
                 .taxCode(client.getTaxCode())
                 .firstName(client.getFirstName())
                 .lastName(client.getLastName())
@@ -41,8 +41,8 @@ public class ClientDtoMapper implements DtoMapper<Client, ClientDto> {
             throw new IllegalArgumentException("clientDto cannot be null");
         }
         return Client.builder()
-                .managerUuid(UUID.fromString(clientDto.getManagerUuid()))
-                .status(ClientStatus.valueOf(clientDto.getStatus()))
+                .managerUuid(clientDto.getManagerUuid() != null ? UUID.fromString(clientDto.getManagerUuid()) : null)
+                .status(clientDto.getStatus() != null ? ClientStatus.valueOf(clientDto.getStatus()) : null)
                 .taxCode(clientDto.getTaxCode())
                 .firstName(clientDto.getFirstName())
                 .lastName(clientDto.getLastName())

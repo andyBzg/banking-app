@@ -24,10 +24,10 @@ public class AgreementDtoMapper implements DtoMapper<Agreement, AgreementDto> {
             throw new IllegalArgumentException("agreement cannot be null");
         }
         return AgreementDto.builder()
-                .accountUuid(String.valueOf(agreement.getAccountUuid()))
-                .productUuid(String.valueOf(agreement.getProductUuid()))
+                .accountUuid(agreement.getAccountUuid() != null ? agreement.getAccountUuid().toString() : null)
+                .productUuid(agreement.getProductUuid() != null ? agreement.getProductUuid().toString() : null)
                 .interestRate(agreement.getInterestRate())
-                .status(String.valueOf(agreement.getStatus()))
+                .status(agreement.getStatus() != null ? agreement.getStatus().name() : null)
                 .amount(agreement.getAmount())
                 .build();
     }
@@ -38,10 +38,10 @@ public class AgreementDtoMapper implements DtoMapper<Agreement, AgreementDto> {
             throw new IllegalArgumentException("agreementDto cannot be null");
         }
         return Agreement.builder()
-                .accountUuid(UUID.fromString(agreementDto.getAccountUuid()))
-                .productUuid(UUID.fromString(agreementDto.getProductUuid()))
+                .accountUuid(agreementDto.getAccountUuid() != null ? UUID.fromString(agreementDto.getAccountUuid()) : null)
+                .productUuid(agreementDto.getProductUuid() != null ? UUID.fromString(agreementDto.getProductUuid()) : null)
                 .interestRate(agreementDto.getInterestRate())
-                .status(AgreementStatus.valueOf(agreementDto.getStatus()))
+                .status(agreementDto.getStatus() != null ? AgreementStatus.valueOf(agreementDto.getStatus()) : null)
                 .amount(agreementDto.getAmount())
                 .build();
     }

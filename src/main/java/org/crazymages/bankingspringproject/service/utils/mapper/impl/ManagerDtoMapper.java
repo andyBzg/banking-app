@@ -25,7 +25,7 @@ public class ManagerDtoMapper implements DtoMapper<Manager, ManagerDto> {
         return ManagerDto.builder()
                 .firstName(manager.getFirstName())
                 .lastName(manager.getLastName())
-                .status(String.valueOf(manager.getStatus()))
+                .status(manager.getStatus() != null ? manager.getStatus().name() : null)
                 .description(manager.getDescription())
                 .build();
     }
@@ -38,7 +38,7 @@ public class ManagerDtoMapper implements DtoMapper<Manager, ManagerDto> {
         return Manager.builder()
                 .firstName(managerDto.getFirstName())
                 .lastName(managerDto.getLastName())
-                .status(ManagerStatus.valueOf(managerDto.getStatus()))
+                .status(managerDto.getStatus() != null ? ManagerStatus.valueOf(managerDto.getStatus()) : null)
                 .description(managerDto.getDescription())
                 .build();
     }

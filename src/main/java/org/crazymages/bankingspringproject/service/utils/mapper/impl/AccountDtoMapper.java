@@ -26,12 +26,12 @@ public class AccountDtoMapper implements DtoMapper<Account, AccountDto> {
             throw new IllegalArgumentException("account cannot be null");
         }
         return AccountDto.builder()
-                .clientUuid(String.valueOf(account.getClientUuid()))
+                .clientUuid(account.getClientUuid() != null ? account.getClientUuid().toString() : null)
                 .name(account.getName())
-                .type(String.valueOf(account.getType()))
-                .status(String.valueOf(account.getStatus()))
+                .type(account.getType() != null ? account.getType().name() : null)
+                .status(account.getStatus() != null ? account.getStatus().name() : null)
                 .balance(account.getBalance())
-                .currencyCode(String.valueOf(account.getCurrencyCode()))
+                .currencyCode(account.getCurrencyCode() != null ? account.getCurrencyCode().name() : null)
                 .build();
     }
 
@@ -41,12 +41,12 @@ public class AccountDtoMapper implements DtoMapper<Account, AccountDto> {
             throw new IllegalArgumentException("account cannot be null");
         }
         return Account.builder()
-                .clientUuid(UUID.fromString(accountDto.getClientUuid()))
+                .clientUuid(accountDto.getClientUuid() != null ? UUID.fromString(accountDto.getClientUuid()) : null)
                 .name(accountDto.getName())
-                .type(AccountType.valueOf(accountDto.getType()))
-                .status(AccountStatus.valueOf(accountDto.getStatus()))
+                .type(accountDto.getType() != null ? AccountType.valueOf(accountDto.getType()) : null)
+                .status(accountDto.getStatus() != null ? AccountStatus.valueOf(accountDto.getStatus()) : null)
                 .balance(accountDto.getBalance())
-                .currencyCode(CurrencyCode.valueOf(accountDto.getCurrencyCode()))
+                .currencyCode(accountDto.getCurrencyCode() != null ? CurrencyCode.valueOf(accountDto.getCurrencyCode()) : null)
                 .build();
     }
 

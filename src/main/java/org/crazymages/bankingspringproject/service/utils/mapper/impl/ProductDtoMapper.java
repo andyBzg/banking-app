@@ -26,11 +26,11 @@ public class ProductDtoMapper implements DtoMapper<Product, ProductDto> {
             throw new IllegalArgumentException("product cannot be null");
         }
         return ProductDto.builder()
-                .managerUuid(String.valueOf(product.getManagerUuid()))
+                .managerUuid(product.getManagerUuid() != null ? product.getManagerUuid().toString() : null)
                 .name(product.getName())
-                .status(String.valueOf(product.getStatus()))
-                .type(String.valueOf(product.getType()))
-                .currencyCode(String.valueOf(product.getCurrencyCode()))
+                .status(product.getStatus() != null ? product.getStatus().name() : null)
+                .type(product.getType() != null ? product.getType().name() : null)
+                .currencyCode(product.getCurrencyCode() != null ? product.getCurrencyCode().name() : null)
                 .interestRate(product.getInterestRate())
                 .limitation(product.getLimitation())
                 .build();
@@ -42,11 +42,11 @@ public class ProductDtoMapper implements DtoMapper<Product, ProductDto> {
             throw new IllegalArgumentException("productDto cannot be null");
         }
         return Product.builder()
-                .managerUuid(UUID.fromString(productDto.getManagerUuid()))
+                .managerUuid(productDto.getManagerUuid() != null ? UUID.fromString(productDto.getManagerUuid()) : null)
                 .name(productDto.getName())
-                .status(ProductStatus.valueOf(productDto.getStatus()))
-                .type(ProductType.valueOf(productDto.getType()))
-                .currencyCode(CurrencyCode.valueOf(productDto.getCurrencyCode()))
+                .status(productDto.getStatus() != null ? ProductStatus.valueOf(productDto.getStatus()) : null)
+                .type(productDto.getType() != null ? ProductType.valueOf(productDto.getType()) : null)
+                .currencyCode(productDto.getCurrencyCode() != null ? CurrencyCode.valueOf(productDto.getCurrencyCode()) : null)
                 .interestRate(productDto.getInterestRate())
                 .limitation(productDto.getLimitation())
                 .build();
