@@ -23,7 +23,7 @@ class ManagerDtoMapperTest {
     @BeforeEach
     void setUp() {
         managerDtoMapper = new ManagerDtoMapper();
-        managerDto = new ManagerDto();
+        managerDto = ManagerDto.builder().build();
 
         manager1 = new Manager();
         manager1.setUuid(UUID.randomUUID());
@@ -46,7 +46,6 @@ class ManagerDtoMapperTest {
         ManagerDto managerDto = managerDtoMapper.mapEntityToDto(manager1);
 
         // then
-        assertEquals(manager1.getUuid().toString(), managerDto.getUuid());
         assertEquals(manager1.getFirstName(), managerDto.getFirstName());
         assertEquals(manager1.getLastName(), managerDto.getLastName());
         assertEquals(manager1.getStatus().toString(), managerDto.getStatus());
@@ -54,14 +53,28 @@ class ManagerDtoMapperTest {
     }
 
     @Test
-    void mapEntityToDto_nullManager_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> managerDtoMapper.mapEntityToDto(null));
+    void mapEntityToDto_missingManagerProperties_returnsManagerDtoWithNullProperties() {
+        // given
+        Manager manager = new Manager();
+
+        // when
+        ManagerDto managerDto = managerDtoMapper.mapEntityToDto(manager);
+
+        // then
+        assertNull(managerDto.getFirstName());
+        assertNull(managerDto.getLastName());
+        assertNull(managerDto.getStatus());
+        assertNull(managerDto.getDescription());
+    }
+
+    @Test
+    void mapEntityToDto_nullManager_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> managerDtoMapper.mapEntityToDto(null));
     }
 
     @Test
     void mapDtoToEntity_validManagerDto_success() {
         // given
-        managerDto.setUuid("30348dce-45f7-4e19-aa08-3ed77a8f7ac3");
         managerDto.setFirstName("John");
         managerDto.setLastName("Doe");
         managerDto.setStatus("ACTIVE");
@@ -71,7 +84,7 @@ class ManagerDtoMapperTest {
         Manager manager = managerDtoMapper.mapDtoToEntity(managerDto);
 
         // then
-        assertEquals(UUID.fromString(managerDto.getUuid()), manager.getUuid());
+        assertFalse(manager.isDeleted());
         assertEquals(managerDto.getFirstName(), manager.getFirstName());
         assertEquals(managerDto.getLastName(), manager.getLastName());
         assertEquals(ManagerStatus.valueOf(managerDto.getStatus()), manager.getStatus());
@@ -79,17 +92,24 @@ class ManagerDtoMapperTest {
     }
 
     @Test
-    void mapDtoToEntity_nullManagerDto_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> managerDtoMapper.mapDtoToEntity(null));
+    void mapDtoToEntity_missingManagerDtoProperties_returnsManagerWithNullProperties() {
+        // given
+        ManagerDto managerDto = ManagerDto.builder().build();
+
+        // when
+        Manager manager = managerDtoMapper.mapDtoToEntity(managerDto);
+
+        // then
+        assertFalse(manager.isDeleted());
+        assertNull(manager.getFirstName());
+        assertNull(manager.getLastName());
+        assertNull(manager.getStatus());
+        assertNull(manager.getDescription());
     }
 
     @Test
-    void mapDtoToEntity_missingManagerDtoProperties_throwsIllegalArgumentException() {
-        // given
-        managerDto.setUuid("30348dce-45f7-4e19-aa08-3ed77a8f7ac3");
-
-        // when, then
-        assertThrows(NullPointerException.class, () -> managerDtoMapper.mapDtoToEntity(managerDto));
+    void mapDtoToEntity_nullManagerDto_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> managerDtoMapper.mapDtoToEntity(null));
     }
 
     @Test
@@ -104,14 +124,12 @@ class ManagerDtoMapperTest {
         assertEquals(2, actual.size());
 
         ManagerDto managerDto1 = actual.get(0);
-        assertEquals(manager1.getUuid().toString(), managerDto1.getUuid());
         assertEquals(manager1.getFirstName(), managerDto1.getFirstName());
         assertEquals(manager1.getLastName(), managerDto1.getLastName());
         assertEquals(manager1.getStatus().toString(), managerDto1.getStatus());
         assertEquals(manager1.getDescription(), managerDto1.getDescription());
 
         ManagerDto managerDto2 = actual.get(1);
-        assertEquals(manager2.getUuid().toString(), managerDto2.getUuid());
         assertEquals(manager2.getFirstName(), managerDto2.getFirstName());
         assertEquals(manager2.getLastName(), managerDto2.getLastName());
         assertEquals(manager2.getStatus().toString(), managerDto2.getStatus());
