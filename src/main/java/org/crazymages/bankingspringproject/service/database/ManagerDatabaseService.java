@@ -5,7 +5,6 @@ import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * A service interface for managing Manager entities in the database.
@@ -47,7 +46,7 @@ public interface ManagerDatabaseService {
      * @param uuid The UUID of the Manager to retrieve.
      * @return The Manager entity with the specified UUID, or null if not found.
      */
-    ManagerDto findById(UUID uuid);
+    ManagerDto findById(String uuid);
 
     /**
      * Updates a Manager entity in the database with the specified UUID.
@@ -55,14 +54,14 @@ public interface ManagerDatabaseService {
      * @param uuid              The UUID of the Manager to update.
      * @param updatedManagerDto The updated Manager entity.
      */
-    void update(UUID uuid, ManagerDto updatedManagerDto);
+    void update(String uuid, ManagerDto updatedManagerDto);
 
     /**
      * Deletes a Manager entity from the database with the specified UUID.
      *
      * @param uuid The UUID of the Manager to delete.
      */
-    void delete(UUID uuid);
+    void delete(String uuid);
 
     /**
      * Retrieves all Manager entities from the database sorted by the quantity of associated clients,

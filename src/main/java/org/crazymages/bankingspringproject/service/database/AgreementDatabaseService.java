@@ -39,7 +39,7 @@ public interface AgreementDatabaseService {
      * @param uuid The UUID of the Agreement to retrieve.
      * @return The Agreement entity with the specified UUID, or null if not found.
      */
-    AgreementDto findById(UUID uuid);
+    AgreementDto findById(String uuid);
 
     /**
      * Retrieves the savings Agreement entity from the database associated with the specified client UUID.
@@ -55,14 +55,14 @@ public interface AgreementDatabaseService {
      * @param uuid                The UUID of the Agreement to update.
      * @param updatedAgreementDto The updated Agreement entity.
      */
-    void update(UUID uuid, AgreementDto updatedAgreementDto);
+    void update(String uuid, AgreementDto updatedAgreementDto);
 
     /**
      * Deletes an Agreement entity from the database with the specified UUID.
      *
      * @param uuid The UUID of the Agreement to delete.
      */
-    void delete(UUID uuid);
+    void delete(String uuid);
 
     /**
      * Retrieves all Agreement DTOs from the database associated with the specified manager UUID.
@@ -70,7 +70,7 @@ public interface AgreementDatabaseService {
      * @param managerUuid The UUID of the manager to filter by.
      * @return A list of Agreement entities associated with the specified manager UUID.
      */
-    List<AgreementDto> findAgreementsByManagerUuid(UUID managerUuid);
+    List<AgreementDto> findAgreementsByManagerUuid(String managerUuid);
 
     /**
      * Retrieves all AgreementDTOs from the database associated with the specified client UUID.
@@ -78,7 +78,7 @@ public interface AgreementDatabaseService {
      * @param clientUuid The UUID of the client to filter by.
      * @return A list of AgreementDTOs associated with the specified client UUID.
      */
-    List<AgreementDto> findAgreementDtoListByClientUuid(UUID clientUuid);
+    List<AgreementDto> findAgreementDtoListByClientUuid(String clientUuid);
 
     /**
      * Retrieves all Agreement entities from the database associated with the specified client UUID.
