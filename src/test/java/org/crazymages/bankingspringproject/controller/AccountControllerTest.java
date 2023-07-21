@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,18 +28,18 @@ class AccountControllerTest {
     @InjectMocks
     AccountController accountController;
 
-    UUID uuid;
+    String uuid;
 
     @BeforeEach
     void setUp() {
-        uuid = UUID.fromString("7bcf30be-8c6e-4e10-a73b-706849fc94dc");
+        uuid = "7bcf30be-8c6e-4e10-a73b-706849fc94dc";
     }
 
     @Test
     void createAccount_success() {
         // when
-        AccountDto accountDto = new AccountDto();
-        AccountDto createdAccountDto = new AccountDto();
+        AccountDto accountDto = AccountDto.builder().build();
+        AccountDto createdAccountDto = AccountDto.builder().build();
 
         // when
         ResponseEntity<AccountDto> actual = accountController.createAccount(accountDto);
@@ -52,13 +51,23 @@ class AccountControllerTest {
     }
 
     @Test
+    void createAccount_emptyAccountDto_savesNoData() {
+        // when
+        ResponseEntity<AccountDto> actual = accountController.createAccount(null);
+
+        // then
+        assertNull(actual.getBody());
+        verify(accountDatabaseService, never()).create(any(AccountDto.class));
+    }
+
+    @Test
     void createAccount_withClientUuid_success() {
         // when
-        AccountDto accountDto = new AccountDto();
-        AccountDto createdAccountDto = new AccountDto();
+        AccountDto accountDto = AccountDto.builder().build();
+        AccountDto createdAccountDto = AccountDto.builder().build();
 
         // when
-        ResponseEntity<AccountDto> actual = accountController.createAccount(accountDto, String.valueOf(uuid));
+        ResponseEntity<AccountDto> actual = accountController.createAccount(accountDto, uuid);
 
         // then
         assertEquals(HttpStatus.CREATED, actual.getStatusCode());
@@ -69,7 +78,7 @@ class AccountControllerTest {
     @Test
     void findAllAccounts_success() {
         // given
-        List<AccountDto> expected = List.of(new AccountDto(), new AccountDto());
+        List<AccountDto> expected = List.of(AccountDto.builder().build(), AccountDto.builder().build());
         when(accountDatabaseService.findAllNotDeleted()).thenReturn(expected);
 
         // when
@@ -99,22 +108,22 @@ class AccountControllerTest {
     @Test
     void findAccountByUuid_success() {
         // given
-        AccountDto expected = new AccountDto();
-        when(accountDatabaseService.findById(uuid)).thenReturn(expected);
+        AccountDto expected = AccountDto.builder().build();
+        when(accountDatabaseService.findDtoById(uuid)).thenReturn(expected);
 
         // when
-        ResponseEntity<AccountDto> actual = accountController.findAccountByUuid(String.valueOf(uuid));
+        ResponseEntity<AccountDto> actual = accountController.findAccountByUuid(uuid);
 
         // then
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertEquals(expected, actual.getBody());
-        verify(accountDatabaseService).findById(uuid);
+        verify(accountDatabaseService).findDtoById(uuid);
     }
 
     @Test
-    void findAllAccountsByStatus() {
+    void findAllAccountsByStatus_success() {
         // given
-        List<AccountDto> expected = List.of(new AccountDto(), new AccountDto());
+        List<AccountDto> expected = List.of(AccountDto.builder().build(), AccountDto.builder().build());
         String status = AccountStatus.ACTIVE.name();
         when(accountDatabaseService.findAllByStatus(status)).thenReturn(expected);
 
@@ -128,23 +137,23 @@ class AccountControllerTest {
     }
 
     @Test
-    void updateAccount() {
+    void updateAccount_success() {
         // given
-        AccountDto expected = new AccountDto();
+        AccountDto expected = AccountDto.builder().build();
 
         // when
-        ResponseEntity<AccountDto> actual = accountController.updateAccount(String.valueOf(uuid), expected);
+        ResponseEntity<AccountDto> actual = accountController.updateAccount(uuid, expected);
 
         // then
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertEquals(expected, actual.getBody());
-        verify(accountDatabaseService).update(uuid, expected);
+        verify(accountDatabaseService).updateAccountDto(uuid, expected);
     }
 
     @Test
-    void deleteAccount() {
+    void deleteAccount_success() {
         // when
-        ResponseEntity<String> actual = accountController.deleteAccount(String.valueOf(uuid));
+        ResponseEntity<String> actual = accountController.deleteAccount(uuid);
 
         // then
         assertEquals(HttpStatus.OK, actual.getStatusCode());
@@ -152,9 +161,9 @@ class AccountControllerTest {
     }
 
     @Test
-    void blockAllAccountsByClientUuid() {
+    void blockAllAccountsByClientUuid_success() {
         // when
-        ResponseEntity<String> actual = accountController.blockAllAccountsByClientUuid(String.valueOf(uuid));
+        ResponseEntity<String> actual = accountController.blockAllAccountsByClientUuid(uuid);
 
         // then
         assertEquals(HttpStatus.OK, actual.getStatusCode());
@@ -162,16 +171,16 @@ class AccountControllerTest {
     }
 
     @Test
-    void findAllAccountsByProductIdAndStatus() {
+    void findAllAccountsByProductIdAndStatus_success() {
         // given
-        List<AccountDto> expected = List.of(new AccountDto(), new AccountDto());
-        ProductStatus status = ProductStatus.ACTIVE;
+        List<AccountDto> expected = List.of(AccountDto.builder().build(), AccountDto.builder().build());
+        String status = ProductStatus.ACTIVE.name();
         when(accountDatabaseService
                 .findAccountsByProductIdAndStatus(uuid, status)).thenReturn(expected);
 
         // when
         ResponseEntity<List<AccountDto>> actual = accountController
-                .findAllAccountsByProductIdAndStatus(String.valueOf(uuid), String.valueOf(status));
+                .findAllAccountsByProductIdAndStatus(uuid, status);
 
         // then
         assertEquals(HttpStatus.OK, actual.getStatusCode());
@@ -180,13 +189,13 @@ class AccountControllerTest {
     }
 
     @Test
-    void findAllAccountsByClientUuid() {
+    void findAllAccountsByClientUuid_success() {
         // given
-        List<AccountDto> expected = List.of(new AccountDto(), new AccountDto());
+        List<AccountDto> expected = List.of(AccountDto.builder().build(), AccountDto.builder().build());
         when(accountDatabaseService.findAllDtoByClientId(uuid)).thenReturn(expected);
 
         // when
-        ResponseEntity<List<AccountDto>> actual = accountController.findAllAccountsByClientUuid(String.valueOf(uuid));
+        ResponseEntity<List<AccountDto>> actual = accountController.findAllAccountsByClientUuid(uuid);
 
         // then
         assertEquals(HttpStatus.OK, actual.getStatusCode());
