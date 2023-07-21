@@ -30,7 +30,7 @@ class TransactionInitializerTest {
     }
 
     @Test
-    void apply_createsTransactionWithCorrectProperties() {
+    void initializeTransaction_createsTransactionWithCorrectProperties() {
         // when
         Transaction transaction = transactionInitializer.initializeTransaction(sender, recipient);
 
@@ -41,19 +41,35 @@ class TransactionInitializerTest {
     }
 
     @Test
-    void apply_withNullSender_throwsNullPointerException() {
-        // when, then
-        assertThrows(NullPointerException.class, () -> transactionInitializer.initializeTransaction(null, recipient));
+    void initializeTransaction_argumentsWithNullProperties_returnsTransactionWithNullProperties() {
+        // given
+        sender.setUuid(null);
+        sender.setCurrencyCode(null);
+        recipient.setUuid(null);
+
+        // when
+        Transaction transaction = transactionInitializer.initializeTransaction(sender, recipient);
+
+        // then
+        assertNull(transaction.getDebitAccountUuid());
+        assertNull(transaction.getCreditAccountUuid());
+        assertNull(transaction.getCurrencyCode());
     }
 
     @Test
-    void apply_withNullRecipient_throwsNullPointerException() {
+    void initializeTransaction_withNullSender_throwsIllegalArgumentException() {
         // when, then
-        assertThrows(NullPointerException.class, () -> transactionInitializer.initializeTransaction(sender, null));
+        assertThrows(IllegalArgumentException.class, () -> transactionInitializer.initializeTransaction(null, recipient));
     }
 
     @Test
-    void apply_returnsNewTransactionInstance() {
+    void initializeTransaction_withNullRecipient_throwsIllegalArgumentException() {
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionInitializer.initializeTransaction(sender, null));
+    }
+
+    @Test
+    void initializeTransaction_returnsNewTransactionInstance() {
         // when
         Transaction transaction = transactionInitializer.initializeTransaction(sender, recipient);
 

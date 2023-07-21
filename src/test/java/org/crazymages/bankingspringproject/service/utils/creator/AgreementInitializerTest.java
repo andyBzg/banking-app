@@ -27,7 +27,7 @@ class AgreementInitializerTest {
     }
 
     @Test
-    void apply_createsAgreementWithCorrectProperties() {
+    void initializeAgreement_createsAgreementWithCorrectProperties() {
         // when
         Agreement agreement = agreementInitializer.initializeAgreement(accountUuid, product);
 
@@ -39,7 +39,7 @@ class AgreementInitializerTest {
     }
 
     @Test
-    void apply_returnsNewAgreementInstance() {
+    void initializeAgreement_returnsNewAgreementInstance() {
         // when
         Agreement agreement1 = agreementInitializer.initializeAgreement(accountUuid, product);
         Agreement agreement2 = agreementInitializer.initializeAgreement(accountUuid, product);
@@ -49,7 +49,7 @@ class AgreementInitializerTest {
     }
 
     @Test
-    void apply_withNullAccountUuid_returnsAgreementWithNullAccountId() {
+    void initializeAgreement_withNullAccountUuid_returnsAgreementWithNullAccountId() {
         // when
         Agreement agreement = agreementInitializer.initializeAgreement(null, product);
 
@@ -58,8 +58,23 @@ class AgreementInitializerTest {
     }
 
     @Test
-    void apply_withNullProduct_throwsNullPointerException() {
+    void initializeAgreement_productPropertiesAreNull_returnsAgreementWithNullProperties() {
+        // given
+        product.setUuid(null);
+        product.setInterestRate(null);
+
+        // when
+        Agreement agreement = agreementInitializer.initializeAgreement(accountUuid, product);
+
+        // then
+        assertNull(agreement.getProductUuid());
+        assertNull(agreement.getInterestRate());
+    }
+
+    @Test
+    void initializeAgreement_withNullProduct_throwsIllegalArgumentException() {
         // when, then
-        assertThrows(NullPointerException.class, () -> agreementInitializer.initializeAgreement(accountUuid, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> agreementInitializer.initializeAgreement(accountUuid, null));
     }
 }
