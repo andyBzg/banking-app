@@ -2,7 +2,6 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.AccountDto;
 import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Transaction;
@@ -61,7 +60,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public TransactionDto findById(UUID uuid) {
+    public TransactionDto findById(String transactionUuid) {
+        if (transactionUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(transactionUuid);
         log.info("retrieving transaction by id {}", uuid);
         return transactionDtoMapper.mapEntityToDto(
                 transactionRepository.findById(uuid)
@@ -70,7 +73,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public List<TransactionDto> findOutgoingTransactions(UUID uuid) {
+    public List<TransactionDto> findOutgoingTransactions(String transactionUuid) {
+        if (transactionUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(transactionUuid);
         log.info("retrieving list of transactions by sender id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByDebitAccountUuid(uuid);
         return transactionDtoMapper.getDtoList(transactions);
@@ -78,7 +85,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public List<TransactionDto> findIncomingTransactions(UUID uuid) {
+    public List<TransactionDto> findIncomingTransactions(String transactionUuid) {
+        if (transactionUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(transactionUuid);
         log.info("retrieving list of transactions by recipient id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByCreditAccountUuid(uuid);
         return transactionDtoMapper.getDtoList(transactions);
@@ -86,7 +97,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public List<TransactionDto> findAllTransactionsByClientId(UUID uuid) {
+    public List<TransactionDto> findAllTransactionsByClientId(String transactionUuid) {
+        if (transactionUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(transactionUuid);
         log.info("retrieving list of transactions by client id {} ", uuid);
         List<Transaction> transactions = transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
         return transactionDtoMapper.getDtoList(transactions);
@@ -96,51 +111,85 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     @Transactional
     public void transferFunds(Transaction transaction) {
         BigDecimal amount = transaction.getAmount();
-        AccountDto senderAccountDto = accountDatabaseService.findById(transaction.getDebitAccountUuid());
-        AccountDto recipientAccountDto = accountDatabaseService.findById(transaction.getCreditAccountUuid());
-        Account senderAccount = accountDtoMapper.mapDtoToEntity(senderAccountDto);
-        Account recipientAccount = accountDtoMapper.mapDtoToEntity(recipientAccountDto);
-        boolean isSenderActive = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
-        boolean isRecipientActive = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
+        Account senderAccount = accountDatabaseService.findById(transaction.getDebitAccountUuid());
+        Account recipientAccount = accountDatabaseService.findById(transaction.getCreditAccountUuid());
 
-        if (senderAccount.getBalance() == null || senderAccount.getStatus() == null ||
-                recipientAccount.getBalance() == null || recipientAccount.getStatus() == null) {
-            throw new IllegalArgumentException();
-        }
-        if (senderAccount.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(String.valueOf(senderAccount.getUuid()));
-        }
-        if (!senderAccount.getStatus().equals(AccountStatus.ACTIVE) ||
-                !recipientAccount.getStatus().equals(AccountStatus.ACTIVE)) {
-            throw new TransactionNotAllowedException();
-        }
-        if (!isSenderActive || !isRecipientActive) {
-            throw new TransactionNotAllowedException();
-        }
+        checkAmount(amount);
+        checkBalanceNotNull(senderAccount, recipientAccount);
+        checkAccountStatusNotNull(senderAccount, recipientAccount);
+        checkSufficientFunds(amount, senderAccount);
+        checkAccountsStatusActive(senderAccount, recipientAccount);
+        checkClientsStatusActive(senderAccount, recipientAccount);
 
         CurrencyCode senderCurrency = senderAccount.getCurrencyCode();
-        CurrencyCode recipientCurrency = recipientAccount.getCurrencyCode();
-
         transaction.setCurrencyCode(senderCurrency);
         senderAccount.setBalance(senderAccount.getBalance().subtract(amount));
 
+        performTransfer(transaction, amount, senderAccount, recipientAccount);
+    }
+
+    private void performTransfer(Transaction transaction, BigDecimal amount, Account sender, Account recipient) {
+        CurrencyCode senderCurrency = sender.getCurrencyCode();
+        CurrencyCode recipientCurrency = recipient.getCurrencyCode();
+
         if (recipientCurrency.equals(senderCurrency)) {
-            recipientAccount.setBalance(recipientAccount.getBalance().add(amount));
+            recipient.setBalance(recipient.getBalance().add(amount));
         } else {
-            recipientAccount = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
+            recipient = currencyConverter.performCurrencyConversion(amount, recipient, sender);
         }
 
-        senderAccountDto = accountDtoMapper.mapEntityToDto(senderAccount);
-        recipientAccountDto = accountDtoMapper.mapEntityToDto(recipientAccount);
-        accountDatabaseService.update(senderAccount.getUuid(), senderAccountDto);
-        accountDatabaseService.update(recipientAccount.getUuid(), recipientAccountDto);
+        accountDatabaseService.update(sender.getUuid(), sender);
+        accountDatabaseService.update(recipient.getUuid(), recipient);
         transactionRepository.save(transaction);
         log.info("transfer saved to db");
     }
 
+    private void checkAmount(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount is less or equals Zero");
+        }
+    }
+
+    private void checkBalanceNotNull(Account senderAccount, Account recipientAccount) {
+        if (senderAccount.getBalance() == null || recipientAccount.getBalance() == null) {
+            throw new IllegalArgumentException("Balance is null");
+        }
+    }
+
+    private void checkAccountStatusNotNull(Account senderAccount, Account recipientAccount) {
+        if (senderAccount.getStatus() == null || recipientAccount.getStatus() == null) {
+            throw new IllegalArgumentException("Status is null");
+        }
+    }
+
+    private void checkSufficientFunds(BigDecimal amount, Account senderAccount) {
+        if (senderAccount.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException("Sender balance is too low");
+        }
+    }
+
+    private void checkAccountsStatusActive(Account senderAccount, Account recipientAccount) {
+        AccountStatus status = AccountStatus.ACTIVE;
+        if (!senderAccount.getStatus().equals(status) || !recipientAccount.getStatus().equals(status)) {
+            throw new TransactionNotAllowedException("Account is not active");
+        }
+    }
+
+    private void checkClientsStatusActive(Account senderAccount, Account recipientAccount) {
+        boolean isSenderActive = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
+        boolean isRecipientActive = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
+        if (!isSenderActive || !isRecipientActive) {
+            throw new TransactionNotAllowedException();
+        }
+    }
+
     @Override
     @Transactional
-    public List<TransactionDto> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to) {
+    public List<TransactionDto> findTransactionsByClientIdBetweenDates(String uuid, String from, String to) {
+        if (uuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID clientUuid = UUID.fromString(uuid);
         log.info("retrieving list of transactions for client {}, between {} and {}", clientUuid, from, to);
         LocalDate localDateStart = LocalDate.parse(from);
         Timestamp start = Timestamp.valueOf(localDateStart.atStartOfDay());
