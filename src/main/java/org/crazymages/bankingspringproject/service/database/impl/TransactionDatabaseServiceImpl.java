@@ -37,7 +37,6 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     private final TransactionRepository transactionRepository;
     private final TransactionDtoMapper transactionDtoMapper;
     private final AccountDatabaseService accountDatabaseService;
-    private final AccountDtoMapper accountDtoMapper;
     private final ClientDatabaseService clientDatabaseService;
     private final CurrencyConverter currencyConverter;
 
