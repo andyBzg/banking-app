@@ -58,4 +58,13 @@ class CustomExceptionHandlerTest {
         // then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+
+    @Test
+    void handleDateTimeParseExceptionException_shouldReturnBadRequestResponse() {
+        // when
+        ResponseEntity<String> response = customExceptionHandler.handleDateTimeParseException();
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 }
