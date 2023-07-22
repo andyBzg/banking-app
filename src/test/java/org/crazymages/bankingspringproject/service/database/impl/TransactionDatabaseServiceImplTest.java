@@ -21,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -73,8 +72,8 @@ class TransactionDatabaseServiceImplTest {
         expected = List.of(TransactionDto.builder().build(), TransactionDto.builder().build());
         senderAccountDto = AccountDto.builder().build();
         recipientAccountDto = AccountDto.builder().build();
-        senderAccount = Account.builder().build();
-        recipientAccount = Account.builder().build();
+        senderAccount = new Account();
+        recipientAccount = new Account();
     }
 
     @Test
@@ -147,6 +146,20 @@ class TransactionDatabaseServiceImplTest {
     }
 
     @Test
+    void findById_invalidUuid_throwsIllegalArgumentException() {
+        // given
+        String invalidUuid = "invalid_uuid";
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findById(invalidUuid));
+    }
+
+    @Test
+    void findById_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findById(null));
+    }
+
+    @Test
     void findOutgoingTransactions_success() {
         // given
         when(transactionRepository.findTransactionsByDebitAccountUuid(uuid)).thenReturn(transactions);
@@ -159,6 +172,20 @@ class TransactionDatabaseServiceImplTest {
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsByDebitAccountUuid(uuid);
         verify(transactionDtoMapper).getDtoList(transactions);
+    }
+
+    @Test
+    void findOutgoingTransactions_invalidUuid_throwsIllegalArgumentException() {
+        // given
+        String invalidUuid = "invalid_uuid";
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findOutgoingTransactions(invalidUuid));
+    }
+
+    @Test
+    void findOutgoingTransactions_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findOutgoingTransactions(null));
     }
 
     @Test
@@ -177,6 +204,20 @@ class TransactionDatabaseServiceImplTest {
     }
 
     @Test
+    void findIncomingTransactions_invalidUuid_throwsIllegalArgumentException() {
+        // given
+        String invalidUuid = "invalid_uuid";
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findIncomingTransactions(invalidUuid));
+    }
+
+    @Test
+    void findIncomingTransactions_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findIncomingTransactions(null));
+    }
+
+    @Test
     void findAllTransactionsByClientId_success() {
         // given
         when(transactionRepository.findAllTransactionsWhereClientIdIs(uuid)).thenReturn(transactions);
@@ -189,6 +230,20 @@ class TransactionDatabaseServiceImplTest {
         assertEquals(expected, actual);
         verify(transactionRepository).findAllTransactionsWhereClientIdIs(uuid);
         verify(transactionDtoMapper).getDtoList(transactions);
+    }
+
+    @Test
+    void findAllTransactionsByClientId_invalidUuid_throwsIllegalArgumentException() {
+        // given
+        String invalidUuid = "invalid_uuid";
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findAllTransactionsByClientId(invalidUuid));
+    }
+
+    @Test
+    void findAllTransactionsByClientId_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findAllTransactionsByClientId(null));
     }
 
     @Test
@@ -233,42 +288,6 @@ class TransactionDatabaseServiceImplTest {
     }
 
     @Test
-    void transferFunds_validData_withNegativeAmount_throwsIllegalArgumentException() {
-        // given
-        BigDecimal amount = BigDecimal.valueOf(-100);
-        Transaction transaction = new Transaction();
-        transaction.setAmount(amount);
-        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
-        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
-
-        Account sender = Account.builder().build();
-        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
-        sender.setBalance(BigDecimal.valueOf(200));
-        sender.setStatus(AccountStatus.ACTIVE);
-        sender.setCurrencyCode(CurrencyCode.EUR);
-        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
-
-        Account recipient = Account.builder().build();
-        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
-        recipient.setBalance(BigDecimal.ZERO);
-        recipient.setStatus(AccountStatus.ACTIVE);
-        recipient.setCurrencyCode(CurrencyCode.EUR);
-        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
-
-        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
-
-        // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
-        verify(accountDatabaseService, times(2)).findById(any(UUID.class));
-        verify(clientDatabaseService, times(2)).isClientStatusActive(any(UUID.class));
-        verifyNoInteractions(currencyConverter);
-        verifyNoMoreInteractions(accountDatabaseService);
-        verify(transactionRepository, never()).save(transaction);
-
-    }
-
-    @Test
     void transferFunds_validData_differentCurrencies_success() {
         // given
         BigDecimal amount = BigDecimal.valueOf(100);
@@ -309,22 +328,50 @@ class TransactionDatabaseServiceImplTest {
         verify(transactionRepository).save(transaction);
     }
 
-    /*@Test
-    void transferFunds_atLeastOneOfEntityFieldIsNull_throwsIllegalArgumentException() {
+    @Test
+    void transferFunds_withNegativeAmount_throwsIllegalArgumentException() {
         // given
-        when(accountDatabaseService.findDtoById(String.valueOf(transaction.getDebitAccountUuid()))).thenReturn(senderAccountDto);
-        when(accountDatabaseService.findDtoById(String.valueOf(transaction.getCreditAccountUuid()))).thenReturn(recipientAccountDto);
+        BigDecimal amount = BigDecimal.valueOf(-100);
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
+        transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
+        Account sender = Account.builder().build();
+        sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
+        sender.setBalance(BigDecimal.valueOf(200));
+        sender.setStatus(AccountStatus.ACTIVE);
+        sender.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
+
+        Account recipient = Account.builder().build();
+        recipient.setClientUuid(UUID.fromString("7e3dc741-7e9a-4b60-9f96-da9fc0924927"));
+        recipient.setBalance(BigDecimal.ZERO);
+        recipient.setStatus(AccountStatus.ACTIVE);
+        recipient.setCurrencyCode(CurrencyCode.EUR);
+        when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
+
+        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
 
         // when, then
-        assertThrows(NullPointerException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        verify(accountDatabaseService, times(2)).findById(any(UUID.class));
+        verify(clientDatabaseService, times(2)).isClientStatusActive(any(UUID.class));
         verifyNoInteractions(currencyConverter);
-        verifyNoMoreInteractions(accountDtoMapper);
-//        verifyNoMoreInteractions(accountDatabaseService);
-        verifyNoInteractions(transactionRepository);
-    }*/
+        verifyNoMoreInteractions(accountDatabaseService);
+        verify(transactionRepository, never()).save(transaction);
+    }
+
+    @Test
+    void transferFunds_nullBalance_throwsIllegalArgumentException() {
+
+    }
+
+    @Test
+    void transferFunds_nullAccount_throwsIllegalArgumentException() {
+
+    }
 
     @Test
     void transferFunds_senderBalanceIsTooLow_throwsInsufficientFundsException() {
@@ -431,6 +478,30 @@ class TransactionDatabaseServiceImplTest {
     }
 
     @Test
+    void transferFunds_clientsNotActive_throwsTransactionNotAllowedException() {
+
+    }
+
+    @Test
+    void transferFunds_atLeastOneOfEntityFieldIsNull_throwsIllegalArgumentException() {
+        // given
+
+
+        /*when(accountDatabaseService.findDtoById(String.valueOf(transaction.getDebitAccountUuid()))).thenReturn(senderAccountDto);
+        when(accountDatabaseService.findDtoById(String.valueOf(transaction.getCreditAccountUuid()))).thenReturn(recipientAccountDto);
+
+        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid())).thenReturn(true);
+
+        // when, then
+        assertThrows(NullPointerException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        verifyNoInteractions(currencyConverter);
+        verifyNoMoreInteractions(accountDtoMapper);
+//        verifyNoMoreInteractions(accountDatabaseService);
+        verifyNoInteractions(transactionRepository);*/
+    }
+
+    @Test
     void findTransactionsByClientIdBetweenDates_success() {
         // given
         String from = "2023-07-15";
@@ -450,6 +521,20 @@ class TransactionDatabaseServiceImplTest {
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsByClientIdBetweenDates(uuid, start, end);
         verify(transactionDtoMapper).getDtoList(transactions);
+    }
+
+    @Test
+    void findTransactionsByClientIdBetweenDates_invalidUuid_throwsIllegalArgumentException() {
+        // given
+        String invalidUuid = "invalid_uuid";
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findById(invalidUuid));
+    }
+
+    @Test
+    void findTransactionsByClientIdBetweenDates_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.findById(null));
     }
 
     @Test
