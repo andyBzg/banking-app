@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.AgreementDto;
+import org.crazymages.bankingspringproject.dto.agreement.AgreementWithProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
@@ -32,6 +33,8 @@ class AgreementDatabaseServiceImplTest {
     EntityUpdateService<Agreement> agreementUpdateService;
     @Mock
     AgreementDtoMapper agreementDTOMapper;
+    @Mock
+    AgreementWithProductDtoMapper agreementWithProductDtoMapper;
 
     @InjectMocks
     AgreementDatabaseServiceImpl agreementDatabaseService;
@@ -231,12 +234,12 @@ class AgreementDatabaseServiceImplTest {
     }
 
     @Test
-    void findAgreementDTOsByClientUuid_success() {
+    void findAgreementDtoListByClientUuid_success() {
         // given
         List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAgreementsWhereClientIdIs(uuid)).thenReturn(agreements);
-        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
+        when(agreementWithProductDtoMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
 
         // when
         List<AgreementDto> actual = agreementDatabaseService.findAgreementDtoListByClientUuid(String.valueOf(uuid));
@@ -244,7 +247,7 @@ class AgreementDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAgreementsWhereClientIdIs(uuid);
-        verify(agreementDTOMapper).getDtoList(agreements);
+        verify(agreementWithProductDtoMapper).getDtoList(agreements);
     }
 
     @Test

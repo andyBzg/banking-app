@@ -1,6 +1,8 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.ClientDto;
+import org.crazymages.bankingspringproject.dto.client.ClientCreationMapper;
+import org.crazymages.bankingspringproject.dto.client.ClientUpdateDtoMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -36,6 +38,10 @@ class ClientDatabaseServiceImplTest {
     @Mock
     ClientDtoMapper clientDTOMapper;
     @Mock
+    ClientCreationMapper clientCreationMapper;
+    @Mock
+    ClientUpdateDtoMapper clientUpdateDtoMapper;
+    @Mock
     EntityUpdateService<Client> clientUpdateService;
     @Mock
     ManagerDatabaseService managerDatabaseService;
@@ -70,7 +76,7 @@ class ClientDatabaseServiceImplTest {
         List<Manager> managers = List.of(new Manager(), new Manager());
         ManagerStatus status = ManagerStatus.ACTIVE;
         Manager firstManager = new Manager();
-        when(clientDTOMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
+        when(clientCreationMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
         when(managerDatabaseService.findManagersSortedByClientQuantityWhereManagerStatusIs(status))
                 .thenReturn(managers);
         when(managerDatabaseService.getFirstManager(managers)).thenReturn(firstManager);
@@ -80,7 +86,7 @@ class ClientDatabaseServiceImplTest {
 
         // then
         assertEquals(firstManager.getUuid(), client1.getManagerUuid());
-        verify(clientDTOMapper).mapDtoToEntity(clientDto1);
+        verify(clientCreationMapper).mapDtoToEntity(clientDto1);
         verify(managerDatabaseService).findManagersSortedByClientQuantityWhereManagerStatusIs(status);
         verify(managerDatabaseService).getFirstManager(managers);
         verify(clientRepository).save(client1);
@@ -92,14 +98,14 @@ class ClientDatabaseServiceImplTest {
         UUID managerUuid = UUID.randomUUID();
         client1.setManagerUuid(managerUuid);
         clientDto1.setManagerUuid(String.valueOf(managerUuid));
-        when(clientDTOMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
+        when(clientCreationMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
 
         // when
         clientDatabaseService.create(clientDto1);
 
         // then
         assertEquals(managerUuid, client1.getManagerUuid());
-        verify(clientDTOMapper).mapDtoToEntity(clientDto1);
+        verify(clientCreationMapper).mapDtoToEntity(clientDto1);
         verify(clientRepository).save(client1);
     }
 
@@ -185,7 +191,7 @@ class ClientDatabaseServiceImplTest {
         Client updatedClient = client1;
         Client clientToUpdate = client2;
 
-        when(clientDTOMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
+        when(clientUpdateDtoMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(clientToUpdate));
         when(clientUpdateService.update(clientToUpdate, updatedClient)).thenReturn(client1);
 
@@ -195,7 +201,7 @@ class ClientDatabaseServiceImplTest {
 
 
         // then
-        verify(clientDTOMapper).mapDtoToEntity(updatedClientDto);
+        verify(clientUpdateDtoMapper).mapDtoToEntity(updatedClientDto);
         verify(clientRepository).findById(uuid);
         verify(clientUpdateService).update(clientToUpdate, updatedClient);
         verify(clientRepository).save(client1);
