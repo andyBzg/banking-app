@@ -137,7 +137,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void updateAccount_success() {
+    void updateAccountDto_success() {
         // given
         AccountDto expected = AccountDto.builder().build();
 
