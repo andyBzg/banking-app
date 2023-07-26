@@ -21,8 +21,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AgreementDatabaseServiceImplTest {
@@ -73,7 +73,8 @@ class AgreementDatabaseServiceImplTest {
         List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAllNotDeleted()).thenReturn(agreements);
-        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(expected);
+        when(agreementDTOMapper.mapEntityToDto(agreement1)).thenReturn(agreementDto1);
+        when(agreementDTOMapper.mapEntityToDto(agreement2)).thenReturn(agreementDto2);
 
         // when
         List<AgreementDto> actual = agreementDatabaseService.findAllNotDeleted();
@@ -81,7 +82,7 @@ class AgreementDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAllNotDeleted();
-        verify(agreementDTOMapper).getDtoList(agreements);
+        verify(agreementDTOMapper, times(2)).mapEntityToDto(any(Agreement.class));
     }
 
     @Test
@@ -102,7 +103,8 @@ class AgreementDatabaseServiceImplTest {
         List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> deletedAgreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAllDeleted()).thenReturn(deletedAgreements);
-        when(agreementDTOMapper.getDtoList(deletedAgreements)).thenReturn(expected);
+        when(agreementDTOMapper.mapEntityToDto(agreement1)).thenReturn(agreementDto1);
+        when(agreementDTOMapper.mapEntityToDto(agreement2)).thenReturn(agreementDto2);
 
         // when
         List<AgreementDto> actual = agreementDatabaseService.findDeletedAgreements();
@@ -110,7 +112,7 @@ class AgreementDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAllDeleted();
-        verify(agreementDTOMapper).getDtoList(deletedAgreements);
+        verify(agreementDTOMapper, times(2)).mapEntityToDto(any(Agreement.class));
     }
 
     @Test
@@ -222,7 +224,8 @@ class AgreementDatabaseServiceImplTest {
         List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAgreementsWhereManagerIdIs(uuid)).thenReturn(agreements);
-        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
+        when(agreementDTOMapper.mapEntityToDto(agreement1)).thenReturn(agreementDto1);
+        when(agreementDTOMapper.mapEntityToDto(agreement2)).thenReturn(agreementDto2);
 
         // when
         List<AgreementDto> actual = agreementDatabaseService.findAgreementsByManagerUuid(String.valueOf(uuid));
@@ -230,7 +233,7 @@ class AgreementDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAgreementsWhereManagerIdIs(uuid);
-        verify(agreementDTOMapper).getDtoList(agreements);
+        verify(agreementDTOMapper, times(2)).mapEntityToDto(any(Agreement.class));
     }
 
     @Test
@@ -239,7 +242,8 @@ class AgreementDatabaseServiceImplTest {
         List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAgreementsWhereClientIdIs(uuid)).thenReturn(agreements);
-        when(agreementWithProductDtoMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
+        when(agreementWithProductDtoMapper.mapEntityToDto(agreement1)).thenReturn(agreementDto1);
+        when(agreementWithProductDtoMapper.mapEntityToDto(agreement2)).thenReturn(agreementDto2);
 
         // when
         List<AgreementDto> actual = agreementDatabaseService.findAgreementDtoListByClientUuid(String.valueOf(uuid));
@@ -247,7 +251,7 @@ class AgreementDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAgreementsWhereClientIdIs(uuid);
-        verify(agreementWithProductDtoMapper).getDtoList(agreements);
+        verify(agreementWithProductDtoMapper, times(2)).mapEntityToDto(any(Agreement.class));
     }
 
     @Test

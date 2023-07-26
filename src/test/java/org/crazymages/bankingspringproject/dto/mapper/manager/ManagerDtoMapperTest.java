@@ -1,15 +1,11 @@
 package org.crazymages.bankingspringproject.dto.mapper.manager;
 
 import org.crazymages.bankingspringproject.dto.ManagerDto;
-import org.crazymages.bankingspringproject.dto.mapper.manager.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,46 +107,5 @@ class ManagerDtoMapperTest {
     @Test
     void mapDtoToEntity_nullManagerDto_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> managerDtoMapper.mapDtoToEntity(null));
-    }
-
-    @Test
-    void getDtoList_validManagerList_success() {
-        // given
-        List<Manager> managerList = List.of(manager1, manager2);
-
-        // when
-        List<ManagerDto> actual = managerDtoMapper.getDtoList(managerList);
-
-        // then
-        assertEquals(2, actual.size());
-
-        ManagerDto managerDto1 = actual.get(0);
-        assertEquals(manager1.getFirstName(), managerDto1.getFirstName());
-        assertEquals(manager1.getLastName(), managerDto1.getLastName());
-        assertEquals(manager1.getStatus().toString(), managerDto1.getStatus());
-        assertEquals(manager1.getDescription(), managerDto1.getDescription());
-
-        ManagerDto managerDto2 = actual.get(1);
-        assertEquals(manager2.getFirstName(), managerDto2.getFirstName());
-        assertEquals(manager2.getLastName(), managerDto2.getLastName());
-        assertEquals(manager2.getStatus().toString(), managerDto2.getStatus());
-        assertEquals(manager2.getDescription(), managerDto2.getDescription());
-    }
-
-    @Test
-    void getDtoList_nullManagerList_throwsDataNotFoundException() {
-        assertThrows(DataNotFoundException.class, () -> managerDtoMapper.getDtoList(null));
-    }
-
-    @Test
-    void getDtoList_emptyManagerList_returnsEmptyList() {
-        // given
-        List<Manager> managerList = Collections.emptyList();
-
-        // when
-        List<ManagerDto> actual = managerDtoMapper.getDtoList(managerList);
-
-        // then
-        assertTrue(actual.isEmpty());
     }
 }

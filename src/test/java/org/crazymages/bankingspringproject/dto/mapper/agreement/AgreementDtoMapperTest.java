@@ -3,13 +3,10 @@ package org.crazymages.bankingspringproject.dto.mapper.agreement;
 import org.crazymages.bankingspringproject.dto.AgreementDto;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,48 +115,5 @@ class AgreementDtoMapperTest {
         assertNull(agreement.getInterestRate());
         assertNull(agreement.getStatus());
         assertNull(agreement.getAmount());
-    }
-
-    @Test
-    void getDtoList_validAgreementList_success() {
-        // given
-        List<Agreement> agreementList = List.of(agreement1, agreement2);
-
-        // when
-        List<AgreementDto> actual = agreementDtoMapper.getDtoList(agreementList);
-
-        // then
-        assertEquals(2, actual.size());
-
-        AgreementDto agreementDto1 = actual.get(0);
-        assertEquals(agreement1.getAccountUuid().toString(), agreementDto1.getAccountUuid());
-        assertEquals(agreement1.getProductUuid().toString(), agreementDto1.getProductUuid());
-        assertEquals(agreement1.getInterestRate(), agreementDto1.getInterestRate());
-        assertEquals(agreement1.getStatus().toString(), agreementDto1.getStatus());
-        assertEquals(agreement1.getAmount(), agreementDto1.getAmount());
-
-        AgreementDto agreementDto2 = actual.get(1);
-        assertEquals(agreement2.getAccountUuid().toString(), agreementDto2.getAccountUuid());
-        assertEquals(agreement2.getProductUuid().toString(), agreementDto2.getProductUuid());
-        assertEquals(agreement2.getInterestRate(), agreementDto2.getInterestRate());
-        assertEquals(agreement2.getStatus().toString(), agreementDto2.getStatus());
-        assertEquals(agreement2.getAmount(), agreementDto2.getAmount());
-    }
-
-    @Test
-    void getDtoList_nullAgreementList_throwsDataNotFoundException() {
-        assertThrows(DataNotFoundException.class, () -> agreementDtoMapper.getDtoList(null));
-    }
-
-    @Test
-    void getDtoList_emptyAgreementList_returnsEmptyList() {
-        // given
-        List<Agreement> agreementList = Collections.emptyList();
-
-        // when
-        List<AgreementDto> actual = agreementDtoMapper.getDtoList(agreementList);
-
-        // then
-        assertTrue(actual.isEmpty());
     }
 }

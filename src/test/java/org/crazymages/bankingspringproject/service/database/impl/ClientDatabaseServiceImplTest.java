@@ -2,7 +2,6 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.dto.mapper.client.ClientCreationMapper;
-import org.crazymages.bankingspringproject.dto.mapper.client.ClientUpdateDtoMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -27,8 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ClientDatabaseServiceImplTest {
@@ -39,8 +37,6 @@ class ClientDatabaseServiceImplTest {
     ClientDtoMapper clientDTOMapper;
     @Mock
     ClientCreationMapper clientCreationMapper;
-    @Mock
-    ClientUpdateDtoMapper clientUpdateDtoMapper;
     @Mock
     EntityUpdateService<Client> clientUpdateService;
     @Mock
@@ -114,7 +110,8 @@ class ClientDatabaseServiceImplTest {
         // given
         List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findAll()).thenReturn(clients);
-        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
+        when(clientDTOMapper.mapEntityToDto(client2)).thenReturn(clientDto2);
 
         // when
         List<ClientDto> actual = clientDatabaseService.findAll();
@@ -122,7 +119,7 @@ class ClientDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAll();
-        verify(clientDTOMapper).getDtoList(clients);
+        verify(clientDTOMapper, times(2)).mapEntityToDto(any(Client.class));
     }
 
     @Test
@@ -130,7 +127,8 @@ class ClientDatabaseServiceImplTest {
         // given
         List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findAllNotDeleted()).thenReturn(clients);
-        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
+        when(clientDTOMapper.mapEntityToDto(client2)).thenReturn(clientDto2);
 
         // when
         List<ClientDto> actual = clientDatabaseService.findAllNotDeleted();
@@ -138,7 +136,7 @@ class ClientDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllNotDeleted();
-        verify(clientDTOMapper).getDtoList(clients);
+        verify(clientDTOMapper, times(2)).mapEntityToDto(any(Client.class));
     }
 
     @Test
@@ -146,7 +144,8 @@ class ClientDatabaseServiceImplTest {
         // given
         List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findAllDeleted()).thenReturn(clients);
-        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
+        when(clientDTOMapper.mapEntityToDto(client2)).thenReturn(clientDto2);
 
         // when
         List<ClientDto> actual = clientDatabaseService.findDeletedClients();
@@ -154,7 +153,7 @@ class ClientDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllDeleted();
-        verify(clientDTOMapper).getDtoList(clients);
+        verify(clientDTOMapper, times(2)).mapEntityToDto(any(Client.class));
     }
 
     @Test
@@ -191,7 +190,7 @@ class ClientDatabaseServiceImplTest {
         Client updatedClient = client1;
         Client clientToUpdate = client2;
 
-        when(clientUpdateDtoMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
+        when(clientCreationMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(clientToUpdate));
         when(clientUpdateService.update(clientToUpdate, updatedClient)).thenReturn(client1);
 
@@ -201,7 +200,7 @@ class ClientDatabaseServiceImplTest {
 
 
         // then
-        verify(clientUpdateDtoMapper).mapDtoToEntity(updatedClientDto);
+        verify(clientCreationMapper).mapDtoToEntity(updatedClientDto);
         verify(clientRepository).findById(uuid);
         verify(clientUpdateService).update(clientToUpdate, updatedClient);
         verify(clientRepository).save(client1);
@@ -250,7 +249,8 @@ class ClientDatabaseServiceImplTest {
         ClientStatus status = ClientStatus.ACTIVE;
         List<ClientDto> expected = List.of(clientDto1, clientDto2);
         when(clientRepository.findClientsByStatusIs(status)).thenReturn(clients);
-        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
+        when(clientDTOMapper.mapEntityToDto(client2)).thenReturn(clientDto2);
 
         // when
         List<ClientDto> actual = clientDatabaseService.findActiveClients();
@@ -258,7 +258,7 @@ class ClientDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findClientsByStatusIs(status);
-        verify(clientDTOMapper).getDtoList(clients);
+        verify(clientDTOMapper, times(2)).mapEntityToDto(any(Client.class));
     }
 
     @Test
@@ -267,7 +267,8 @@ class ClientDatabaseServiceImplTest {
         List<ClientDto> expected = List.of(clientDto1, clientDto2);
         BigDecimal balance = BigDecimal.valueOf(100);
         when(clientRepository.findAllClientsWhereBalanceMoreThan(balance)).thenReturn(clients);
-        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
+        when(clientDTOMapper.mapEntityToDto(client2)).thenReturn(clientDto2);
 
         // when
         List<ClientDto> actual = clientDatabaseService.findClientsWhereBalanceMoreThan(balance);
@@ -275,7 +276,7 @@ class ClientDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllClientsWhereBalanceMoreThan(balance);
-        verify(clientDTOMapper).getDtoList(clients);
+        verify(clientDTOMapper, times(2)).mapEntityToDto(any(Client.class));
     }
 
     @Test
@@ -284,7 +285,8 @@ class ClientDatabaseServiceImplTest {
         List<ClientDto> expected = List.of(clientDto1, clientDto2);
         Integer count = 10;
         when(clientRepository.findAllClientsWhereTransactionMoreThan(count)).thenReturn(clients);
-        when(clientDTOMapper.getDtoList(clients)).thenReturn(clientDtoList);
+        when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
+        when(clientDTOMapper.mapEntityToDto(client2)).thenReturn(clientDto2);
 
         // when
         List<ClientDto> actual = clientDatabaseService.findClientsWhereTransactionMoreThan(count);
@@ -292,7 +294,7 @@ class ClientDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(clientRepository).findAllClientsWhereTransactionMoreThan(count);
-        verify(clientDTOMapper).getDtoList(clients);
+        verify(clientDTOMapper, times(2)).mapEntityToDto(any(Client.class));
     }
 
     @Test

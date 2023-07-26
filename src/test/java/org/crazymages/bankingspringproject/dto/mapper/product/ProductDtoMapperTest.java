@@ -1,18 +1,14 @@
 package org.crazymages.bankingspringproject.dto.mapper.product;
 
 import org.crazymages.bankingspringproject.dto.ProductDto;
-import org.crazymages.bankingspringproject.dto.mapper.product.ProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -135,52 +131,5 @@ class ProductDtoMapperTest {
         assertNull(product.getCurrencyCode());
         assertNull(product.getInterestRate());
         assertNull(product.getLimitation());
-    }
-
-    @Test
-    void getDtoList_validProductList_success() {
-        // given
-        List<Product> productList = List.of(product1, product2);
-
-        // when
-        List<ProductDto> actual = productDtoMapper.getDtoList(productList);
-
-        // then
-        assertEquals(2, actual.size());
-
-        ProductDto productDto1 = actual.get(0);
-        assertEquals(product1.getManagerUuid().toString(), productDto1.getManagerUuid());
-        assertEquals(product1.getName(), productDto1.getName());
-        assertEquals(product1.getStatus().toString(), productDto1.getStatus());
-        assertEquals(product1.getType().toString(), productDto1.getType());
-        assertEquals(product1.getCurrencyCode().toString(), productDto1.getCurrencyCode());
-        assertEquals(product1.getInterestRate(), productDto1.getInterestRate());
-        assertEquals(product1.getLimitation(), productDto1.getLimitation());
-
-        ProductDto productDto2 = actual.get(1);
-        assertEquals(product2.getManagerUuid().toString(), productDto2.getManagerUuid());
-        assertEquals(product2.getName(), productDto2.getName());
-        assertEquals(product2.getStatus().toString(), productDto2.getStatus());
-        assertEquals(product2.getType().toString(), productDto2.getType());
-        assertEquals(product2.getCurrencyCode().toString(), productDto2.getCurrencyCode());
-        assertEquals(product2.getInterestRate(), productDto2.getInterestRate());
-        assertEquals(product2.getLimitation(), productDto2.getLimitation());
-    }
-
-    @Test
-    void getDtoList_nullProductList_throwsDataNotFoundException() {
-        assertThrows(DataNotFoundException.class, () -> productDtoMapper.getDtoList(null));
-    }
-
-    @Test
-    void getDtoList_emptyProductList_returnsEmptyList() {
-        // given
-        List<Product> productList = Collections.emptyList();
-
-        // when
-        List<ProductDto> actual = productDtoMapper.getDtoList(productList);
-
-        // then
-        assertTrue(actual.isEmpty());
     }
 }

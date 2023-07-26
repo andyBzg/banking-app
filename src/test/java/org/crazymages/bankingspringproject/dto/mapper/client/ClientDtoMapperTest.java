@@ -3,12 +3,9 @@ package org.crazymages.bankingspringproject.dto.mapper.client;
 import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -138,54 +135,5 @@ class ClientDtoMapperTest {
         assertNull(actual.getEmail());
         assertNull(actual.getAddress());
         assertNull(actual.getPhone());
-    }
-
-    @Test
-    void getDtoList_validClientList_success() {
-        // given
-        List<Client> clientList = List.of(client1, client2);
-
-        // when
-        List<ClientDto> actual = clientDtoMapper.getDtoList(clientList);
-
-        // then
-        assertEquals(2, actual.size());
-
-        ClientDto clientDto1 = actual.get(0);
-        assertEquals(client1.getManagerUuid().toString(), clientDto1.getManagerUuid());
-        assertEquals(client1.getStatus().toString(), clientDto1.getStatus());
-        assertEquals(client1.getTaxCode(), clientDto1.getTaxCode());
-        assertEquals(client1.getFirstName(), clientDto1.getFirstName());
-        assertEquals(client1.getLastName(), clientDto1.getLastName());
-        assertEquals(client1.getEmail(), clientDto1.getEmail());
-        assertEquals(client1.getAddress(), clientDto1.getAddress());
-        assertEquals(client1.getPhone(), clientDto1.getPhone());
-
-        ClientDto clientDto2 = actual.get(1);
-        assertEquals(client2.getManagerUuid().toString(), clientDto2.getManagerUuid());
-        assertEquals(client2.getStatus().toString(), clientDto2.getStatus());
-        assertEquals(client2.getTaxCode(), clientDto2.getTaxCode());
-        assertEquals(client2.getFirstName(), clientDto2.getFirstName());
-        assertEquals(client2.getLastName(), clientDto2.getLastName());
-        assertEquals(client2.getEmail(), clientDto2.getEmail());
-        assertEquals(client2.getAddress(), clientDto2.getAddress());
-        assertEquals(client2.getPhone(), clientDto2.getPhone());
-    }
-
-    @Test
-    void getDtoList_nullClientList_throwsDataNotFoundException() {
-        assertThrows(DataNotFoundException.class, () -> clientDtoMapper.getDtoList(null));
-    }
-
-    @Test
-    void getDtoList_emptyClientList_returnsEmptyList() {
-        // given
-        List<Client> clientList = Collections.emptyList();
-
-        // when
-        List<ClientDto> actual = clientDtoMapper.getDtoList(clientList);
-
-        // then
-        assertTrue(actual.isEmpty());
     }
 }

@@ -106,7 +106,8 @@ class ProductDatabaseServiceImplTest {
         // given
         List<ProductDto> expected = List.of(productDto1, productDto2);
         when(productRepository.findAll()).thenReturn(products);
-        when(productDTOMapper.getDtoList(products)).thenReturn(expected);
+        when(productDTOMapper.mapEntityToDto(product1)).thenReturn(productDto1);
+        when(productDTOMapper.mapEntityToDto(product2)).thenReturn(productDto2);
 
         // when
         List<ProductDto> actual = productDatabaseService.findAll();
@@ -114,7 +115,7 @@ class ProductDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(productRepository).findAll();
-        verify(productDTOMapper).getDtoList(products);
+        verify(productDTOMapper, times(2)).mapEntityToDto(any(Product.class));
     }
 
     @Test
@@ -122,7 +123,8 @@ class ProductDatabaseServiceImplTest {
         // given
         List<ProductDto> expected = List.of(productDto1, productDto2);
         when(productRepository.findAllNotDeleted()).thenReturn(products);
-        when(productDTOMapper.getDtoList(products)).thenReturn(expected);
+        when(productDTOMapper.mapEntityToDto(product1)).thenReturn(productDto1);
+        when(productDTOMapper.mapEntityToDto(product2)).thenReturn(productDto2);
 
         // when
         List<ProductDto> actual = productDatabaseService.findAllNotDeleted();
@@ -130,7 +132,7 @@ class ProductDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(productRepository).findAllNotDeleted();
-        verify(productDTOMapper).getDtoList(products);
+        verify(productDTOMapper, times(2)).mapEntityToDto(any(Product.class));
     }
 
     @Test
@@ -138,7 +140,8 @@ class ProductDatabaseServiceImplTest {
         // given
         List<ProductDto> expected = List.of(productDto1, productDto2);
         when(productRepository.findAllDeleted()).thenReturn(products);
-        when(productDTOMapper.getDtoList(products)).thenReturn(expected);
+        when(productDTOMapper.mapEntityToDto(product1)).thenReturn(productDto1);
+        when(productDTOMapper.mapEntityToDto(product2)).thenReturn(productDto2);
 
         // when
         List<ProductDto> actual = productDatabaseService.findDeletedProducts();
@@ -146,7 +149,7 @@ class ProductDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(productRepository).findAllDeleted();
-        verify(productDTOMapper).getDtoList(products);
+        verify(productDTOMapper, times(2)).mapEntityToDto(any(Product.class));
     }
 
     @Test
