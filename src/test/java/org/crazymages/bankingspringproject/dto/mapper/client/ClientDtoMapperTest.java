@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.client;
 
 import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;

@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.manager;
 
 import org.crazymages.bankingspringproject.dto.ManagerDto;
+import org.crazymages.bankingspringproject.dto.mapper.manager.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;

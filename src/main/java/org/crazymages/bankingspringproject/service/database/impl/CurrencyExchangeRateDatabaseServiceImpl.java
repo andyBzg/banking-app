@@ -7,7 +7,7 @@ import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
 import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExchangeRateDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.exchange_rate.CurrencyExchangeRateDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

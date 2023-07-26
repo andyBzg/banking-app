@@ -5,7 +5,7 @@ import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.crazymages.bankingspringproject.service.utils.mapper.DtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

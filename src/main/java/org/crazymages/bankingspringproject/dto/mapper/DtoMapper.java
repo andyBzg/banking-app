@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.utils.mapper;
+package org.crazymages.bankingspringproject.dto.mapper;
 
 import java.util.List;
 

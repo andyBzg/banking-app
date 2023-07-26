@@ -6,7 +6,7 @@ import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

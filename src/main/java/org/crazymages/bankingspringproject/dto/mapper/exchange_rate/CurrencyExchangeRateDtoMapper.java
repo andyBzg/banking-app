@@ -1,9 +1,9 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.exchange_rate;
 
 import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.crazymages.bankingspringproject.service.utils.mapper.DtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

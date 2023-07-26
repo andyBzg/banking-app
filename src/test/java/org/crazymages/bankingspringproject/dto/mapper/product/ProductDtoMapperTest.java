@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.product;
 
 import org.crazymages.bankingspringproject.dto.ProductDto;
+import org.crazymages.bankingspringproject.dto.mapper.product.ProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;

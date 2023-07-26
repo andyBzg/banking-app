@@ -14,8 +14,8 @@ import org.crazymages.bankingspringproject.service.database.AccountDatabaseServi
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.creator.AgreementInitializer;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;

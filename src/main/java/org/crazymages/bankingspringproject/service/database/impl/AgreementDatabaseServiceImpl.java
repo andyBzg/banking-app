@@ -9,7 +9,7 @@ import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

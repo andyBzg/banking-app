@@ -4,7 +4,7 @@ import org.crazymages.bankingspringproject.dto.AgreementDto;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.crazymages.bankingspringproject.service.utils.mapper.DtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

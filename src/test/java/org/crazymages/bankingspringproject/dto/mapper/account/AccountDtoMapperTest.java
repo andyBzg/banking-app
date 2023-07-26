@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.account;
 
 import org.crazymages.bankingspringproject.dto.AccountDto;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;

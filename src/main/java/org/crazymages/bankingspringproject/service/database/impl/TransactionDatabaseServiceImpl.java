@@ -15,7 +15,7 @@ import org.crazymages.bankingspringproject.service.database.AccountDatabaseServi
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.converter.CurrencyConverter;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.TransactionDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.transaction.TransactionDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -3,7 +3,7 @@ package org.crazymages.bankingspringproject.dto.mapper.transaction;
 import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.crazymages.bankingspringproject.service.utils.mapper.DtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
