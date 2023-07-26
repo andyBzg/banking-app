@@ -2,8 +2,8 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.AccountDto;
 import org.crazymages.bankingspringproject.dto.AgreementDto;
-import org.crazymages.bankingspringproject.dto.account.AccountCreationMapper;
-import org.crazymages.bankingspringproject.dto.account.AccountUpdateMapper;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountCreationMapper;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountUpdateMapper;
 import org.crazymages.bankingspringproject.entity.*;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;

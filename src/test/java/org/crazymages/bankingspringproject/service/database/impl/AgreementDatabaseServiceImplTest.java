@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.AgreementDto;
-import org.crazymages.bankingspringproject.dto.agreement.AgreementWithProductDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementWithProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;

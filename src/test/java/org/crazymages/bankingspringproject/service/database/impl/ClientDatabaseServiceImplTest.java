@@ -1,8 +1,8 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.ClientDto;
-import org.crazymages.bankingspringproject.dto.client.ClientCreationMapper;
-import org.crazymages.bankingspringproject.dto.client.ClientUpdateDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.client.ClientCreationMapper;
+import org.crazymages.bankingspringproject.dto.mapper.client.ClientUpdateDtoMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
