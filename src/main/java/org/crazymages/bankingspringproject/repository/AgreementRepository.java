@@ -25,8 +25,7 @@ public interface AgreementRepository extends JpaRepository<Agreement, UUID> {
      */
     @Query("SELECT ag FROM Agreement ag " +
             "JOIN Product pr ON pr.uuid = ag.productUuid " +
-            "JOIN Manager mg ON mg.uuid = pr.managerUuid " +
-            "WHERE mg.uuid = :managerUuid")
+            "WHERE pr.managerUuid = :managerUuid")
     List<Agreement> findAgreementsWhereManagerIdIs(@Param("managerUuid") UUID managerUuid);
 
     /**
@@ -37,8 +36,7 @@ public interface AgreementRepository extends JpaRepository<Agreement, UUID> {
      */
     @Query("SELECT ag FROM Agreement ag " +
             "JOIN Account ac ON ac.uuid = ag.accountUuid " +
-            "JOIN Client cl ON cl.uuid = ac.clientUuid " +
-            "WHERE cl.uuid = :clientUuid")
+            "WHERE ac.clientUuid = :clientUuid")
     List<Agreement> findAgreementsWhereClientIdIs(@Param("clientUuid") UUID clientUuid);
 
     /**
