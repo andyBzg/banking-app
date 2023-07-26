@@ -45,7 +45,7 @@ class CurrencyConverterTest {
         recipientAccount.setCurrencyCode(CurrencyCode.EUR);
 
         when(currencyExchangeRateDatabaseService
-                .findById(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
+                .findByCurrencyCode(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
 
         String senderCurrencyCode = "AUD";
         CurrencyExchangeRate senderToBaseCurrencyRate = new CurrencyExchangeRate();
@@ -57,7 +57,7 @@ class CurrencyConverterTest {
         senderAccount.setBalance(BigDecimal.valueOf(200));
 
         when(currencyExchangeRateDatabaseService
-                .findById(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
+                .findByCurrencyCode(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
 
         BigDecimal baseCurrencyAmount = amount.divide(senderToBaseCurrencyRate.getExchangeRate(), 2, RoundingMode.HALF_UP);
         BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientToBaseCurrencyRate.getExchangeRate());
@@ -71,8 +71,8 @@ class CurrencyConverterTest {
         System.out.println(actual.getBalance());
 
         //then
-        verify(currencyExchangeRateDatabaseService).findById(recipientCurrencyCode);
-        verify(currencyExchangeRateDatabaseService).findById(senderCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findByCurrencyCode(recipientCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findByCurrencyCode(senderCurrencyCode);
         assertEquals(expected.getBalance(), actual.getBalance());
     }
 
@@ -90,7 +90,7 @@ class CurrencyConverterTest {
         recipientAccount.setCurrencyCode(CurrencyCode.EUR);
 
         when(currencyExchangeRateDatabaseService
-                .findById(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
+                .findByCurrencyCode(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
 
         String senderCurrencyCode = "AUD";
         CurrencyExchangeRate senderToBaseCurrencyRate = new CurrencyExchangeRate();
@@ -102,7 +102,7 @@ class CurrencyConverterTest {
         senderAccount.setBalance(BigDecimal.valueOf(200));
 
         when(currencyExchangeRateDatabaseService
-                .findById(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
+                .findByCurrencyCode(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
 
         BigDecimal baseCurrencyAmount = amount.divide(senderToBaseCurrencyRate.getExchangeRate(), 2, RoundingMode.HALF_UP);
         BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientToBaseCurrencyRate.getExchangeRate());
@@ -116,8 +116,8 @@ class CurrencyConverterTest {
         System.out.println(actual.getBalance());
 
         //then
-        verify(currencyExchangeRateDatabaseService).findById(recipientCurrencyCode);
-        verify(currencyExchangeRateDatabaseService).findById(senderCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findByCurrencyCode(recipientCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findByCurrencyCode(senderCurrencyCode);
         assertEquals(expected.getBalance(), actual.getBalance());
     }
 
@@ -136,7 +136,7 @@ class CurrencyConverterTest {
         recipientAccount.setCurrencyCode(CurrencyCode.EUR);
 
         when(currencyExchangeRateDatabaseService
-                .findById(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
+                .findByCurrencyCode(recipientCurrencyCode)).thenReturn(recipientToBaseCurrencyRate);
 
         String senderCurrencyCode = "AUD";
         CurrencyExchangeRate senderToBaseCurrencyRate = new CurrencyExchangeRate();
@@ -148,7 +148,7 @@ class CurrencyConverterTest {
         senderAccount.setBalance(BigDecimal.valueOf(200));
 
         when(currencyExchangeRateDatabaseService
-                .findById(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
+                .findByCurrencyCode(senderCurrencyCode)).thenReturn(senderToBaseCurrencyRate);
 
         BigDecimal baseCurrencyAmount = amount.divide(senderToBaseCurrencyRate.getExchangeRate(), 2, RoundingMode.HALF_UP);
         BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientToBaseCurrencyRate.getExchangeRate());
@@ -162,8 +162,8 @@ class CurrencyConverterTest {
         System.out.println(actual.getBalance());
 
         //then
-        verify(currencyExchangeRateDatabaseService).findById(recipientCurrencyCode);
-        verify(currencyExchangeRateDatabaseService).findById(senderCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findByCurrencyCode(recipientCurrencyCode);
+        verify(currencyExchangeRateDatabaseService).findByCurrencyCode(senderCurrencyCode);
         assertEquals(expected.getBalance(), actual.getBalance());
     }
 
