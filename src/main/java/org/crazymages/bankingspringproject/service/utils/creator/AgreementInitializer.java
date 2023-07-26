@@ -5,6 +5,7 @@ import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -30,6 +31,7 @@ public class AgreementInitializer {
         agreement.setProductUuid(product.getUuid());
         agreement.setInterestRate(product.getInterestRate());
         agreement.setStatus(AgreementStatus.PENDING);
+        agreement.setAmount(BigDecimal.ZERO);
         return agreement;
     }
 }
