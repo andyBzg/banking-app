@@ -3,6 +3,8 @@ package org.crazymages.bankingspringproject.service.database.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.ClientDto;
+import org.crazymages.bankingspringproject.dto.mapper.client.ClientCreationMapper;
+import org.crazymages.bankingspringproject.dto.mapper.client.ClientUpdateDtoMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -34,6 +36,8 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     private final ClientRepository clientRepository;
     private final ClientDtoMapper clientDtoMapper;
+    private final ClientCreationMapper clientCreationMapper;
+    private final ClientUpdateDtoMapper clientUpdateDtoMapper;
     private final EntityUpdateService<Client> clientUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
     private final AccountDatabaseService accountDatabaseService;
@@ -42,7 +46,9 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     @Override
     @Transactional
     public void create(ClientDto clientDTO) {
-        Client client = clientDtoMapper.mapDtoToEntity(clientDTO);
+        log.info("creating client");
+        Client client = clientCreationMapper.mapDtoToEntity(clientDTO);
+        client.setStatus(ClientStatus.ACTIVE);
         if (client.getManagerUuid() == null) {
             List<Manager> activeManagers = managerDatabaseService
                     .findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
@@ -79,8 +85,12 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public ClientDto findById(UUID uuid) {
-        log.info("retrieving client by id {}", uuid);
+    public ClientDto findById(String clientUuid) {
+        log.info("retrieving client by id {}", clientUuid);
+        if (clientUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(clientUuid);
         return clientDtoMapper.mapEntityToDto(
                 clientRepository.findById(uuid)
                         .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
@@ -88,8 +98,12 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public void update(UUID uuid, ClientDto updatedClientDto) {
-        Client updatedClient = clientDtoMapper.mapDtoToEntity(updatedClientDto);
+    public void update(String clientUuid, ClientDto updatedClientDto) {
+        if (clientUuid == null || updatedClientDto == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(clientUuid);
+        Client updatedClient = clientUpdateDtoMapper.mapDtoToEntity(updatedClientDto);
         Client client = clientRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         client = clientUpdateService.update(client, updatedClient);
@@ -99,7 +113,11 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public void delete(UUID uuid) {
+    public void delete(String clientUuid) {
+        if (clientUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(clientUuid);
         Client client = clientRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         client.setDeleted(true);
@@ -133,7 +151,11 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public BigDecimal calculateTotalBalanceByClientUuid(UUID uuid) {
+    public BigDecimal calculateTotalBalanceByClientUuid(String clientUuid) {
+        if (clientUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(clientUuid);
         log.info("calculating total balance for client id {}", uuid);
         return clientRepository.calculateTotalBalanceByClientUuid(uuid);
     }
@@ -141,6 +163,9 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     @Override
     @Transactional
     public boolean isClientStatusActive(UUID uuid) {
+        if (uuid == null) {
+            throw new IllegalArgumentException();
+        }
         log.info("checking status for client id {}", uuid);
         return clientRepository.isClientStatusBlocked(uuid);
     }
@@ -151,7 +176,6 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
         log.info("retrieving clients where status is {} and {}", AccountType.CURRENT, AccountType.SAVINGS);
         List<Client> clients = clientRepository.findAllActiveClientsWithTwoDifferentAccountTypes(
                 AccountType.CURRENT, AccountType.SAVINGS);
-        log.info(clients.toString());
         return Optional.of(clients)
                 .orElse(Collections.emptyList())
                 .stream()
@@ -167,9 +191,13 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
 
     @Override
     @Transactional
-    public void blockClientById(UUID uuid) {
+    public void blockClientById(String clientUuid) {
+        if (clientUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(clientUuid);
         log.info("blocked client with uuid {}", uuid);
         clientRepository.blockClientById(uuid);
-        accountDatabaseService.blockAccountsByClientUuid(uuid);
+        accountDatabaseService.blockAccountsByClientUuid(clientUuid);
     }
 }

@@ -67,7 +67,11 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     @Override
     @Transactional
-    public ManagerDto findById(UUID uuid) {
+    public ManagerDto findById(String managerUuid) {
+        if (managerUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(managerUuid);
         log.info("retrieving manager by id {}", uuid);
         return managerDtoMapper.mapEntityToDto(
                 managerRepository.findById(uuid)
@@ -76,7 +80,11 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     @Override
     @Transactional
-    public void update(UUID uuid, ManagerDto updatedManagerDto) {
+    public void update(String managerUuid, ManagerDto updatedManagerDto) {
+        if (managerUuid == null || updatedManagerDto == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(managerUuid);
         Manager managerUpdate = managerDtoMapper.mapDtoToEntity(updatedManagerDto);
         Manager manager = managerRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
@@ -87,7 +95,11 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     @Override
     @Transactional
-    public void delete(UUID uuid) {
+    public void delete(String managerUuid) {
+        if (managerUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(managerUuid);
         Manager manager = managerRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         manager.setDeleted(true);

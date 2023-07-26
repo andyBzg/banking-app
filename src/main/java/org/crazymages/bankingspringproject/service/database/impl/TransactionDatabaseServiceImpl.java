@@ -71,11 +71,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public List<TransactionDto> findOutgoingTransactions(String transactionUuid) {
-        if (transactionUuid == null) {
+    public List<TransactionDto> findOutgoingTransactions(String senderUuid) {
+        if (senderUuid == null) {
             throw new IllegalArgumentException();
         }
-        UUID uuid = UUID.fromString(transactionUuid);
+        UUID uuid = UUID.fromString(senderUuid);
         log.info("retrieving list of transactions by sender id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByDebitAccountUuid(uuid);
         return transactionDtoMapper.getDtoList(transactions);
@@ -83,11 +83,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public List<TransactionDto> findIncomingTransactions(String transactionUuid) {
-        if (transactionUuid == null) {
+    public List<TransactionDto> findIncomingTransactions(String recipientUuid) {
+        if (recipientUuid == null) {
             throw new IllegalArgumentException();
         }
-        UUID uuid = UUID.fromString(transactionUuid);
+        UUID uuid = UUID.fromString(recipientUuid);
         log.info("retrieving list of transactions by recipient id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByCreditAccountUuid(uuid);
         return transactionDtoMapper.getDtoList(transactions);
@@ -95,11 +95,11 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public List<TransactionDto> findAllTransactionsByClientId(String transactionUuid) {
-        if (transactionUuid == null) {
+    public List<TransactionDto> findAllTransactionsByClientId(String clientUuid) {
+        if (clientUuid == null) {
             throw new IllegalArgumentException();
         }
-        UUID uuid = UUID.fromString(transactionUuid);
+        UUID uuid = UUID.fromString(clientUuid);
         log.info("retrieving list of transactions by client id {} ", uuid);
         List<Transaction> transactions = transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
         return transactionDtoMapper.getDtoList(transactions);
