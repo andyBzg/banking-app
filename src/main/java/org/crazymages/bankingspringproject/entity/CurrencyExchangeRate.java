@@ -18,7 +18,11 @@ import java.sql.Timestamp;
 public class CurrencyExchangeRate {
 
     @Id
-    @Column(name = "currency_code") //unique
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "currency_code", unique = true)
     private String currencyCode;
 
     @Column(name = "exchange_rate")
