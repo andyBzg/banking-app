@@ -16,6 +16,7 @@ class AccountUpdateServiceImplTest {
 
     AccountUpdateServiceImpl accountUpdateService;
     Account account;
+    Account accountUpdate;
 
     @BeforeEach
     void setUp() {
@@ -27,19 +28,18 @@ class AccountUpdateServiceImplTest {
         account.setStatus(AccountStatus.ACTIVE);
         account.setBalance(BigDecimal.valueOf(100));
         account.setCurrencyCode(CurrencyCode.EUR);
-    }
 
-    @Test
-    void update_withValidFields_updatesAccountProperties() {
-        // given
-        Account accountUpdate = new Account();
+        accountUpdate = new Account();
         accountUpdate.setClientUuid(UUID.randomUUID());
         accountUpdate.setName("Updated Account");
         accountUpdate.setType(AccountType.SAVINGS);
         accountUpdate.setStatus(AccountStatus.BLOCKED);
         accountUpdate.setBalance(BigDecimal.valueOf(200));
         accountUpdate.setCurrencyCode(CurrencyCode.GBP);
+    }
 
+    @Test
+    void update_withValidFields_updatesAccountProperties() {
         // when
         Account actual = accountUpdateService.update(account, accountUpdate);
 
@@ -53,47 +53,62 @@ class AccountUpdateServiceImplTest {
     }
 
     @Test
+    void update_withNullAccountUpdate_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountUpdateService.update(account, null));
+    }
+
+    @Test
+    void update_withNullAccount_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountUpdateService.update(null, accountUpdate));
+    }
+
+    @Test
     void updateProperties_accountUpdateWithNullFields_updatesOnlyExistentProperties() {
         // given
-        Account accountUpdate = new Account();
-        accountUpdate.setName("Updated Account");
-        accountUpdate.setStatus(AccountStatus.BLOCKED);
-        accountUpdate.setBalance(BigDecimal.valueOf(200));
+        Account account = new Account();
+        account.setClientUuid(UUID.randomUUID());
+        account.setName("Test Account");
+        account.setType(AccountType.CURRENT);
+        account.setStatus(null);
+        account.setBalance(null);
+        account.setCurrencyCode(null);
 
         // when
         Account actual = accountUpdateService.updateProperties(account, accountUpdate);
 
         // then
-        assertEquals(account.getClientUuid(), actual.getClientUuid());
+        assertEquals(accountUpdate.getClientUuid(), actual.getClientUuid());
         assertEquals(accountUpdate.getName(), actual.getName());
-        assertEquals(account.getType(), actual.getType());
-        assertEquals(accountUpdate.getStatus(), actual.getStatus());
-        assertEquals(accountUpdate.getBalance(), actual.getBalance());
+        assertEquals(accountUpdate.getType(), actual.getType());
+        assertEquals(account.getStatus(), actual.getStatus());
+        assertEquals(account.getBalance(), actual.getBalance());
         assertEquals(account.getCurrencyCode(), actual.getCurrencyCode());
     }
 
     @Test
-    void update_withNullAccount_doesNotUpdateAccountProperties_returnsNull() {
+    void updateProperties_accountWithNullProperties_returnsAccountWithUpdatedProperties() {
         // given
-        Account accountUpdate = new Account();
-        accountUpdate.setName("Updated Account");
-        accountUpdate.setStatus(AccountStatus.BLOCKED);
-        accountUpdate.setBalance(BigDecimal.valueOf(200));
+        Account account = new Account();
 
         // when
-        Account actual = accountUpdateService.update(null, accountUpdate);
+        Account actual = accountUpdateService.updateProperties(account, accountUpdate);
 
         // then
-        assertNull(actual);
+        assertEquals(accountUpdate.getClientUuid(), actual.getClientUuid());
+        assertEquals(accountUpdate.getName(), actual.getName());
+        assertEquals(accountUpdate.getType(), actual.getType());
+        assertEquals(accountUpdate.getStatus(), actual.getStatus());
+        assertEquals(accountUpdate.getBalance(), actual.getBalance());
+        assertEquals(accountUpdate.getCurrencyCode(), actual.getCurrencyCode());
     }
 
     @Test
-    void update_withNullAccountUpdate_doesNotUpdateAccountProperties() {
+    void updateProperties_updateWithNullProperties_doesNotUpdateAccountProperties() {
         // given
-        Account accountUpdate = null;
+        Account accountUpdate = new Account();
 
         // when
-        Account actual = accountUpdateService.update(account, accountUpdate);
+        Account actual = accountUpdateService.updateProperties(account, accountUpdate);
 
         // then
         assertEquals(account.getClientUuid(), actual.getClientUuid());
@@ -102,14 +117,5 @@ class AccountUpdateServiceImplTest {
         assertEquals(account.getStatus(), actual.getStatus());
         assertEquals(account.getBalance(), actual.getBalance());
         assertEquals(account.getCurrencyCode(), actual.getCurrencyCode());
-    }
-
-    @Test
-    void updateProperties_withNullAccountUpdate_throwsNullPointerException() {
-        // given
-        Account accountUpdate = null;
-
-        // when, then
-        assertThrows(NullPointerException.class, () -> accountUpdateService.updateProperties(account, accountUpdate));
     }
 }

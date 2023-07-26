@@ -1,6 +1,8 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.ClientDto;
+import org.crazymages.bankingspringproject.dto.mapper.client.ClientCreationMapper;
+import org.crazymages.bankingspringproject.dto.mapper.client.ClientUpdateDtoMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -36,6 +38,10 @@ class ClientDatabaseServiceImplTest {
     @Mock
     ClientDtoMapper clientDTOMapper;
     @Mock
+    ClientCreationMapper clientCreationMapper;
+    @Mock
+    ClientUpdateDtoMapper clientUpdateDtoMapper;
+    @Mock
     EntityUpdateService<Client> clientUpdateService;
     @Mock
     ManagerDatabaseService managerDatabaseService;
@@ -55,11 +61,11 @@ class ClientDatabaseServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        client1 = new Client();
-        client2 = new Client();
-        clientDto1 = new ClientDto();
-        clientDto2 = new ClientDto();
-        uuid = UUID.randomUUID();
+        client1 = Client.builder().build();
+        client2 = Client.builder().build();
+        clientDto1 = ClientDto.builder().build();
+        clientDto2 = ClientDto.builder().build();
+        uuid = UUID.fromString("d358838e-1134-4101-85ac-5d99e8debfae");
         clients = List.of(client1, client2);
         clientDtoList = List.of(clientDto1, clientDto2);
     }
@@ -70,7 +76,7 @@ class ClientDatabaseServiceImplTest {
         List<Manager> managers = List.of(new Manager(), new Manager());
         ManagerStatus status = ManagerStatus.ACTIVE;
         Manager firstManager = new Manager();
-        when(clientDTOMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
+        when(clientCreationMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
         when(managerDatabaseService.findManagersSortedByClientQuantityWhereManagerStatusIs(status))
                 .thenReturn(managers);
         when(managerDatabaseService.getFirstManager(managers)).thenReturn(firstManager);
@@ -80,7 +86,7 @@ class ClientDatabaseServiceImplTest {
 
         // then
         assertEquals(firstManager.getUuid(), client1.getManagerUuid());
-        verify(clientDTOMapper).mapDtoToEntity(clientDto1);
+        verify(clientCreationMapper).mapDtoToEntity(clientDto1);
         verify(managerDatabaseService).findManagersSortedByClientQuantityWhereManagerStatusIs(status);
         verify(managerDatabaseService).getFirstManager(managers);
         verify(clientRepository).save(client1);
@@ -92,14 +98,14 @@ class ClientDatabaseServiceImplTest {
         UUID managerUuid = UUID.randomUUID();
         client1.setManagerUuid(managerUuid);
         clientDto1.setManagerUuid(String.valueOf(managerUuid));
-        when(clientDTOMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
+        when(clientCreationMapper.mapDtoToEntity(clientDto1)).thenReturn(client1);
 
         // when
         clientDatabaseService.create(clientDto1);
 
         // then
         assertEquals(managerUuid, client1.getManagerUuid());
-        verify(clientDTOMapper).mapDtoToEntity(clientDto1);
+        verify(clientCreationMapper).mapDtoToEntity(clientDto1);
         verify(clientRepository).save(client1);
     }
 
@@ -159,7 +165,7 @@ class ClientDatabaseServiceImplTest {
         when(clientDTOMapper.mapEntityToDto(client1)).thenReturn(clientDto1);
 
         // when
-        ClientDto actual = clientDatabaseService.findById(uuid);
+        ClientDto actual = clientDatabaseService.findById(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -170,10 +176,11 @@ class ClientDatabaseServiceImplTest {
     @Test
     void findById_clientNotFound_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.findById(uuid));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.findById(strUuid));
         verify(clientRepository).findById(uuid);
     }
 
@@ -184,17 +191,17 @@ class ClientDatabaseServiceImplTest {
         Client updatedClient = client1;
         Client clientToUpdate = client2;
 
-        when(clientDTOMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
+        when(clientUpdateDtoMapper.mapDtoToEntity(updatedClientDto)).thenReturn(updatedClient);
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(clientToUpdate));
         when(clientUpdateService.update(clientToUpdate, updatedClient)).thenReturn(client1);
 
 
         // when
-        clientDatabaseService.update(uuid, updatedClientDto);
+        clientDatabaseService.update(String.valueOf(uuid), updatedClientDto);
 
 
         // then
-        verify(clientDTOMapper).mapDtoToEntity(updatedClientDto);
+        verify(clientUpdateDtoMapper).mapDtoToEntity(updatedClientDto);
         verify(clientRepository).findById(uuid);
         verify(clientUpdateService).update(clientToUpdate, updatedClient);
         verify(clientRepository).save(client1);
@@ -203,11 +210,12 @@ class ClientDatabaseServiceImplTest {
     @Test
     void update_clientNotFound_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         ClientDto updatedClientDto = clientDto1;
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(uuid, updatedClientDto));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.update(strUuid, updatedClientDto));
         verify(clientRepository).findById(uuid);
     }
 
@@ -217,7 +225,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.findById(uuid)).thenReturn(Optional.ofNullable(client1));
 
         // when
-        clientDatabaseService.delete(uuid);
+        clientDatabaseService.delete(String.valueOf(uuid));
 
         // then
         assertTrue(client1.isDeleted());
@@ -228,10 +236,11 @@ class ClientDatabaseServiceImplTest {
     @Test
     void delete_clientNotFound_throwsDataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(clientRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.delete(uuid));
+        assertThrows(DataNotFoundException.class, () -> clientDatabaseService.delete(strUuid));
         verify(clientRepository).findById(uuid);
     }
 
@@ -293,7 +302,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.calculateTotalBalanceByClientUuid(uuid)).thenReturn(BigDecimal.valueOf(100));
 
         // when
-        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
+        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -307,7 +316,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.calculateTotalBalanceByClientUuid(uuid)).thenReturn(expected);
 
         // when
-        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
+        BigDecimal actual = clientDatabaseService.calculateTotalBalanceByClientUuid(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -376,10 +385,10 @@ class ClientDatabaseServiceImplTest {
     @Test
     void blockClientById_success() {
         // when
-        clientDatabaseService.blockClientById(uuid);
+        clientDatabaseService.blockClientById(String.valueOf(uuid));
 
         // then
         verify(clientRepository).blockClientById(uuid);
-        verify(accountDatabaseService).blockAccountsByClientUuid(uuid);
+        verify(accountDatabaseService).blockAccountsByClientUuid(String.valueOf(uuid));
     }
 }

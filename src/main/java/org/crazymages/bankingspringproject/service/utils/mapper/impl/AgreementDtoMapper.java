@@ -20,26 +20,30 @@ public class AgreementDtoMapper implements DtoMapper<Agreement, AgreementDto> {
 
     @Override
     public AgreementDto mapEntityToDto(Agreement agreement) {
-        AgreementDto agreementDto = new AgreementDto();
-        agreementDto.setUuid(String.valueOf(agreement.getUuid()));
-        agreementDto.setAccountUuid(String.valueOf(agreement.getAccountUuid()));
-        agreementDto.setProductUuid(String.valueOf(agreement.getProductUuid()));
-        agreementDto.setInterestRate(agreement.getInterestRate());
-        agreementDto.setStatus(String.valueOf(agreement.getStatus()));
-        agreementDto.setAmount(agreement.getAmount());
-        return agreementDto;
+        if (agreement == null) {
+            throw new IllegalArgumentException("agreement cannot be null");
+        }
+        return AgreementDto.builder()
+                .accountUuid(agreement.getAccountUuid() != null ? agreement.getAccountUuid().toString() : null)
+                .productUuid(agreement.getProductUuid() != null ? agreement.getProductUuid().toString() : null)
+                .interestRate(agreement.getInterestRate())
+                .status(agreement.getStatus() != null ? agreement.getStatus().name() : null)
+                .amount(agreement.getAmount())
+                .build();
     }
 
     @Override
     public Agreement mapDtoToEntity(AgreementDto agreementDto) {
-        Agreement agreement = new Agreement();
-        agreement.setUuid(UUID.fromString(agreementDto.getUuid()));
-        agreement.setAccountUuid(UUID.fromString(agreementDto.getAccountUuid()));
-        agreement.setProductUuid(UUID.fromString(agreementDto.getProductUuid()));
-        agreement.setInterestRate(agreementDto.getInterestRate());
-        agreement.setStatus(AgreementStatus.valueOf(agreementDto.getStatus()));
-        agreement.setAmount(agreementDto.getAmount());
-        return agreement;
+        if (agreementDto == null) {
+            throw new IllegalArgumentException("agreementDto cannot be null");
+        }
+        return Agreement.builder()
+                .accountUuid(agreementDto.getAccountUuid() != null ? UUID.fromString(agreementDto.getAccountUuid()) : null)
+                .productUuid(agreementDto.getProductUuid() != null ? UUID.fromString(agreementDto.getProductUuid()) : null)
+                .interestRate(agreementDto.getInterestRate())
+                .status(agreementDto.getStatus() != null ? AgreementStatus.valueOf(agreementDto.getStatus()) : null)
+                .amount(agreementDto.getAmount())
+                .build();
     }
 
     @Override

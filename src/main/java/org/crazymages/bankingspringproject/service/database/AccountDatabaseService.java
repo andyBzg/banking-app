@@ -27,7 +27,15 @@ public interface AccountDatabaseService {
      * @param accountDto The Account entity to be created.
      * @param clientUuid The Client UUID to be assigned to the Account entity.
      */
-    void create(AccountDto accountDto, UUID clientUuid);
+    void create(AccountDto accountDto, String clientUuid);
+
+    /**
+     * Retrieves an AccountDto entity from the database by its UUID.
+     *
+     * @param uuid The UUID of the Account entity to retrieve.
+     * @return The retrieved Account Dto entity, or null if not found.
+     */
+    AccountDto findDtoById(String uuid);
 
     /**
      * Retrieves an Account entity from the database by its UUID.
@@ -35,7 +43,7 @@ public interface AccountDatabaseService {
      * @param uuid The UUID of the Account entity to retrieve.
      * @return The retrieved Account entity, or null if not found.
      */
-    AccountDto findById(UUID uuid);
+    Account findById(UUID uuid);
 
     /**
      * Retrieves all non-deleted Account entities from the database.
@@ -65,21 +73,29 @@ public interface AccountDatabaseService {
      * @param uuid              The UUID of the Account entity to update.
      * @param updatedAccountDto The Account entity containing the updated values.
      */
-    void update(UUID uuid, AccountDto updatedAccountDto);
+    void updateAccountDto(String uuid, AccountDto updatedAccountDto);
+
+    /**
+     * Updates an Account entity in the database with the specified UUID.
+     *
+     * @param uuid    The UUID of the Account entity to update.
+     * @param account The Account entity containing the updated values.
+     */
+    void update(UUID uuid, Account account);
 
     /**
      * Deletes an Account entity from the database by its UUID.
      *
      * @param uuid The UUID of the Account entity to delete.
      */
-    void delete(UUID uuid);
+    void delete(String uuid);
 
     /**
      * Blocks all accounts associated with a client UUID in the database.
      *
      * @param clientUuid The UUID of the client whose accounts should be blocked.
      */
-    void blockAccountsByClientUuid(UUID clientUuid);
+    void blockAccountsByClientUuid(String clientUuid);
 
     /**
      * Retrieves all Account entities from the database with the specified product UUID and status.
@@ -88,7 +104,7 @@ public interface AccountDatabaseService {
      * @param status      The status of the product to filter Account entities by.
      * @return A list of Account entities with the specified product UUID and status.
      */
-    List<AccountDto> findAccountsByProductIdAndStatus(UUID productUuid, ProductStatus status);
+    List<AccountDto> findAccountsByProductIdAndStatus(String productUuid, String status);
 
     /**
      * Retrieves all AccountDTOs from the database associated with a client UUID.
@@ -96,7 +112,7 @@ public interface AccountDatabaseService {
      * @param clientUuid The UUID of the client to filter AccountDTOs by.
      * @return A list of AccountDTOs associated with the specified client UUID.
      */
-    List<AccountDto> findAllDtoByClientId(UUID clientUuid);
+    List<AccountDto> findAllDtoByClientId(String clientUuid);
 
     /**
      * Retrieves all Account entities from the database associated with a client UUID.

@@ -56,9 +56,9 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
      * @param uuid The client UUID
      * @return The total balance of the client
      */
-    @Query("SELECT SUM(a.balance) FROM Account a " +
-            "JOIN Client c ON c.uuid = a.clientUuid " +
-            "WHERE c.uuid = :uuid")
+    @Query("SELECT SUM(ac.balance) FROM Account ac " +
+            "JOIN Client cl ON cl.uuid = ac.clientUuid " +
+            "WHERE cl.uuid = :uuid")
     BigDecimal calculateTotalBalanceByClientUuid(@Param("uuid") UUID uuid);
 
     /**
@@ -67,7 +67,9 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
      * @param uuid The client UUID
      * @return {@code true} if the client status is blocked, {@code false} otherwise
      */
-    @Query("SELECT CASE WHEN cl.status = 'BLOCKED' THEN TRUE ELSE FALSE END FROM Client cl WHERE cl.uuid = :uuid")
+    @Query("SELECT CASE WHEN cl.status = 'BLOCKED' THEN TRUE ELSE FALSE END " +
+            "FROM Client cl " +
+            "WHERE cl.uuid = :uuid")
     Boolean isClientStatusBlocked(@Param("uuid") UUID uuid);
 
     /**

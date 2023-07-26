@@ -26,10 +26,10 @@ class ProductDtoMapperTest {
     @BeforeEach
     void setUp() {
         productDtoMapper = new ProductDtoMapper();
-        productDto = new ProductDto();
+        productDto = ProductDto.builder().build();
 
         product1 = new Product();
-        product1.setUuid(UUID.randomUUID());
+        product1.setUuid(UUID.fromString("30348dce-45f7-4e19-aa08-3ed77a8f7ac3"));
         product1.setManagerUuid(UUID.randomUUID());
         product1.setName("Product 1");
         product1.setStatus(ProductStatus.ACTIVE);
@@ -55,7 +55,6 @@ class ProductDtoMapperTest {
         ProductDto productDto = productDtoMapper.mapEntityToDto(product1);
 
         // then
-        assertEquals(product1.getUuid().toString(), productDto.getUuid());
         assertEquals(product1.getManagerUuid().toString(), productDto.getManagerUuid());
         assertEquals(product1.getName(), productDto.getName());
         assertEquals(product1.getStatus().toString(), productDto.getStatus());
@@ -66,14 +65,31 @@ class ProductDtoMapperTest {
     }
 
     @Test
-    void mapEntityToDto_nullProduct_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> productDtoMapper.mapEntityToDto(null));
+    void mapEntityToDto_missingProductProperties_returnsProductDtoWithNullProperties() {
+        // given
+        Product product = new Product();
+
+        // when
+        ProductDto productDto = productDtoMapper.mapEntityToDto(product);
+
+        // then
+        assertNull(productDto.getManagerUuid());
+        assertNull(productDto.getName());
+        assertNull(productDto.getStatus());
+        assertNull(productDto.getType());
+        assertNull(productDto.getCurrencyCode());
+        assertNull(productDto.getInterestRate());
+        assertNull(productDto.getLimitation());
+    }
+
+    @Test
+    void mapEntityToDto_nullProduct_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> productDtoMapper.mapEntityToDto(null));
     }
 
     @Test
     void mapDtoToEntity_validProductDto_success() {
         // given
-        productDto.setUuid("30348dce-45f7-4e19-aa08-3ed77a8f7ac3");
         productDto.setManagerUuid("f59f83b7-9f9b-495b-83e7-09c11856e6a5");
         productDto.setName("Product 1");
         productDto.setStatus("ACTIVE");
@@ -86,7 +102,7 @@ class ProductDtoMapperTest {
         Product product = productDtoMapper.mapDtoToEntity(productDto);
 
         // then
-        assertEquals(UUID.fromString(productDto.getUuid()), product.getUuid());
+        assertFalse(product.isDeleted());
         assertEquals(UUID.fromString(productDto.getManagerUuid()), product.getManagerUuid());
         assertEquals(productDto.getName(), product.getName());
         assertEquals(ProductStatus.valueOf(productDto.getStatus()), product.getStatus());
@@ -97,18 +113,27 @@ class ProductDtoMapperTest {
     }
 
     @Test
-    void mapDtoToEntity_nullProductDto_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> productDtoMapper.mapDtoToEntity(null));
+    void mapDtoToEntity_nullProductDto_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> productDtoMapper.mapDtoToEntity(null));
     }
 
     @Test
-    void mapDtoToEntity_missingManagerDtoProperties_throwsIllegalArgumentException() {
+    void mapDtoToEntity_missingProductDtoProperties_returnsProductWithNullProperties() {
         // given
-        productDto.setUuid("30348dce-45f7-4e19-aa08-3ed77a8f7ac3");
-        productDto.setManagerUuid("f59f83b7-9f9b-495b-83e7-09c11856e6a5");
+        ProductDto productDto = ProductDto.builder().build();
 
-        // when, then
-        assertThrows(NullPointerException.class, () -> productDtoMapper.mapDtoToEntity(productDto));
+        // when
+        Product product = productDtoMapper.mapDtoToEntity(productDto);
+
+        // then
+        assertFalse(product.isDeleted());
+        assertNull(product.getManagerUuid());
+        assertNull(product.getName());
+        assertNull(product.getStatus());
+        assertNull(product.getType());
+        assertNull(product.getCurrencyCode());
+        assertNull(product.getInterestRate());
+        assertNull(product.getLimitation());
     }
 
     @Test
@@ -123,7 +148,6 @@ class ProductDtoMapperTest {
         assertEquals(2, actual.size());
 
         ProductDto productDto1 = actual.get(0);
-        assertEquals(product1.getUuid().toString(), productDto1.getUuid());
         assertEquals(product1.getManagerUuid().toString(), productDto1.getManagerUuid());
         assertEquals(product1.getName(), productDto1.getName());
         assertEquals(product1.getStatus().toString(), productDto1.getStatus());
@@ -133,7 +157,6 @@ class ProductDtoMapperTest {
         assertEquals(product1.getLimitation(), productDto1.getLimitation());
 
         ProductDto productDto2 = actual.get(1);
-        assertEquals(product2.getUuid().toString(), productDto2.getUuid());
         assertEquals(product2.getManagerUuid().toString(), productDto2.getManagerUuid());
         assertEquals(product2.getName(), productDto2.getName());
         assertEquals(product2.getStatus().toString(), productDto2.getStatus());

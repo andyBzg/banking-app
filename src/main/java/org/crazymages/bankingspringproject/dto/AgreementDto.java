@@ -1,8 +1,7 @@
 package org.crazymages.bankingspringproject.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -10,10 +9,8 @@ import java.math.BigDecimal;
  * Data transfer object (DTO) class representing an Agreement.
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class AgreementDto {
-    private String uuid;
     private String accountUuid;
     private String productUuid;
     private BigDecimal interestRate;

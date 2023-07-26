@@ -2,7 +2,10 @@ package org.crazymages.bankingspringproject.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -18,6 +21,9 @@ import java.util.UUID;
  * It stores information about an account entity.
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "accounts")
 public class Account {

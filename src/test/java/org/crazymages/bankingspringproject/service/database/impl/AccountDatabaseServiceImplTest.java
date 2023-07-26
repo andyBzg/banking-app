@@ -2,13 +2,15 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.AccountDto;
 import org.crazymages.bankingspringproject.dto.AgreementDto;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountCreationMapper;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountUpdateMapper;
 import org.crazymages.bankingspringproject.entity.*;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.AgreementCreator;
+import org.crazymages.bankingspringproject.service.utils.creator.AgreementInitializer;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
@@ -35,13 +37,17 @@ class AccountDatabaseServiceImplTest {
     @Mock
     AccountDtoMapper accountDtoMapper;
     @Mock
+    AccountCreationMapper accountCreationMapper;
+    @Mock
+    AccountUpdateMapper accountUpdateMapper;
+    @Mock
     EntityUpdateService<Account> accountUpdateService;
     @Mock
     ProductDatabaseService productDatabaseService;
     @Mock
     AgreementDatabaseService agreementDatabaseService;
     @Mock
-    AgreementCreator agreementCreator;
+    AgreementInitializer agreementInitializer;
     @Mock
     AgreementDtoMapper agreementDTOMapper;
     @Mock
@@ -63,8 +69,8 @@ class AccountDatabaseServiceImplTest {
         account2 = new Account();
         clientUuid = UUID.randomUUID();
         uuid = UUID.randomUUID();
-        accountDto1 = new AccountDto();
-        accountDto2 = new AccountDto();
+        accountDto1 = AccountDto.builder().build();
+        accountDto2 = AccountDto.builder().build();
     }
 
     @Test
@@ -89,29 +95,40 @@ class AccountDatabaseServiceImplTest {
         CurrencyCode currencyCode = account1.getCurrencyCode();
 
         Agreement agreement = new Agreement();
-        AgreementDto agreementDto = new AgreementDto();
+        AgreementDto agreementDto = AgreementDto.builder().build();
 
-        when(accountDtoMapper.mapDtoToEntity(accountDto1)).thenReturn(account1);
+        when(accountCreationMapper.mapDtoToEntity(accountDto1)).thenReturn(account1);
         when(productTypeMatcher.matchTypes(account1.getType())).thenReturn(type);
         when(productDatabaseService.findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode))
                 .thenReturn(product);
-        when(agreementCreator.apply(account1.getUuid(), product)).thenReturn(agreement);
+        when(agreementInitializer.initializeAgreement(account1.getUuid(), product)).thenReturn(agreement);
         when(agreementDTOMapper.mapEntityToDto(agreement)).thenReturn(agreementDto);
 
 
         // when
-        accountDatabaseService.create(accountDto1, uuid);
+        accountDatabaseService.create(accountDto1, String.valueOf(uuid));
 
 
         // then
         assertEquals(uuid, account1.getClientUuid());
-        verify(accountDtoMapper).mapDtoToEntity(accountDto1);
+        verify(accountCreationMapper).mapDtoToEntity(accountDto1);
         verify(accountRepository).save(account1);
         verify(productTypeMatcher).matchTypes(account1.getType());
         verify(productDatabaseService).findProductByTypeAndStatusAndCurrencyCode(type, status, currencyCode);
-        verify(agreementCreator).apply(account1.getUuid(), product);
+        verify(agreementInitializer).initializeAgreement(account1.getUuid(), product);
         verify(agreementDTOMapper).mapEntityToDto(agreement);
         verify(agreementDatabaseService).create(agreementDto);
+    }
+
+    @Test
+    void create_nullAccountDto_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.create(null));
+    }
+
+
+    @Test
+    void create_nullClientUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.create(accountDto1, null));
     }
 
     @Test
@@ -161,7 +178,7 @@ class AccountDatabaseServiceImplTest {
         when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
 
         // when
-        AccountDto actual = accountDatabaseService.findById(uuid);
+        AccountDto actual = accountDatabaseService.findDtoById(String.valueOf(uuid));
 
         // then
         assertEquals(accountDto1, actual);
@@ -171,11 +188,30 @@ class AccountDatabaseServiceImplTest {
 
     @Test
     void findById_invalidUuid_throwsException() {
-        UUID invalidUuid = UUID.randomUUID();
-        when(accountRepository.findById(invalidUuid)).thenReturn(Optional.empty());
+        String invalidUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
+        when(accountRepository.findById(UUID.fromString(invalidUuid))).thenReturn(Optional.empty());
 
-        assertThrows(DataNotFoundException.class, () -> accountDatabaseService.findById(invalidUuid));
-        verify(accountRepository).findById(invalidUuid);
+        assertThrows(DataNotFoundException.class, () -> accountDatabaseService.findDtoById(invalidUuid));
+        verify(accountRepository).findById(UUID.fromString(invalidUuid));
+    }
+
+    @Test
+    void findById_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.findDtoById(null));
+    }
+
+    @Test
+    void findDtoById_invalidUuid_throwsIllegalArgumentException() {
+        // given
+        String invalidUuid = "invalid_uuid";
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.findDtoById(invalidUuid));
+    }
+
+    @Test
+    void findDtoById_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.findDtoById(null));
     }
 
     @Test
@@ -201,26 +237,36 @@ class AccountDatabaseServiceImplTest {
     }
 
     @Test
-    void update_validAccount_success() {
+    void updateAccountDto_validAccount_success() {
         //given
         AccountDto updatedAccountDto = accountDto1;
         Account updatedAccount = account1;
         Account account = account1;
 
-        when(accountDtoMapper.mapDtoToEntity(updatedAccountDto)).thenReturn(updatedAccount);
+        when(accountUpdateMapper.mapDtoToEntity(updatedAccountDto)).thenReturn(updatedAccount);
         when(accountRepository.findById(uuid)).thenReturn(Optional.of(account));
         when(accountUpdateService.update(account, updatedAccount)).thenReturn(updatedAccount);
 
 
         //when
-        accountDatabaseService.update(uuid, updatedAccountDto);
+        accountDatabaseService.updateAccountDto(String.valueOf(uuid), updatedAccountDto);
 
 
         //then
-        verify(accountDtoMapper).mapDtoToEntity(updatedAccountDto);
+        verify(accountUpdateMapper).mapDtoToEntity(updatedAccountDto);
         verify(accountRepository).findById(uuid);
         verify(accountUpdateService).update(account, updatedAccount);
         verify(accountRepository).save(account);
+    }
+
+    @Test
+    void update_nullAccount_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.update(uuid, null));
+    }
+
+    @Test
+    void update_nullUuid_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.update(null, account1));
     }
 
     @Test
@@ -229,7 +275,7 @@ class AccountDatabaseServiceImplTest {
         when(accountRepository.findById(uuid)).thenReturn(Optional.of(account1));
 
         // when
-        accountDatabaseService.delete(uuid);
+        accountDatabaseService.delete(String.valueOf(uuid));
 
         // then
         verify(accountRepository).findById(uuid);
@@ -240,7 +286,7 @@ class AccountDatabaseServiceImplTest {
     @Test
     void blockAccountsByClientUuid_success() {
         // when
-        accountDatabaseService.blockAccountsByClientUuid(uuid);
+        accountDatabaseService.blockAccountsByClientUuid(String.valueOf(uuid));
 
         // then
         verify(accountRepository).blockAccountsByClientUuid(uuid);
@@ -259,7 +305,8 @@ class AccountDatabaseServiceImplTest {
 
 
         // when
-        List<AccountDto> actual = accountDatabaseService.findAccountsByProductIdAndStatus(productUuid, status);
+        List<AccountDto> actual = accountDatabaseService
+                .findAccountsByProductIdAndStatus(String.valueOf(productUuid), String.valueOf(status));
 
 
         // then
@@ -277,7 +324,7 @@ class AccountDatabaseServiceImplTest {
         when(accountDtoMapper.getDtoList(accounts)).thenReturn(expected);
 
         // when
-        List<AccountDto> actual = accountDatabaseService.findAllDtoByClientId(clientUuid);
+        List<AccountDto> actual = accountDatabaseService.findAllDtoByClientId(String.valueOf(clientUuid));
 
         // then
         assertEquals(expected, actual);

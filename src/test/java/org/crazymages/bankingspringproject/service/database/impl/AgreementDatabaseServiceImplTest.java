@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
 import org.crazymages.bankingspringproject.dto.AgreementDto;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementWithProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
@@ -32,6 +33,8 @@ class AgreementDatabaseServiceImplTest {
     EntityUpdateService<Agreement> agreementUpdateService;
     @Mock
     AgreementDtoMapper agreementDTOMapper;
+    @Mock
+    AgreementWithProductDtoMapper agreementWithProductDtoMapper;
 
     @InjectMocks
     AgreementDatabaseServiceImpl agreementDatabaseService;
@@ -44,11 +47,11 @@ class AgreementDatabaseServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        agreementDto1 = new AgreementDto();
-        agreementDto2 = new AgreementDto();
+        agreementDto1 = AgreementDto.builder().build();
+        agreementDto2 = AgreementDto.builder().build();
         agreement1 = new Agreement();
         agreement2 = new Agreement();
-        uuid = UUID.randomUUID();
+        uuid = UUID.fromString("d358838e-1134-4101-85ac-5d99e8debfae");
     }
 
     @Test
@@ -130,7 +133,7 @@ class AgreementDatabaseServiceImplTest {
         when(agreementDTOMapper.mapEntityToDto(agreement1)).thenReturn(agreementDto1);
 
         // when
-        AgreementDto actual = agreementDatabaseService.findById(uuid);
+        AgreementDto actual = agreementDatabaseService.findById(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -141,10 +144,11 @@ class AgreementDatabaseServiceImplTest {
     @Test
     void findById_throws_dataNotFoundException() {
         // given
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
         when(agreementRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.findById(uuid));
+        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.findById(strUuid));
     }
 
     @Test
@@ -176,7 +180,7 @@ class AgreementDatabaseServiceImplTest {
 
 
         // when
-        agreementDatabaseService.update(uuid, updatedAgreementDto);
+        agreementDatabaseService.update(String.valueOf(uuid), updatedAgreementDto);
 
         // then
         verify(agreementDTOMapper).mapDtoToEntity(updatedAgreementDto);
@@ -189,12 +193,13 @@ class AgreementDatabaseServiceImplTest {
     void update_throws_dataNotFoundException() {
         // given
         AgreementDto updatedAgreementDto = agreementDto1;
+        String strUuid = "d358838e-1134-4101-85ac-5d99e8debfae";
 
         when(agreementDTOMapper.mapDtoToEntity(updatedAgreementDto)).thenReturn(agreement1);
         when(agreementRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.update(uuid, updatedAgreementDto));
+        assertThrows(DataNotFoundException.class, () -> agreementDatabaseService.update(strUuid, updatedAgreementDto));
     }
 
     @Test
@@ -203,7 +208,7 @@ class AgreementDatabaseServiceImplTest {
         when(agreementRepository.findById(uuid)).thenReturn(Optional.ofNullable(agreement1));
 
         // when
-        agreementDatabaseService.delete(uuid);
+        agreementDatabaseService.delete(String.valueOf(uuid));
 
         // then
         verify(agreementRepository).findById(uuid);
@@ -220,7 +225,7 @@ class AgreementDatabaseServiceImplTest {
         when(agreementDTOMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
 
         // when
-        List<AgreementDto> actual = agreementDatabaseService.findAgreementsByManagerUuid(uuid);
+        List<AgreementDto> actual = agreementDatabaseService.findAgreementsByManagerUuid(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -229,20 +234,20 @@ class AgreementDatabaseServiceImplTest {
     }
 
     @Test
-    void findAgreementDTOsByClientUuid_success() {
+    void findAgreementDtoListByClientUuid_success() {
         // given
         List<AgreementDto> expected = List.of(agreementDto1, agreementDto2);
         List<Agreement> agreements = List.of(agreement1, agreement2);
         when(agreementRepository.findAgreementsWhereClientIdIs(uuid)).thenReturn(agreements);
-        when(agreementDTOMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
+        when(agreementWithProductDtoMapper.getDtoList(agreements)).thenReturn(List.of(agreementDto1, agreementDto2));
 
         // when
-        List<AgreementDto> actual = agreementDatabaseService.findAgreementDtoListByClientUuid(uuid);
+        List<AgreementDto> actual = agreementDatabaseService.findAgreementDtoListByClientUuid(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
         verify(agreementRepository).findAgreementsWhereClientIdIs(uuid);
-        verify(agreementDTOMapper).getDtoList(agreements);
+        verify(agreementWithProductDtoMapper).getDtoList(agreements);
     }
 
     @Test

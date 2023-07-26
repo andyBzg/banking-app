@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.AgreementDto;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.springframework.http.HttpStatus;
@@ -8,13 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing agreements.
  */
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AgreementController {
 
     private final AgreementDatabaseService agreementDatabaseService;
@@ -27,6 +28,7 @@ public class AgreementController {
      */
     @PostMapping(value = "/agreement/create")
     public ResponseEntity<AgreementDto> createAgreement(@RequestBody AgreementDto agreementDto) {
+        log.info("endpoint request: create agreement");
         agreementDatabaseService.create(agreementDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(agreementDto);
     }
@@ -38,6 +40,7 @@ public class AgreementController {
      */
     @GetMapping(value = "/agreement/find/all")
     public ResponseEntity<List<AgreementDto>> findAllAgreements() {
+        log.info("endpoint request: find all agreements");
         List<AgreementDto> agreementDtoList = agreementDatabaseService.findAllNotDeleted();
         return agreementDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agreementDtoList);
     }
@@ -49,7 +52,8 @@ public class AgreementController {
      * @return The agreement.
      */
     @GetMapping(value = "/agreement/find/{uuid}")
-    public ResponseEntity<AgreementDto> findAgreementByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<AgreementDto> findAgreementByUuid(@PathVariable String uuid) {
+        log.info("endpoint request: find agreement by uuid {}", uuid);
         AgreementDto agreementDto = agreementDatabaseService.findById(uuid);
         return ResponseEntity.ok(agreementDto);
     }
@@ -57,13 +61,14 @@ public class AgreementController {
     /**
      * Updates an existing agreement.
      *
-     * @param uuid            The UUID of the agreement to update.
+     * @param uuid                The UUID of the agreement to update.
      * @param updatedAgreementDto The updated agreement.
      * @return The updated agreement.
      */
     @PutMapping(value = "/agreement/update/{uuid}")
     public ResponseEntity<AgreementDto> updateAgreement(
-            @PathVariable UUID uuid, @RequestBody AgreementDto updatedAgreementDto) {
+            @PathVariable String uuid, @RequestBody AgreementDto updatedAgreementDto) {
+        log.info("endpoint request: update agreement uuid {}", uuid);
         agreementDatabaseService.update(uuid, updatedAgreementDto);
         return ResponseEntity.ok(updatedAgreementDto);
     }
@@ -75,7 +80,8 @@ public class AgreementController {
      * @return A response indicating the success of the operation.
      */
     @DeleteMapping(value = "/agreement/delete/{uuid}")
-    public ResponseEntity<String> deleteAccount(@PathVariable UUID uuid) {
+    public ResponseEntity<String> deleteAccount(@PathVariable String uuid) {
+        log.info("endpoint request: delete agreement uuid {}", uuid);
         agreementDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }
@@ -86,8 +92,9 @@ public class AgreementController {
      * @param uuid The UUID of the manager.
      * @return The list of agreements.
      */
-    @GetMapping(value = "/agreement/find/all-by-manager/{uuid}")
-    public ResponseEntity<List<AgreementDto>> findAgreementsByManagerId(@PathVariable UUID uuid) {
+    @GetMapping(value = "/agreement/find/all-by-manager-id/{uuid}")
+    public ResponseEntity<List<AgreementDto>> findAgreementsByManagerId(@PathVariable String uuid) {
+        log.info("endpoint request: find agreement by manager uuid {}", uuid);
         List<AgreementDto> agreementDtoList = agreementDatabaseService.findAgreementsByManagerUuid(uuid);
         return agreementDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agreementDtoList);
     }
@@ -98,8 +105,9 @@ public class AgreementController {
      * @param uuid The UUID of the client.
      * @return The list of agreements.
      */
-    @GetMapping(value = "/agreement/find/all-by-client/{uuid}")
-    public ResponseEntity<List<AgreementDto>> findAgreementsByClientId(@PathVariable UUID uuid) {
+    @GetMapping(value = "/agreement/find/all-by-client-id/{uuid}")
+    public ResponseEntity<List<AgreementDto>> findAgreementsByClientId(@PathVariable String uuid) {
+        log.info("endpoint request: find agreement by client uuid {}", uuid);
         List<AgreementDto> agreementDtoList = agreementDatabaseService.findAgreementDtoListByClientUuid(uuid);
         return agreementDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agreementDtoList);
     }

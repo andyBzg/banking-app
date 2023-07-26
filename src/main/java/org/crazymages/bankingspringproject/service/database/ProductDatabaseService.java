@@ -7,7 +7,6 @@ import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * A service interface for managing Product entities in the database.
@@ -49,7 +48,7 @@ public interface ProductDatabaseService {
      * @param uuid The UUID of the Product to retrieve.
      * @return The Product entity with the specified UUID, or null if not found.
      */
-    ProductDto findById(UUID uuid);
+    ProductDto findById(String uuid);
 
     /**
      * Retrieves a Product entity from the database by its type, status, and currency code.
@@ -68,12 +67,12 @@ public interface ProductDatabaseService {
      * @param uuid              The UUID of the Product to update.
      * @param updatedProductDto The updated Product entity.
      */
-    void update(UUID uuid, ProductDto updatedProductDto);
+    void update(String uuid, ProductDto updatedProductDto);
 
     /**
      * Deletes a Product entity from the database with the specified UUID.
      *
      * @param uuid The UUID of the Product to delete.
      */
-    void delete(UUID uuid);
+    void delete(String uuid);
 }

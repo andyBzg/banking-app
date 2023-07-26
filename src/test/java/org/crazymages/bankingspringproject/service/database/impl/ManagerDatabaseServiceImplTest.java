@@ -45,8 +45,8 @@ class ManagerDatabaseServiceImplTest {
     void setUp() {
         manager1 = new Manager();
         manager2 = new Manager();
-        managerDto1 = new ManagerDto();
-        managerDto2 = new ManagerDto();
+        managerDto1 = ManagerDto.builder().build();
+        managerDto2 = ManagerDto.builder().build();
         uuid = UUID.randomUUID();
         managers = List.of(manager1, manager2);
     }
@@ -129,7 +129,7 @@ class ManagerDatabaseServiceImplTest {
         when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDto1);
 
         // when
-        ManagerDto actual = managerDatabaseService.findById(uuid);
+        ManagerDto actual = managerDatabaseService.findById(String.valueOf(uuid));
 
         // then
         assertEquals(expected, actual);
@@ -140,10 +140,11 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void findById_nonExistentManager_throwsDataNotFoundException() {
         // given
+        String managerUuid = String.valueOf(uuid);
         when(managerRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.findById(uuid));
+        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.findById(managerUuid));
 
         // then
         verify(managerRepository).findById(uuid);
@@ -162,7 +163,7 @@ class ManagerDatabaseServiceImplTest {
 
 
         // when
-        managerDatabaseService.update(uuid, updatedManagerDto);
+        managerDatabaseService.update(String.valueOf(uuid), updatedManagerDto);
 
 
         // then
@@ -175,12 +176,13 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void update_nonExistentManager_throwsDataNotFoundException() {
         // given
+        String managerUuid = String.valueOf(uuid);
         ManagerDto updatedManagerDto = managerDto1;
 
         when(managerRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.update(uuid, updatedManagerDto));
+        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.update(managerUuid, updatedManagerDto));
 
         // then
         verify(managerRepository).findById(uuid);
@@ -195,7 +197,7 @@ class ManagerDatabaseServiceImplTest {
         when(managerRepository.findById(uuid)).thenReturn(Optional.ofNullable(manager1));
 
         // when
-        managerDatabaseService.delete(uuid);
+        managerDatabaseService.delete(String.valueOf(uuid));
 
         // then
         verify(managerRepository).findById(uuid);
@@ -206,10 +208,11 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void delete_nonExistentManager_throwsDataNotFoundException() {
         // given
+        String managerUuid = String.valueOf(uuid);
         when(managerRepository.findById(uuid)).thenReturn(Optional.empty());
 
         // when
-        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.delete(uuid));
+        assertThrows(DataNotFoundException.class, () -> managerDatabaseService.delete(managerUuid));
 
         // then
         verify(managerRepository).findById(uuid);

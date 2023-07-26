@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing clients.
@@ -30,6 +29,7 @@ public class ClientController {
      */
     @PostMapping(value = "/client/create")
     public ResponseEntity<ClientDto> createClient(@RequestBody ClientDto clientDto) {
+        log.info("endpoint request: create client");
         clientDatabaseService.create(clientDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clientDto);
     }
@@ -39,7 +39,7 @@ public class ClientController {
      *
      * @return The list of clients.
      */
-    @GetMapping(value = "/client/find/all")
+    @GetMapping(value = "/client/find-all")
     public ResponseEntity<List<ClientDto>> findAllClients() {
         List<ClientDto> clientDtoList = clientDatabaseService.findAllNotDeleted();
         return clientDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(clientDtoList);
@@ -52,7 +52,7 @@ public class ClientController {
      * @return The client.
      */
     @GetMapping(value = "/client/find/{uuid}")
-    public ResponseEntity<ClientDto> findClientByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<ClientDto> findClientByUuid(@PathVariable String uuid) {
         ClientDto clientDto = clientDatabaseService.findById(uuid);
         return ResponseEntity.ok(clientDto);
     }
@@ -65,7 +65,7 @@ public class ClientController {
      * @return The updated client.
      */
     @PutMapping(value = "/client/update/{uuid}")
-    public ResponseEntity<ClientDto> updateClient(@PathVariable UUID uuid, @RequestBody ClientDto updatedClientDto) {
+    public ResponseEntity<ClientDto> updateClient(@PathVariable String uuid, @RequestBody ClientDto updatedClientDto) {
         clientDatabaseService.update(uuid, updatedClientDto);
         return ResponseEntity.ok(updatedClientDto);
     }
@@ -77,7 +77,7 @@ public class ClientController {
      * @return A response indicating the success of the operation.
      */
     @DeleteMapping(value = "/client/delete/{uuid}")
-    public ResponseEntity<String> deleteClient(@PathVariable UUID uuid) {
+    public ResponseEntity<String> deleteClient(@PathVariable String uuid) {
         clientDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }
@@ -87,7 +87,7 @@ public class ClientController {
      *
      * @return The list of active clients.
      */
-    @GetMapping(value = "/client/find/active-clients")
+    @GetMapping(value = "/client/find-all/active-clients")
     public ResponseEntity<List<ClientDto>> findActiveClients() {
         List<ClientDto> clientDtoList = clientDatabaseService.findActiveClients();
         return clientDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(clientDtoList);
@@ -99,7 +99,7 @@ public class ClientController {
      * @param balance The minimum balance amount.
      * @return The list of clients.
      */
-    @GetMapping(value = "/client/find/balance-more-than/{balance}")
+    @GetMapping(value = "/client/find-balance/more-than/{balance}")
     public ResponseEntity<List<ClientDto>> findClientsWhereBalanceMoreThan(@PathVariable BigDecimal balance) {
         log.info("endpoint request: find all clients where balance more than {}", balance);
         List<ClientDto> clientDtoList = clientDatabaseService.findClientsWhereBalanceMoreThan(balance);
@@ -112,7 +112,7 @@ public class ClientController {
      * @param count The minimum transaction count.
      * @return The list of clients.
      */
-    @GetMapping(value = "/client/find/transactions-more-than/{count}")
+    @GetMapping(value = "/client/find-transactions/more-than/{count}")
     public ResponseEntity<List<ClientDto>> findClientsWhereTransactionMoreThan(@PathVariable Integer count) {
         log.info("endpoint request: find all clients where transaction count more than {}", count);
         List<ClientDto> clientDtoList = clientDatabaseService.findClientsWhereTransactionMoreThan(count);
@@ -125,8 +125,9 @@ public class ClientController {
      * @param uuid The UUID of the client.
      * @return The total balance.
      */
-    @GetMapping(value = "/client/calculate-total-balance/{uuid}")
-    public ResponseEntity<BigDecimal> calculateTotalBalanceByClientUuid(@PathVariable UUID uuid) {
+    @GetMapping(value = "/client/total-balance-of-accounts/{uuid}")
+    public ResponseEntity<BigDecimal> calculateTotalBalanceByClientUuid(@PathVariable String uuid) {
+        log.info("endpoint request: get total balance of client accounts");
         BigDecimal result = clientDatabaseService.calculateTotalBalanceByClientUuid(uuid);
         return ResponseEntity.ok(result);
     }

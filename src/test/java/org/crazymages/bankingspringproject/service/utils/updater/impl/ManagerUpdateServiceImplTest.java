@@ -11,26 +11,27 @@ class ManagerUpdateServiceImplTest {
 
     ManagerUpdateServiceImpl managerUpdateService;
     Manager manager;
+    Manager managerUpdate;
 
     @BeforeEach
     void setUp() {
         managerUpdateService = new ManagerUpdateServiceImpl();
+
         manager = new Manager();
         manager.setFirstName("John");
         manager.setLastName("Doe");
         manager.setStatus(ManagerStatus.ACTIVE);
         manager.setDescription("Manager Description");
-    }
 
-    @Test
-    void update_withValidFields_updatesManagerProperties() {
-        // given
-        Manager managerUpdate = new Manager();
+        managerUpdate = new Manager();
         managerUpdate.setFirstName("Jane");
         managerUpdate.setLastName("Smith");
         managerUpdate.setStatus(ManagerStatus.UNAVAILABLE);
         managerUpdate.setDescription("Updated Manager Description");
+    }
 
+    @Test
+    void update_withValidFields_updatesManagerProperties() {
         // when
         Manager actual = managerUpdateService.update(manager, managerUpdate);
 
@@ -39,6 +40,16 @@ class ManagerUpdateServiceImplTest {
         assertEquals(managerUpdate.getLastName(), actual.getLastName());
         assertEquals(managerUpdate.getStatus(), actual.getStatus());
         assertEquals(managerUpdate.getDescription(), actual.getDescription());
+    }
+
+    @Test
+    void update_withNullManager_doesNotUpdateManager_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> managerUpdateService.update(null, managerUpdate));
+    }
+
+    @Test
+    void update_withNullManagerUpdate_doesNotUpdateManager_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> managerUpdateService.update(manager, null));
     }
 
     @Test
@@ -61,42 +72,32 @@ class ManagerUpdateServiceImplTest {
     }
 
     @Test
-    void update_withNullManager_doesNotUpdateManagerProperties_returnsNull() {
+    void updateProperties_managerWithNullProperties_returnsManagerWithUpdatedProperties() {
         // given
-        Manager managerUpdate = new Manager();
-        managerUpdate.setFirstName("Jane");
-        managerUpdate.setLastName("Smith");
-        managerUpdate.setStatus(ManagerStatus.UNAVAILABLE);
-        managerUpdate.setDescription("Updated Manager Description");
+        Manager manager = new Manager();
 
         // when
-        Manager actual = managerUpdateService.update(null, managerUpdate);
+        Manager actual = managerUpdateService.updateProperties(manager, managerUpdate);
 
         // then
-        assertNull(actual);
+        assertEquals(managerUpdate.getFirstName(), actual.getFirstName());
+        assertEquals(managerUpdate.getLastName(), actual.getLastName());
+        assertEquals(managerUpdate.getStatus(), actual.getStatus());
+        assertEquals(managerUpdate.getDescription(), actual.getDescription());
     }
 
     @Test
-    void update_withNullManagerUpdate_doesNotUpdateManagerProperties() {
+    void updateProperties_updateWithNullProperties_doesNotUpdateClientProperties() {
         // given
-        Manager managerUpdate = null;
+        Manager managerUpdate1 = new Manager();
 
         // when
-        Manager actual = managerUpdateService.update(manager, managerUpdate);
+        Manager actual = managerUpdateService.updateProperties(manager, managerUpdate1);
 
         // then
         assertEquals(manager.getFirstName(), actual.getFirstName());
         assertEquals(manager.getLastName(), actual.getLastName());
         assertEquals(manager.getStatus(), actual.getStatus());
         assertEquals(manager.getDescription(), actual.getDescription());
-    }
-
-    @Test
-    void updateProperties_withNullManagerUpdate_throwsNullPointerException() {
-        // given
-        Manager managerUpdate = null;
-
-        // when, then
-        assertThrows(NullPointerException.class, () -> managerUpdateService.updateProperties(manager, managerUpdate));
     }
 }

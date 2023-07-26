@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.format.DateTimeParseException;
+
 /**
  * Global exception handler for handling custom exceptions.
  */
@@ -25,6 +27,8 @@ public class CustomExceptionHandler {
     private String transactionNotAllowedLogMessage;
     @Value("${log.illegal.argument}")
     private String illegalArgumentLogMessage;
+    @Value("${log.date.time.parse}")
+    private String dateTimeParseLogMessage;
 
     /**
      * Handles the {@link DataNotFoundException} exception.
@@ -69,6 +73,17 @@ public class CustomExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException() {
         log.error(illegalArgumentLogMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    /**
+     * Handles the {@link DateTimeParseException} exception.
+     *
+     * @return the ResponseEntity with HTTP status 400
+     */
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<String> handleDateTimeParseException() {
+        log.error(dateTimeParseLogMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

@@ -4,7 +4,6 @@ import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Transaction;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * A service interface for managing Transaction entities in the database.
@@ -32,7 +31,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the Transaction to retrieve.
      * @return The Transaction entity with the specified UUID, or null if not found.
      */
-    TransactionDto findById(UUID uuid);
+    TransactionDto findById(String uuid);
 
     /**
      * Retrieves all outgoing Transaction entities associated with the specified UUID.
@@ -40,7 +39,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the client/account.
      * @return A list of outgoing Transaction entities.
      */
-    List<TransactionDto> findOutgoingTransactions(UUID uuid);
+    List<TransactionDto> findOutgoingTransactions(String uuid);
 
     /**
      * Retrieves all incoming Transaction entities associated with the specified UUID.
@@ -48,7 +47,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the client/account.
      * @return A list of incoming Transaction entities.
      */
-    List<TransactionDto> findIncomingTransactions(UUID uuid);
+    List<TransactionDto> findIncomingTransactions(String uuid);
 
     /**
      * Retrieves all Transaction entities associated with the specified client UUID.
@@ -56,7 +55,7 @@ public interface TransactionDatabaseService {
      * @param uuid The UUID of the client.
      * @return A list of Transaction entities.
      */
-    List<TransactionDto> findAllTransactionsByClientId(UUID uuid);
+    List<TransactionDto> findAllTransactionsByClientId(String uuid);
 
     /**
      * Transfers funds between accounts based on the provided Transaction entity.
@@ -73,7 +72,7 @@ public interface TransactionDatabaseService {
      * @param to         The ending date (inclusive) in the format "yyyy-MM-dd".
      * @return A list of Transaction entities within the specified date range.
      */
-    List<TransactionDto> findTransactionsByClientIdBetweenDates(UUID clientUuid, String from, String to);
+    List<TransactionDto> findTransactionsByClientIdBetweenDates(String clientUuid, String from, String to);
 
     /**
      * Retrieves all Transaction entities between the specified dates.

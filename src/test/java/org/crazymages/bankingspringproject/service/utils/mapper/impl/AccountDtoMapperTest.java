@@ -26,7 +26,7 @@ class AccountDtoMapperTest {
     @BeforeEach
     void setUp() {
         accountDtoMapper = new AccountDtoMapper();
-        accountDto = new AccountDto();
+        accountDto = AccountDto.builder().build();
 
         account1 = new Account();
         account1.setUuid(UUID.randomUUID());
@@ -53,7 +53,6 @@ class AccountDtoMapperTest {
         AccountDto accountDto = accountDtoMapper.mapEntityToDto(account1);
 
         // then
-        assertEquals(account1.getUuid().toString(), accountDto.getUuid());
         assertEquals(account1.getClientUuid().toString(), accountDto.getClientUuid());
         assertEquals(account1.getName(), accountDto.getName());
         assertEquals(account1.getType().toString(), accountDto.getType());
@@ -63,14 +62,30 @@ class AccountDtoMapperTest {
     }
 
     @Test
-    void mapEntityToDto_nullAccount_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> accountDtoMapper.mapEntityToDto(null));
+    void mapEntityToDto_nullAccount_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDtoMapper.mapEntityToDto(null));
     }
 
     @Test
-    void mapDtoToEntity_validAccountDto_mappedSuccessfully() {
+    void mapEntityToDto_accountWithNullProperties_returnsAccountDtoWithNullProperties() {
         // given
-        accountDto.setUuid("30348dce-45f7-4e19-aa08-3ed77a8f7ac3");
+        Account account = new Account();
+
+        // when
+        AccountDto accountDto = accountDtoMapper.mapEntityToDto(account);
+
+        // then
+        assertNull(accountDto.getClientUuid());
+        assertNull(accountDto.getName());
+        assertNull(accountDto.getType());
+        assertNull(accountDto.getStatus());
+        assertNull(accountDto.getBalance());
+        assertNull(accountDto.getCurrencyCode());
+    }
+
+    @Test
+    void mapDtoToEntity_validAccountDto_success() {
+        // given
         accountDto.setClientUuid("f59f83b7-9f9b-495b-83e7-09c11856e6a5");
         accountDto.setName("Test AccountDto");
         accountDto.setType("CURRENT");
@@ -82,7 +97,7 @@ class AccountDtoMapperTest {
         Account account = accountDtoMapper.mapDtoToEntity(accountDto);
 
         // then
-        assertEquals(UUID.fromString(accountDto.getUuid()), account.getUuid());
+        assertFalse(account.isDeleted());
         assertEquals(UUID.fromString(accountDto.getClientUuid()), account.getClientUuid());
         assertEquals(accountDto.getName(), account.getName());
         assertEquals(AccountType.valueOf(accountDto.getType()), account.getType());
@@ -92,22 +107,27 @@ class AccountDtoMapperTest {
     }
 
     @Test
-    void mapDtoToEntity_nullAccountDto_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> accountDtoMapper.mapDtoToEntity(null));
+    void mapDtoToEntity_nullAccountDto_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> accountDtoMapper.mapDtoToEntity(null));
     }
 
     @Test
-    void mapDtoToEntity_missingAccountDtoProperties_throwsIllegalArgumentException() {
-        // given
-        accountDto.setUuid("30348dce-45f7-4e19-aa08-3ed77a8f7ac3");
-        accountDto.setClientUuid("f59f83b7-9f9b-495b-83e7-09c11856e6a5");
+    void mapDtoToEntity_missingAccountDtoProperties_returnsAccountWithNullProperties() {
+        // when
+        Account account = accountDtoMapper.mapDtoToEntity(accountDto);
 
-        // when, then
-        assertThrows(NullPointerException.class, () -> accountDtoMapper.mapDtoToEntity(accountDto));
+        // then
+        assertFalse(account.isDeleted());
+        assertNull(account.getClientUuid());
+        assertNull(account.getName());
+        assertNull(account.getType());
+        assertNull(account.getStatus());
+        assertNull(account.getBalance());
+        assertNull(account.getCurrencyCode());
     }
 
     @Test
-    void getDtoList_validAccountList_mappedSuccessfully() {
+    void getDtoList_validAccountList_success() {
         // given
         List<Account> accountList = List.of(account1, account2);
 
@@ -118,7 +138,6 @@ class AccountDtoMapperTest {
         assertEquals(2, actual.size());
 
         AccountDto accountDto1 = actual.get(0);
-        assertEquals(account1.getUuid().toString(), accountDto1.getUuid());
         assertEquals(account1.getClientUuid().toString(), accountDto1.getClientUuid());
         assertEquals(account1.getName(), accountDto1.getName());
         assertEquals(account1.getType().toString(), accountDto1.getType());
@@ -127,7 +146,6 @@ class AccountDtoMapperTest {
         assertEquals(account1.getCurrencyCode().toString(), accountDto1.getCurrencyCode());
 
         AccountDto accountDto2 = actual.get(1);
-        assertEquals(account2.getUuid().toString(), accountDto2.getUuid());
         assertEquals(account2.getClientUuid().toString(), accountDto2.getClientUuid());
         assertEquals(account2.getName(), accountDto2.getName());
         assertEquals(account2.getType().toString(), accountDto2.getType());

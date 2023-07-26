@@ -13,10 +13,10 @@ public class ProductUpdateServiceImpl implements EntityUpdateService<Product> {
 
     @Override
     public Product update(Product product, Product productUpdate) {
-        if (product != null && productUpdate != null) {
-            product = updateProperties(product, productUpdate);
+        if (product == null || productUpdate == null) {
+            throw new IllegalArgumentException("argument is null");
         }
-        return product;
+        return updateProperties(product, productUpdate);
     }
 
     @Override

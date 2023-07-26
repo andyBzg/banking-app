@@ -22,28 +22,32 @@ public class AccountDtoMapper implements DtoMapper<Account, AccountDto> {
 
     @Override
     public AccountDto mapEntityToDto(Account account) {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setUuid(String.valueOf(account.getUuid()));
-        accountDto.setClientUuid(String.valueOf(account.getClientUuid()));
-        accountDto.setName(account.getName());
-        accountDto.setType(String.valueOf(account.getType()));
-        accountDto.setStatus(String.valueOf(account.getStatus()));
-        accountDto.setBalance(account.getBalance());
-        accountDto.setCurrencyCode(String.valueOf(account.getCurrencyCode()));
-        return accountDto;
+        if (account == null) {
+            throw new IllegalArgumentException("account cannot be null");
+        }
+        return AccountDto.builder()
+                .clientUuid(account.getClientUuid() != null ? account.getClientUuid().toString() : null)
+                .name(account.getName())
+                .type(account.getType() != null ? account.getType().name() : null)
+                .status(account.getStatus() != null ? account.getStatus().name() : null)
+                .balance(account.getBalance())
+                .currencyCode(account.getCurrencyCode() != null ? account.getCurrencyCode().name() : null)
+                .build();
     }
 
     @Override
     public Account mapDtoToEntity(AccountDto accountDto) {
-        Account account = new Account();
-        account.setUuid(UUID.fromString(accountDto.getUuid()));
-        account.setClientUuid(UUID.fromString(accountDto.getClientUuid()));
-        account.setName(accountDto.getName());
-        account.setType(AccountType.valueOf(accountDto.getType()));
-        account.setStatus(AccountStatus.valueOf(accountDto.getStatus()));
-        account.setBalance(accountDto.getBalance());
-        account.setCurrencyCode(CurrencyCode.valueOf(accountDto.getCurrencyCode()));
-        return account;
+        if (accountDto == null) {
+            throw new IllegalArgumentException("account cannot be null");
+        }
+        return Account.builder()
+                .clientUuid(accountDto.getClientUuid() != null ? UUID.fromString(accountDto.getClientUuid()) : null)
+                .name(accountDto.getName())
+                .type(accountDto.getType() != null ? AccountType.valueOf(accountDto.getType()) : null)
+                .status(accountDto.getStatus() != null ? AccountStatus.valueOf(accountDto.getStatus()) : null)
+                .balance(accountDto.getBalance())
+                .currencyCode(accountDto.getCurrencyCode() != null ? CurrencyCode.valueOf(accountDto.getCurrencyCode()) : null)
+                .build();
     }
 
     @Override

@@ -20,32 +20,36 @@ public class ClientDtoMapper implements DtoMapper<Client, ClientDto> {
 
     @Override
     public ClientDto mapEntityToDto(Client client) {
-        return new ClientDto(
-                String.valueOf(client.getUuid()),
-                String.valueOf(client.getManagerUuid()),
-                String.valueOf(client.getStatus()),
-                client.getTaxCode(),
-                client.getFirstName(),
-                client.getLastName(),
-                client.getEmail(),
-                client.getAddress(),
-                client.getPhone()
-        );
+        if (client == null) {
+            throw new IllegalArgumentException("client cannot be null");
+        }
+        return ClientDto.builder()
+                .managerUuid(client.getManagerUuid() != null ? client.getManagerUuid().toString() : null)
+                .status(client.getStatus() != null ? client.getStatus().name() : null)
+                .taxCode(client.getTaxCode())
+                .firstName(client.getFirstName())
+                .lastName(client.getLastName())
+                .email(client.getEmail())
+                .address(client.getAddress())
+                .phone(client.getPhone())
+                .build();
     }
 
     @Override
     public Client mapDtoToEntity(ClientDto clientDto) {
-        Client client = new Client();
-        client.setUuid(UUID.fromString(clientDto.getUuid()));
-        client.setManagerUuid(UUID.fromString(clientDto.getManagerUuid()));
-        client.setStatus(ClientStatus.valueOf(clientDto.getStatus()));
-        client.setTaxCode(clientDto.getTaxCode());
-        client.setFirstName(clientDto.getFirstName());
-        client.setLastName(clientDto.getLastName());
-        client.setEmail(clientDto.getEmail());
-        client.setAddress(clientDto.getAddress());
-        client.setPhone(clientDto.getPhone());
-        return client;
+        if (clientDto == null) {
+            throw new IllegalArgumentException("clientDto cannot be null");
+        }
+        return Client.builder()
+                .managerUuid(clientDto.getManagerUuid() != null ? UUID.fromString(clientDto.getManagerUuid()) : null)
+                .status(clientDto.getStatus() != null ? ClientStatus.valueOf(clientDto.getStatus()) : null)
+                .taxCode(clientDto.getTaxCode())
+                .firstName(clientDto.getFirstName())
+                .lastName(clientDto.getLastName())
+                .email(clientDto.getEmail())
+                .address(clientDto.getAddress())
+                .phone(clientDto.getPhone())
+                .build();
     }
 
     @Override

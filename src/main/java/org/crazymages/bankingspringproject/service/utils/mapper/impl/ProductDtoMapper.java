@@ -22,30 +22,34 @@ public class ProductDtoMapper implements DtoMapper<Product, ProductDto> {
 
     @Override
     public ProductDto mapEntityToDto(Product product) {
-        ProductDto productDto = new ProductDto();
-        productDto.setUuid(String.valueOf(product.getUuid()));
-        productDto.setManagerUuid(String.valueOf(product.getManagerUuid()));
-        productDto.setName(product.getName());
-        productDto.setStatus(String.valueOf(product.getStatus()));
-        productDto.setType(String.valueOf(product.getType()));
-        productDto.setCurrencyCode(String.valueOf(product.getCurrencyCode()));
-        productDto.setInterestRate(product.getInterestRate());
-        productDto.setLimitation(product.getLimitation());
-        return productDto;
+        if (product == null) {
+            throw new IllegalArgumentException("product cannot be null");
+        }
+        return ProductDto.builder()
+                .managerUuid(product.getManagerUuid() != null ? product.getManagerUuid().toString() : null)
+                .name(product.getName())
+                .status(product.getStatus() != null ? product.getStatus().name() : null)
+                .type(product.getType() != null ? product.getType().name() : null)
+                .currencyCode(product.getCurrencyCode() != null ? product.getCurrencyCode().name() : null)
+                .interestRate(product.getInterestRate())
+                .limitation(product.getLimitation())
+                .build();
     }
 
     @Override
     public Product mapDtoToEntity(ProductDto productDto) {
-        Product product = new Product();
-        product.setUuid(UUID.fromString(productDto.getUuid()));
-        product.setManagerUuid(UUID.fromString(productDto.getManagerUuid()));
-        product.setName(productDto.getName());
-        product.setStatus(ProductStatus.valueOf(productDto.getStatus()));
-        product.setType(ProductType.valueOf(productDto.getType()));
-        product.setCurrencyCode(CurrencyCode.valueOf(productDto.getCurrencyCode()));
-        product.setInterestRate(productDto.getInterestRate());
-        product.setLimitation(productDto.getLimitation());
-        return product;
+        if (productDto == null) {
+            throw new IllegalArgumentException("productDto cannot be null");
+        }
+        return Product.builder()
+                .managerUuid(productDto.getManagerUuid() != null ? UUID.fromString(productDto.getManagerUuid()) : null)
+                .name(productDto.getName())
+                .status(productDto.getStatus() != null ? ProductStatus.valueOf(productDto.getStatus()) : null)
+                .type(productDto.getType() != null ? ProductType.valueOf(productDto.getType()) : null)
+                .currencyCode(productDto.getCurrencyCode() != null ? CurrencyCode.valueOf(productDto.getCurrencyCode()) : null)
+                .interestRate(productDto.getInterestRate())
+                .limitation(productDto.getLimitation())
+                .build();
     }
 
     @Override

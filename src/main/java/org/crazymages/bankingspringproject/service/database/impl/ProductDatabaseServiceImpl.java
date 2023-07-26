@@ -81,8 +81,12 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     @Override
     @Transactional
-    @Cacheable(value = "productsCache", key = "#uuid")
-    public ProductDto findById(UUID uuid) {
+    @Cacheable(value = "productsCache", key = "#productUuid")
+    public ProductDto findById(String productUuid) {
+        if (productUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(productUuid);
         log.info("retrieving product by id {}", uuid);
         return productDtoMapper.mapEntityToDto(
                 productRepository.findById(uuid)
@@ -100,9 +104,13 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     @Override
     @Transactional
-    @CachePut(value = "productsCache", key = "#uuid")
+    @CachePut(value = "productsCache", key = "#productUuid")
     @CacheEvict(value = "productsList", allEntries = true)
-    public void update(UUID uuid, ProductDto productDtoUpdate) {
+    public void update(String productUuid, ProductDto productDtoUpdate) {
+        if (productUuid == null || productDtoUpdate == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(productUuid);
         Product productUpdate = productDtoMapper.mapDtoToEntity(productDtoUpdate);
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
@@ -113,9 +121,13 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     @Override
     @Transactional
-    @CachePut(value = "deletedProducts", key = "#uuid")
+    @CachePut(value = "deletedProducts", key = "#productUuid")
     @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
-    public void delete(UUID uuid) {
+    public void delete(String productUuid) {
+        if (productUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(productUuid);
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         product.setDeleted(true);

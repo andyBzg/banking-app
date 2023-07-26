@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableCaching
-@PropertySource(value = {"classpath:chron.properties", "classpath:log.msg.properties"})
+@PropertySource(value = {"classpath:chron.properties", "classpath:log_msg.properties"})
 public class BankingSpringProjectApplication {
 
     public static void main(String[] args) {
