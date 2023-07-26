@@ -13,14 +13,14 @@ public class ManagerUpdateServiceImpl implements EntityUpdateService<Manager> {
 
     @Override
     public Manager update(Manager manager, Manager managerUpdate) {
-        if (manager != null && managerUpdate != null) {
-            updateProperties(manager, managerUpdate);
+        if (manager == null || managerUpdate == null) {
+            throw new IllegalArgumentException("argument is null");
         }
-        return manager;
+        return updateProperties(manager, managerUpdate);
     }
 
     @Override
-    public void updateProperties(Manager manager, Manager managerUpdate) {
+    public Manager updateProperties(Manager manager, Manager managerUpdate) {
         if (managerUpdate.getFirstName() != null) {
             manager.setFirstName(managerUpdate.getFirstName());
         }
@@ -33,5 +33,6 @@ public class ManagerUpdateServiceImpl implements EntityUpdateService<Manager> {
         if (managerUpdate.getDescription() != null) {
             manager.setDescription(managerUpdate.getDescription());
         }
+        return manager;
     }
 }

@@ -2,13 +2,14 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.AgreementDTO;
+import org.crazymages.bankingspringproject.dto.AgreementDto;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementWithProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AgreementRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.AgreementDTOMapper;
+import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,40 +27,45 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     private final AgreementRepository agreementRepository;
     private final EntityUpdateService<Agreement> agreementUpdateService;
-    private final AgreementDTOMapper agreementDTOMapper;
+    private final AgreementDtoMapper agreementDtoMapper;
+    private final AgreementWithProductDtoMapper agreementWithProductDtoMapper;
 
 
     @Override
     @Transactional
-    public void create(AgreementDTO agreementDTO) {
-        Agreement agreement = agreementDTOMapper.mapToAgreement(agreementDTO);
+    public void create(AgreementDto agreementDTO) {
+        Agreement agreement = agreementDtoMapper.mapDtoToEntity(agreementDTO);
         agreementRepository.save(agreement);
         log.info("agreement created");
     }
 
     @Override
     @Transactional
-    public List<AgreementDTO> findAllNotDeleted() {
+    public List<AgreementDto> findAllNotDeleted() {
         log.info("retrieving list of agreements");
         List<Agreement> agreements = agreementRepository.findAllNotDeleted();
-        return agreementDTOMapper.getListOfAgreementDTOs(agreements);
+        return agreementDtoMapper.getDtoList(agreements);
     }
 
     @Override
     @Transactional
-    public List<AgreementDTO> findDeletedAccounts() {
+    public List<AgreementDto> findDeletedAgreements() {
         log.info("retrieving list of deleted agreements");
         List<Agreement> deletedAgreements = agreementRepository.findAllDeleted();
-        return agreementDTOMapper.getListOfAgreementDTOs(deletedAgreements);
+        return agreementDtoMapper.getDtoList(deletedAgreements);
     }
 
     @Override
     @Transactional
-    public AgreementDTO findById(UUID uuid) {
+    public AgreementDto findById(String agreementUuid) {
+        if (agreementUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(agreementUuid);
         log.info("retrieving agreement by id {}", uuid);
-        return agreementDTOMapper.mapToAgreementDTO(
+        return agreementDtoMapper.mapEntityToDto(
                 agreementRepository.findById(uuid)
-                .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
+                        .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid))));
     }
 
     @Override
@@ -72,8 +78,12 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     @Override
     @Transactional
-    public void update(UUID uuid, AgreementDTO updatedAgreementDTO) {
-        Agreement updatedAgreement = agreementDTOMapper.mapToAgreement(updatedAgreementDTO);
+    public void update(String agreementUuid, AgreementDto updatedAgreementDto) {
+        if (agreementUuid == null || updatedAgreementDto == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(agreementUuid);
+        Agreement updatedAgreement = agreementDtoMapper.mapDtoToEntity(updatedAgreementDto);
         Agreement agreement = agreementRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         agreement = agreementUpdateService.update(agreement, updatedAgreement);
@@ -83,7 +93,11 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     @Override
     @Transactional
-    public void delete(UUID uuid) {
+    public void delete(String agreementUuid) {
+        if (agreementUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(agreementUuid);
         Agreement agreement = agreementRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         agreement.setDeleted(true);
@@ -93,17 +107,36 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
 
     @Override
     @Transactional
-    public List<AgreementDTO> findAgreementsByManagerUuid(UUID uuid) {
-        log.info("retrieving agreements by manager id {}", uuid);
+    public List<AgreementDto> findAgreementsByManagerUuid(String managerUuid) {
+        if (managerUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(managerUuid);
+        log.info("retrieving agreements by manager id {}", managerUuid);
         List<Agreement> agreements = agreementRepository.findAgreementsWhereManagerIdIs(uuid);
-        return agreementDTOMapper.getListOfAgreementDTOs(agreements);
+        return agreementDtoMapper.getDtoList(agreements);
     }
 
     @Override
     @Transactional
-    public List<AgreementDTO> findAgreementsByClientUuid(UUID uuid) {
-        log.info("retrieving agreements client id {}", uuid);
-        List<Agreement> agreements = agreementRepository.findAgreementsWhereClientIdIs(uuid);
-        return agreementDTOMapper.getListOfAgreementDTOs(agreements);
+    public List<AgreementDto> findAgreementDtoListByClientUuid(String clientUuid) {
+        if (clientUuid == null) {
+            throw new IllegalArgumentException();
+        }
+        UUID uuid = UUID.fromString(clientUuid);
+        log.info("retrieving agreements client id {}", clientUuid);
+        List<Agreement> agreements = agreementRepository.findAgreementsWhereClientIdIs(uuid)
+                .stream()
+                .filter(a -> !a.isDeleted())
+                .toList();
+        log.info("{}", agreements);
+        return agreementWithProductDtoMapper.getDtoList(agreements);
+    }
+
+    @Override
+    @Transactional
+    public List<Agreement> findAgreementsByClientUuid(UUID clientUuid) {
+        log.info("retrieving agreements client id {}", clientUuid);
+        return agreementRepository.findAgreementsWhereClientIdIs(clientUuid);
     }
 }

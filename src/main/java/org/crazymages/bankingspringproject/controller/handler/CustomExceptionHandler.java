@@ -4,10 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.exception.TransactionNotAllowedException;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.exception.InsufficientFundsException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.time.format.DateTimeParseException;
 
 /**
  * Global exception handler for handling custom exceptions.
@@ -15,6 +18,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 @ControllerAdvice
 public class CustomExceptionHandler {
+
+    @Value("${log.data.not.found}")
+    private String dataNotFoundLogMessage;
+    @Value("${log.insufficient.funds}")
+    private String insufficientFundsLogMessage;
+    @Value("${log.transaction.not.allowed}")
+    private String transactionNotAllowedLogMessage;
+    @Value("${log.illegal.argument}")
+    private String illegalArgumentLogMessage;
+    @Value("${log.date.time.parse}")
+    private String dateTimeParseLogMessage;
 
     /**
      * Handles the {@link DataNotFoundException} exception.
@@ -24,7 +38,7 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<String> handleDataNotFoundException(Exception e) {
-        log.error("Entity with id {} not found", e.getMessage());
+        log.error(dataNotFoundLogMessage, e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
@@ -36,7 +50,7 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(InsufficientFundsException.class)
     public ResponseEntity<String> handleInsufficientFundsExceptionException(Exception e) {
-        log.error("Insufficient funds in sender's account id {}", e.getMessage());
+        log.error(insufficientFundsLogMessage, e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
@@ -47,7 +61,7 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(TransactionNotAllowedException.class)
     public ResponseEntity<String> handleTransactionNotAllowedException() {
-        log.error("Not allowed to execute transaction");
+        log.error(transactionNotAllowedLogMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
@@ -58,7 +72,18 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException() {
-        log.error("One or more fields are 'null'");
+        log.error(illegalArgumentLogMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    /**
+     * Handles the {@link DateTimeParseException} exception.
+     *
+     * @return the ResponseEntity with HTTP status 400
+     */
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<String> handleDateTimeParseException() {
+        log.error(dateTimeParseLogMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

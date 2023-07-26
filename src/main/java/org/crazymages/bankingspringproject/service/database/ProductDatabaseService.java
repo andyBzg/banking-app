@@ -1,13 +1,12 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.ProductDTO;
+import org.crazymages.bankingspringproject.dto.ProductDto;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * A service interface for managing Product entities in the database.
@@ -18,30 +17,30 @@ public interface ProductDatabaseService {
     /**
      * Creates a new Product entity in the database.
      *
-     * @param productDTO The Product entity to be created.
+     * @param productDto The Product entity to be created.
      */
-    void create(ProductDTO productDTO);
+    void create(ProductDto productDto);
 
     /**
      * Retrieves all Product entities from the database.
      *
      * @return A list of all Product entities.
      */
-    List<ProductDTO> findAll();
+    List<ProductDto> findAll();
 
     /**
      * Retrieves all non-deleted Product entities from the database.
      *
      * @return A list of all non-deleted Product entities.
      */
-    List<ProductDTO> findAllNotDeleted();
+    List<ProductDto> findAllNotDeleted();
 
     /**
      * Retrieves all deleted Product entities from the database.
      *
      * @return A list of all deleted Product entities.
      */
-    List<ProductDTO> findDeletedProducts();
+    List<ProductDto> findDeletedProducts();
 
     /**
      * Retrieves a Product entity from the database by its UUID.
@@ -49,7 +48,7 @@ public interface ProductDatabaseService {
      * @param uuid The UUID of the Product to retrieve.
      * @return The Product entity with the specified UUID, or null if not found.
      */
-    ProductDTO findById(UUID uuid);
+    ProductDto findById(String uuid);
 
     /**
      * Retrieves a Product entity from the database by its type, status, and currency code.
@@ -66,14 +65,14 @@ public interface ProductDatabaseService {
      * Updates a Product entity in the database with the specified UUID.
      *
      * @param uuid              The UUID of the Product to update.
-     * @param updatedProductDTO The updated Product entity.
+     * @param updatedProductDto The updated Product entity.
      */
-    void update(UUID uuid, ProductDTO updatedProductDTO);
+    void update(String uuid, ProductDto updatedProductDto);
 
     /**
      * Deletes a Product entity from the database with the specified UUID.
      *
      * @param uuid The UUID of the Product to delete.
      */
-    void delete(UUID uuid);
+    void delete(String uuid);
 }

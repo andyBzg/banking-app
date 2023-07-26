@@ -1,7 +1,8 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.ClientDTO;
+import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
+import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,28 +19,28 @@ public interface ClientDatabaseService {
      *
      * @param clientDTO The Client entity to be created.
      */
-    void create(ClientDTO clientDTO);
+    void create(ClientDto clientDTO);
 
     /**
      * Retrieves all Client entities from the database.
      *
      * @return A list of all ClientDTOs.
      */
-    List<ClientDTO> findAll();
+    List<ClientDto> findAll();
 
     /**
      * Retrieves all non-deleted Client entities from the database.
      *
      * @return A list of all non-deleted Client entities.
      */
-    List<ClientDTO> findAllNotDeleted();
+    List<ClientDto> findAllNotDeleted();
 
     /**
      * Retrieves all deleted Client entities from the database.
      *
      * @return A list of all deleted Client entities.
      */
-    List<ClientDTO> findDeletedClients();
+    List<ClientDto> findDeletedClients();
 
     /**
      * Retrieves a Client entity from the database by its UUID.
@@ -47,29 +48,29 @@ public interface ClientDatabaseService {
      * @param uuid The UUID of the Client to retrieve.
      * @return The ClientDTO with the specified UUID, or null if not found.
      */
-    ClientDTO findById(UUID uuid);
+    ClientDto findById(String uuid);
 
     /**
      * Updates a Client entity in the database with the specified UUID.
      *
      * @param uuid             The UUID of the Client to update.
-     * @param updatedClientDTO The updated ClientDTO.
+     * @param updatedClientDto The updated ClientDTO.
      */
-    void update(UUID uuid, ClientDTO updatedClientDTO);
+    void update(String uuid, ClientDto updatedClientDto);
 
     /**
      * Deletes a Client entity from the database with the specified UUID.
      *
      * @param uuid The UUID of the Client to delete.
      */
-    void delete(UUID uuid);
+    void delete(String uuid);
 
     /**
      * Retrieves all active Client entities from the database.
      *
      * @return A list of all active ClientDTOs.
      */
-    List<ClientDTO> findActiveClients();
+    List<ClientDto> findActiveClients();
 
     /**
      * Retrieves all Client entities from the database where the balance is greater than the specified amount.
@@ -77,7 +78,7 @@ public interface ClientDatabaseService {
      * @param balance The minimum balance amount to filter by.
      * @return A list of ClientDTOs where the balance is greater than the specified amount.
      */
-    List<ClientDTO> findClientsWhereBalanceMoreThan(BigDecimal balance);
+    List<ClientDto> findClientsWhereBalanceMoreThan(BigDecimal balance);
 
     /**
      * Retrieves all Client entities from the database where the transaction count is greater than the specified amount.
@@ -85,7 +86,7 @@ public interface ClientDatabaseService {
      * @param count The minimum transaction count to filter by.
      * @return A list of ClientDTOs where the transaction count is greater than the specified amount.
      */
-    List<ClientDTO> findClientsWhereTransactionMoreThan(Integer count);
+    List<ClientDto> findClientsWhereTransactionMoreThan(Integer count);
 
     /**
      * Calculates the total balance of all Accounts associated with the specified client UUID.
@@ -93,7 +94,7 @@ public interface ClientDatabaseService {
      * @param uuid The UUID of the client to calculate the total balance for.
      * @return The total balance of all Accounts associated with the specified client UUID.
      */
-    BigDecimal calculateTotalBalanceByClientUuid(UUID uuid);
+    BigDecimal calculateTotalBalanceByClientUuid(String uuid);
 
     /**
      * Checks if the Client with the specified UUID has an active status.
@@ -109,4 +110,19 @@ public interface ClientDatabaseService {
      * @return A list of Client entities that have both current and savings Accounts.
      */
     List<Client> findClientsWithCurrentAndSavingsAccounts();
+
+    /**
+     * Retrieves all Client entities from the database that have the specified status.
+     *
+     * @param status The status to filter by.
+     * @return A list of Client entities that have the specified status.
+     */
+    List<Client> findClientsByStatus(ClientStatus status);
+
+    /**
+     * Blocks the Client with the specified UUID by setting its status to blocked.
+     *
+     * @param uuid The UUID of the client to block.
+     */
+    void blockClientById(String uuid);
 }

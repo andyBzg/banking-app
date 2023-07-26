@@ -1,20 +1,21 @@
 package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crazymages.bankingspringproject.dto.ProductDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.dto.ProductDto;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller class for managing products.
  */
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
     private final ProductDatabaseService productDatabaseService;
@@ -22,13 +23,14 @@ public class ProductController {
     /**
      * Creates a new product.
      *
-     * @param productDTO The product to create.
+     * @param productDto The product to create.
      * @return The created product.
      */
     @PostMapping(value = "/product/create")
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
-        productDatabaseService.create(productDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        log.info("endpoint request: create new product");
+        productDatabaseService.create(productDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDto);
     }
 
     /**
@@ -37,9 +39,10 @@ public class ProductController {
      * @return The list of products.
      */
     @GetMapping(value = "/product/find/all")
-    public ResponseEntity<List<ProductDTO>> findAllProducts() {
-        List<ProductDTO> productList = productDatabaseService.findAllNotDeleted();
-        return productList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productList);
+    public ResponseEntity<List<ProductDto>> findAllProducts() {
+        log.info("endpoint request: find all products");
+        List<ProductDto> productDtoList = productDatabaseService.findAllNotDeleted();
+        return productDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productDtoList);
     }
 
     /**
@@ -49,23 +52,25 @@ public class ProductController {
      * @return The product.
      */
     @GetMapping(value = "/product/find/{uuid}")
-    public ResponseEntity<ProductDTO> findProductByUuid(@PathVariable UUID uuid) {
-        ProductDTO productDTO = productDatabaseService.findById(uuid);
-        return ResponseEntity.ok(productDTO);
+    public ResponseEntity<ProductDto> findProductByUuid(@PathVariable String uuid) {
+        log.info("endpoint request: find product by id");
+        ProductDto productDto = productDatabaseService.findById(uuid);
+        return ResponseEntity.ok(productDto);
     }
 
     /**
      * Updates an existing product.
      *
-     * @param uuid           The UUID of the product to update.
-     * @param updatedProductDTO The updated product.
+     * @param uuid              The UUID of the product to update.
+     * @param updatedProductDto The updated product.
      * @return The updated product.
      */
     @PutMapping(value = "/product/update/{uuid}")
-    public ResponseEntity<ProductDTO> updateProduct(
-            @PathVariable UUID uuid, @RequestBody ProductDTO updatedProductDTO) {
-        productDatabaseService.update(uuid, updatedProductDTO);
-        return ResponseEntity.ok(updatedProductDTO);
+    public ResponseEntity<ProductDto> updateProduct(
+            @PathVariable String uuid, @RequestBody ProductDto updatedProductDto) {
+        log.info("endpoint request: update product");
+        productDatabaseService.update(uuid, updatedProductDto);
+        return ResponseEntity.ok(updatedProductDto);
     }
 
     /**
@@ -75,7 +80,8 @@ public class ProductController {
      * @return A response indicating the success of the operation.
      */
     @DeleteMapping(value = "/product/delete/{uuid}")
-    public ResponseEntity<String> deleteProduct(@PathVariable UUID uuid) {
+    public ResponseEntity<String> deleteProduct(@PathVariable String uuid) {
+        log.info("endpoint request: delete product");
         productDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }
