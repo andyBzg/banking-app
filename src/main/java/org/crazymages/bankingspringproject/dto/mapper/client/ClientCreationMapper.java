@@ -2,13 +2,8 @@ package org.crazymages.bankingspringproject.dto.mapper.client;
 
 import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Component
 public class ClientCreationMapper implements DtoMapper<Client, ClientDto> {
@@ -40,15 +35,5 @@ public class ClientCreationMapper implements DtoMapper<Client, ClientDto> {
                 .address(entityDto.getAddress())
                 .phone(entityDto.getPhone())
                 .build();
-    }
-
-    @Override
-    public List<ClientDto> getDtoList(List<Client> entityList) {
-        return Optional.ofNullable(entityList)
-                .orElseThrow(() -> new DataNotFoundException("list is null"))
-                .stream()
-                .filter(Objects::nonNull)
-                .map(this::mapEntityToDto)
-                .toList();
     }
 }
