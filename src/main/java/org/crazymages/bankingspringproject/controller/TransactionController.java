@@ -39,7 +39,7 @@ public class TransactionController {
      *
      * @return The list of transactions.
      */
-    @GetMapping(value = "/transaction/find/all")
+    @GetMapping(value = "/transaction/find-all/")
     public ResponseEntity<List<TransactionDto>> findAllTransactions() {
         log.info("endpoint request: find all transactions");
         List<TransactionDto> transactionList = transactionDatabaseService.findAll();
@@ -104,7 +104,7 @@ public class TransactionController {
      * @param uuid The UUID of the client.
      * @return The list of transactions.
      */
-    @GetMapping(value = "/transaction/find-all-by-client/{uuid}")
+    @GetMapping(value = "/transaction/find/all-by-client/{uuid}")
     public ResponseEntity<List<TransactionDto>> findAllTransactions(@PathVariable String uuid) {
         log.info("endpoint request: find all transactions by client id {}", uuid);
         List<TransactionDto> transactionList = transactionDatabaseService.findAllTransactionsByClientId(uuid);
@@ -124,6 +124,7 @@ public class TransactionController {
             @PathVariable("uuid") String uuid,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
+        log.info("endpoint request: get transactions between dates for specific client");
         List<TransactionDto> statement = transactionDatabaseService
                 .findTransactionsByClientIdBetweenDates(uuid, startDate, endDate);
         return ResponseEntity.ok(statement);
@@ -140,6 +141,7 @@ public class TransactionController {
     public ResponseEntity<List<TransactionDto>> getTransactionStatement(
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
+        log.info("endpoint request: get all transactions between dates");
         List<TransactionDto> statement = transactionDatabaseService
                 .findTransactionsBetweenDates(startDate, endDate);
         return ResponseEntity.ok(statement);

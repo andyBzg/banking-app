@@ -25,9 +25,10 @@ public class ExchangeRatesController {
      *
      * @return The ResponseEntity containing the list of exchange rates.
      */
-    @GetMapping(value = "/get-exchange-rates")
+    @GetMapping(value = "/exchange/get-rates")
     public ResponseEntity<List<CurrencyExchangeRateDto>> getExchangeRates() {
         List<CurrencyExchangeRateDto> exchangeRates = currencyExchangeRateDatabaseService.findAllRates();
+        log.info("endpoint request: get exchange rates");
         return exchangeRates.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(exchangeRates);
     }
 }

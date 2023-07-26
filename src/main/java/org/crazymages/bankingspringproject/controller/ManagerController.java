@@ -1,6 +1,7 @@
 package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.ManagerDto;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ManagerController {
 
     private final ManagerDatabaseService managerDatabaseService;
@@ -26,6 +28,7 @@ public class ManagerController {
      */
     @PostMapping(value = "/manager/create")
     public ResponseEntity<ManagerDto> createManager(@RequestBody ManagerDto managerDto) {
+        log.info("endpoint request: create new manager");
         managerDatabaseService.create(managerDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(managerDto);
     }
@@ -35,8 +38,9 @@ public class ManagerController {
      *
      * @return The list of managers.
      */
-    @GetMapping(value = "/manager/find/all")
+    @GetMapping(value = "/manager/find-all")
     public ResponseEntity<List<ManagerDto>> findAllManagers() {
+        log.info("endpoint request: find all managers");
         List<ManagerDto> managerDtoList = managerDatabaseService.findAllNotDeleted();
         return managerDtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(managerDtoList);
     }
@@ -49,6 +53,7 @@ public class ManagerController {
      */
     @GetMapping(value = "/manager/find/{uuid}")
     public ResponseEntity<ManagerDto> findManagerByUuid(@PathVariable String uuid) {
+        log.info("endpoint request: find manager by id");
         ManagerDto managerDto = managerDatabaseService.findById(uuid);
         return ResponseEntity.ok(managerDto);
     }
@@ -63,6 +68,7 @@ public class ManagerController {
     @PutMapping(value = "/manager/update/{uuid}")
     public ResponseEntity<ManagerDto> updateManager(
             @PathVariable String uuid, @RequestBody ManagerDto updatedManagerDto) {
+        log.info("endpoint request: update manager");
         managerDatabaseService.update(uuid, updatedManagerDto);
         return ResponseEntity.ok(updatedManagerDto);
     }
@@ -75,6 +81,7 @@ public class ManagerController {
      */
     @DeleteMapping(value = "/manager/delete/{uuid}")
     public ResponseEntity<String> deleteManager(@PathVariable String uuid) {
+        log.info("endpoint request: delete manager");
         managerDatabaseService.delete(uuid);
         return ResponseEntity.ok().build();
     }

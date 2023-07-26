@@ -40,7 +40,7 @@ public class AccountController {
      * @param uuid       the UUID of the client
      * @return the created account
      */
-    @PostMapping(value = "/account/create/by-client/{uuid}")
+    @PostMapping(value = "/account/create/with-client-id/{uuid}")
     public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto, @PathVariable String uuid) {
         log.info("endpoint request: create account");
         accountDatabaseService.create(accountDto, uuid);
@@ -147,7 +147,7 @@ public class AccountController {
      * @param uuid the UUID of the client
      * @return the list of accounts associated with the specified client UUID
      */
-    @GetMapping(value = "/account/find/all/by-client/{uuid}")
+    @GetMapping(value = "/account/find/all/by-client-id/{uuid}")
     public ResponseEntity<List<AccountDto>> findAllAccountsByClientUuid(@PathVariable String uuid) {
         log.info("endpoint request: find all accounts by client id {} ", uuid);
         List<AccountDto> accountDtoList = accountDatabaseService.findAllDtoByClientId(uuid);
