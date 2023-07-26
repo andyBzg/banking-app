@@ -11,7 +11,9 @@ import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExc
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A service implementation for managing Currency exchange rate entities in the database.
@@ -26,35 +28,60 @@ public class CurrencyExchangeRateDatabaseServiceImpl implements CurrencyExchange
 
 
     @Override
+    @Transactional
     public void create(CurrencyExchangeRate currencyExchangeRate) {
-        currencyExchangeRateRepository.save(currencyExchangeRate);
+        String currencyCode = currencyExchangeRate.getCurrencyCode();
+        BigDecimal exchangeRate = currencyExchangeRate.getExchangeRate();
+        Optional<CurrencyExchangeRate> existingCurrencyExchangeRate = currencyExchangeRateRepository
+                .findByCurrencyCode(currencyCode);
+        if (existingCurrencyExchangeRate.isPresent()) {
+            CurrencyExchangeRate existing = existingCurrencyExchangeRate.get();
+            existing.setExchangeRate(exchangeRate);
+            currencyExchangeRateRepository.save(existing);
+        } else {
+            log.info("saving new currency exchange rate");
+            currencyExchangeRateRepository.save(currencyExchangeRate);
+        }
     }
 
     @Override
     @Transactional
     public List<CurrencyExchangeRate> findAll() {
+        log.info("retrieving all currency exchange rates");
         return currencyExchangeRateRepository.findAllNotDeleted();
     }
 
     @Override
+    @Transactional
     public List<CurrencyExchangeRateDto> findAllRates() {
+        log.info("retrieving all currency exchange rates");
         return currencyExchangeRateDtoMapper.getDtoList(
                 currencyExchangeRateRepository.findAllNotDeleted());
     }
 
     @Override
     @Transactional
-    public CurrencyExchangeRate findById(String currencyCode) {
-        return currencyExchangeRateRepository.findById(currencyCode)
+    public CurrencyExchangeRate findById(Integer id) {
+        return currencyExchangeRateRepository.findById(id)
+                .filter(c -> !c.isDeleted())
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(id)));
+    }
+
+    @Override
+    @Transactional
+    public CurrencyExchangeRate findByCurrencyCode(String currencyCode) {
+        log.info("retrieving currency exchange rate by currency code {}", currencyCode);
+        return currencyExchangeRateRepository.findByCurrencyCode(currencyCode)
                 .filter(c -> !c.isDeleted())
                 .orElseThrow(() -> new DataNotFoundException(currencyCode));
     }
 
     @Override
     @Transactional
-    public void update(String currencyCode, CurrencyExchangeRate currencyExchangeRate) {
-        CurrencyExchangeRate rate = currencyExchangeRateRepository.findById(currencyCode)
-                .orElseThrow(() -> new DataNotFoundException(currencyCode));
+    public void update(Integer id, CurrencyExchangeRate currencyExchangeRate) {
+        log.info("updating currency exchange rate");
+        CurrencyExchangeRate rate = currencyExchangeRateRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(id)));
 
         if (!rate.isDeleted()) {
             rate.setCurrencyCode(currencyExchangeRate.getCurrencyCode());
@@ -65,9 +92,10 @@ public class CurrencyExchangeRateDatabaseServiceImpl implements CurrencyExchange
 
     @Override
     @Transactional
-    public void delete(String currencyCode) {
-        CurrencyExchangeRate rate = currencyExchangeRateRepository.findById(currencyCode)
-                .orElseThrow(() -> new DataNotFoundException(currencyCode));
+    public void delete(Integer id) {
+        log.info("deleting currency exchange rate");
+        CurrencyExchangeRate rate = currencyExchangeRateRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(String.valueOf(id)));
         rate.setDeleted(true);
         currencyExchangeRateRepository.save(rate);
     }
