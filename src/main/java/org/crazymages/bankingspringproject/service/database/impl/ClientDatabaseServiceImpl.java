@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.dto.ClientDto;
 import org.crazymages.bankingspringproject.dto.mapper.client.ClientCreationMapper;
-import org.crazymages.bankingspringproject.dto.mapper.client.ClientUpdateDtoMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -37,7 +36,6 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     private final ClientRepository clientRepository;
     private final ClientDtoMapper clientDtoMapper;
     private final ClientCreationMapper clientCreationMapper;
-    private final ClientUpdateDtoMapper clientUpdateDtoMapper;
     private final EntityUpdateService<Client> clientUpdateService;
     private final ManagerDatabaseService managerDatabaseService;
     private final AccountDatabaseService accountDatabaseService;
@@ -64,7 +62,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<ClientDto> findAll() {
         log.info("retrieving list of clients");
         List<Client> clients = clientRepository.findAll();
-        return clientDtoMapper.getDtoList(clients);
+        return getDtoList(clients);
     }
 
     @Override
@@ -72,15 +70,15 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<ClientDto> findAllNotDeleted() {
         log.info("retrieving list of clients");
         List<Client> clients = clientRepository.findAllNotDeleted();
-        return clientDtoMapper.getDtoList(clients);
+        return getDtoList(clients);
     }
 
     @Override
     @Transactional
     public List<ClientDto> findDeletedClients() {
         log.info("retrieving list of deleted agreements");
-        List<Client> deletedClients = clientRepository.findAllDeleted();
-        return clientDtoMapper.getDtoList(deletedClients);
+        List<Client> clients = clientRepository.findAllDeleted();
+        return getDtoList(clients);
     }
 
     @Override
@@ -103,7 +101,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
             throw new IllegalArgumentException();
         }
         UUID uuid = UUID.fromString(clientUuid);
-        Client updatedClient = clientUpdateDtoMapper.mapDtoToEntity(updatedClientDto);
+        Client updatedClient = clientCreationMapper.mapDtoToEntity(updatedClientDto);
         Client client = clientRepository.findById(uuid)
                 .orElseThrow(() -> new DataNotFoundException(String.valueOf(uuid)));
         client = clientUpdateService.update(client, updatedClient);
@@ -130,7 +128,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<ClientDto> findActiveClients() {
         log.info("retrieving list of active clients");
         List<Client> clients = clientRepository.findClientsByStatusIs(ClientStatus.ACTIVE);
-        return clientDtoMapper.getDtoList(clients);
+        return getDtoList(clients);
     }
 
     @Override
@@ -138,7 +136,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<ClientDto> findClientsWhereBalanceMoreThan(BigDecimal balance) {
         log.info("retrieving list of clients where balance is more than {}", balance);
         List<Client> clients = clientRepository.findAllClientsWhereBalanceMoreThan(balance);
-        return clientDtoMapper.getDtoList(clients);
+        return getDtoList(clients);
     }
 
     @Override
@@ -146,7 +144,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     public List<ClientDto> findClientsWhereTransactionMoreThan(Integer count) {
         log.info("retrieving list of clients where transaction count is more than {}", count);
         List<Client> clients = clientRepository.findAllClientsWhereTransactionMoreThan(count);
-        return clientDtoMapper.getDtoList(clients);
+        return getDtoList(clients);
     }
 
     @Override
@@ -199,5 +197,13 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
         log.info("blocked client with uuid {}", uuid);
         clientRepository.blockClientById(uuid);
         accountDatabaseService.blockAccountsByClientUuid(clientUuid);
+    }
+
+    private List<ClientDto> getDtoList(List<Client> clients) {
+        return Optional.ofNullable(clients)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(clientDtoMapper::mapEntityToDto)
+                .toList();
     }
 }

@@ -21,8 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A service implementation for managing Product entities in the database.
@@ -58,7 +57,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     public List<ProductDto> findAll() {
         log.info("retrieving list of products");
         List<Product> products = productRepository.findAll();
-        return productDtoMapper.getDtoList(products);
+        return getDtoList(products);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     public List<ProductDto> findAllNotDeleted() {
         log.info("retrieving list of not deleted products");
         List<Product> products = productRepository.findAllNotDeleted();
-        return productDtoMapper.getDtoList(products);
+        return getDtoList(products);
     }
 
     @Override
@@ -75,8 +74,8 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
     @Cacheable(value = "deletedProducts")
     public List<ProductDto> findDeletedProducts() {
         log.info("retrieving list of deleted products");
-        List<Product> deletedProducts = productRepository.findAllDeleted();
-        return productDtoMapper.getDtoList(deletedProducts);
+        List<Product> products = productRepository.findAllDeleted();
+        return getDtoList(products);
     }
 
     @Override
@@ -133,5 +132,13 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
         product.setDeleted(true);
         productRepository.save(product);
         log.info("deleted product id {}", uuid);
+    }
+
+    private List<ProductDto> getDtoList(List<Product> products) {
+        return Optional.ofNullable(products)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(productDtoMapper::mapEntityToDto)
+                .toList();
     }
 }

@@ -83,7 +83,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDto> findAllNotDeleted() {
         log.info("retrieving list of accounts");
         List<Account> accounts = accountRepository.findAllNotDeleted();
-        return accountDtoMapper.getDtoList(accounts);
+        return getDtoList(accounts);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDto> findDeletedAccounts() {
         log.info("retrieving list of deleted accounts");
         List<Account> accounts = accountRepository.findAllDeleted();
-        return accountDtoMapper.getDtoList(accounts);
+        return getDtoList(accounts);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
     public List<AccountDto> findAllByStatus(String status) {
         log.info("retrieving list of accounts by status {}", status);
         List<Account> accounts = accountRepository.findAccountsByStatus(AccountStatus.valueOf(status));
-        return accountDtoMapper.getDtoList(accounts);
+        return getDtoList(accounts);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
         log.info("retrieving list of accounts by product id {} and product status {}", uuid, status);
         List<Account> accounts = accountRepository.findAccountsWhereProductIdAndStatusIs(uuid, status);
-        return accountDtoMapper.getDtoList(accounts);
+        return getDtoList(accounts);
     }
 
     @Override
@@ -205,7 +205,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
                 .stream()
                 .filter(account -> !account.isDeleted())
                 .toList();
-        return accountDtoMapper.getDtoList(accounts);
+        return getDtoList(accounts);
     }
 
     @Override
@@ -239,6 +239,14 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
         return Optional.of(accounts)
                 .orElse(Collections.emptyList())
                 .stream()
+                .toList();
+    }
+
+    private List<AccountDto> getDtoList(List<Account> accounts) {
+        return Optional.ofNullable(accounts)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(accountDtoMapper::mapEntityToDto)
                 .toList();
     }
 }

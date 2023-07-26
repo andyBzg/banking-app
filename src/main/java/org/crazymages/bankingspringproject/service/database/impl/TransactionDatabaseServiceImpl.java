@@ -22,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A service implementation for managing Transaction entities in the database.
@@ -53,7 +52,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     public List<TransactionDto> findAll() {
         log.info("retrieving list of transactions");
         List<Transaction> transactions = transactionRepository.findAll();
-        return transactionDtoMapper.getDtoList(transactions);
+        return getDtoList(transactions);
     }
 
     @Override
@@ -78,7 +77,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         UUID uuid = UUID.fromString(senderUuid);
         log.info("retrieving list of transactions by sender id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByDebitAccountUuid(uuid);
-        return transactionDtoMapper.getDtoList(transactions);
+        return getDtoList(transactions);
     }
 
     @Override
@@ -90,7 +89,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         UUID uuid = UUID.fromString(recipientUuid);
         log.info("retrieving list of transactions by recipient id {}", uuid);
         List<Transaction> transactions = transactionRepository.findTransactionsByCreditAccountUuid(uuid);
-        return transactionDtoMapper.getDtoList(transactions);
+        return getDtoList(transactions);
     }
 
     @Override
@@ -102,7 +101,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         UUID uuid = UUID.fromString(clientUuid);
         log.info("retrieving list of transactions by client id {} ", uuid);
         List<Transaction> transactions = transactionRepository.findAllTransactionsWhereClientIdIs(uuid);
-        return transactionDtoMapper.getDtoList(transactions);
+        return getDtoList(transactions);
     }
 
     @Override
@@ -196,7 +195,7 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         Timestamp end = Timestamp.valueOf(localDateEnd.atStartOfDay());
 
         List<Transaction> transactions = transactionRepository.findTransactionsByClientIdBetweenDates(clientUuid, start, end);
-        return transactionDtoMapper.getDtoList(transactions);
+        return getDtoList(transactions);
     }
 
     @Override
@@ -211,6 +210,14 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
         Timestamp timestampEnd = Timestamp.valueOf(localDateEnd.atStartOfDay());
 
         List<Transaction> transactions = transactionRepository.findTransactionsBetweenDates(timestampStart, timestampEnd);
-        return transactionDtoMapper.getDtoList(transactions);
+        return getDtoList(transactions);
+    }
+
+    private List<TransactionDto> getDtoList(List<Transaction> transactions) {
+        return Optional.ofNullable(transactions)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(transactionDtoMapper::mapEntityToDto)
+                .toList();
     }
 }

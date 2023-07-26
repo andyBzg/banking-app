@@ -14,7 +14,9 @@ import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateSer
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -44,7 +46,7 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     public List<AgreementDto> findAllNotDeleted() {
         log.info("retrieving list of agreements");
         List<Agreement> agreements = agreementRepository.findAllNotDeleted();
-        return agreementDtoMapper.getDtoList(agreements);
+        return getDtoList(agreements);
     }
 
     @Override
@@ -52,7 +54,7 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     public List<AgreementDto> findDeletedAgreements() {
         log.info("retrieving list of deleted agreements");
         List<Agreement> deletedAgreements = agreementRepository.findAllDeleted();
-        return agreementDtoMapper.getDtoList(deletedAgreements);
+        return getDtoList(deletedAgreements);
     }
 
     @Override
@@ -114,7 +116,7 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
         UUID uuid = UUID.fromString(managerUuid);
         log.info("retrieving agreements by manager id {}", managerUuid);
         List<Agreement> agreements = agreementRepository.findAgreementsWhereManagerIdIs(uuid);
-        return agreementDtoMapper.getDtoList(agreements);
+        return getDtoList(agreements);
     }
 
     @Override
@@ -129,8 +131,11 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
                 .stream()
                 .filter(a -> !a.isDeleted())
                 .toList();
-        log.info("{}", agreements);
-        return agreementWithProductDtoMapper.getDtoList(agreements);
+        return Optional.of(agreements)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(agreementWithProductDtoMapper::mapEntityToDto)
+                .toList();
     }
 
     @Override
@@ -138,5 +143,13 @@ public class AgreementDatabaseServiceImpl implements AgreementDatabaseService {
     public List<Agreement> findAgreementsByClientUuid(UUID clientUuid) {
         log.info("retrieving agreements client id {}", clientUuid);
         return agreementRepository.findAgreementsWhereClientIdIs(clientUuid);
+    }
+
+    private List<AgreementDto> getDtoList(List<Agreement> agreements) {
+        return Optional.ofNullable(agreements)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(agreementDtoMapper::mapEntityToDto)
+                .toList();
     }
 }
