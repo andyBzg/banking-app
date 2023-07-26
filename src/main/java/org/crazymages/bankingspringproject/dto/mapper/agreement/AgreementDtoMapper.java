@@ -3,13 +3,9 @@ package org.crazymages.bankingspringproject.dto.mapper.agreement;
 import org.crazymages.bankingspringproject.dto.AgreementDto;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -44,15 +40,5 @@ public class AgreementDtoMapper implements DtoMapper<Agreement, AgreementDto> {
                 .status(agreementDto.getStatus() != null ? AgreementStatus.valueOf(agreementDto.getStatus()) : null)
                 .amount(agreementDto.getAmount())
                 .build();
-    }
-
-    @Override
-    public List<AgreementDto> getDtoList(List<Agreement> agreementList) {
-        return Optional.ofNullable(agreementList)
-                .orElseThrow(() -> new DataNotFoundException("list is null"))
-                .stream()
-                .filter(Objects::nonNull)
-                .map(this::mapEntityToDto)
-                .toList();
     }
 }

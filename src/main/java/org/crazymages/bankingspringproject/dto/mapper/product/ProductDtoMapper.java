@@ -5,13 +5,9 @@ import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -50,15 +46,5 @@ public class ProductDtoMapper implements DtoMapper<Product, ProductDto> {
                 .interestRate(productDto.getInterestRate())
                 .limitation(productDto.getLimitation())
                 .build();
-    }
-
-    @Override
-    public List<ProductDto> getDtoList(List<Product> productList) {
-        return Optional.ofNullable(productList)
-                .orElseThrow(() -> new DataNotFoundException("list is null"))
-                .stream()
-                .filter(Objects::nonNull)
-                .map(this::mapEntityToDto)
-                .toList();
     }
 }

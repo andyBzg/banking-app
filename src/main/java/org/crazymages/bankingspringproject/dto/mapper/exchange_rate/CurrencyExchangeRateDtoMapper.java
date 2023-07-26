@@ -2,13 +2,8 @@ package org.crazymages.bankingspringproject.dto.mapper.exchange_rate;
 
 import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Component class that provides mapping functionality between CurrencyExchangeRate and CurrencyExchangeRateDTO objects.
@@ -30,15 +25,5 @@ public class CurrencyExchangeRateDtoMapper implements DtoMapper<CurrencyExchange
         currencyExchangeRate.setCurrencyCode(currencyExchangeRateDto.getCurrencyCode());
         currencyExchangeRate.setExchangeRate(currencyExchangeRateDto.getExchangeRate());
         return currencyExchangeRate;
-    }
-
-    @Override
-    public List<CurrencyExchangeRateDto> getDtoList(List<CurrencyExchangeRate> clientList) {
-        return Optional.ofNullable(clientList)
-                .orElseThrow(() -> new DataNotFoundException("list is null"))
-                .stream()
-                .filter(Objects::nonNull)
-                .map(this::mapEntityToDto)
-                .toList();
     }
 }

@@ -4,13 +4,9 @@ import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.TransactionType;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -47,15 +43,5 @@ public class TransactionDtoMapper implements DtoMapper<Transaction, TransactionD
                 .amount(transactionDto.getAmount())
                 .description(transactionDto.getDescription())
                 .build();
-    }
-
-    @Override
-    public List<TransactionDto> getDtoList(List<Transaction> transactionList) {
-        return Optional.ofNullable(transactionList)
-                .orElseThrow(() -> new DataNotFoundException("list is null"))
-                .stream()
-                .filter(Objects::nonNull)
-                .map(this::mapEntityToDto)
-                .toList();
     }
 }

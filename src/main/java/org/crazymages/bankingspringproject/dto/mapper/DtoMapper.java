@@ -1,8 +1,5 @@
 package org.crazymages.bankingspringproject.dto.mapper;
 
-import java.util.List;
-
-
 /**
  * An interface for mapping between entity and DTO objects.
  *
@@ -26,12 +23,4 @@ public interface DtoMapper<E, D> {
      * @return The mapped entity object.
      */
     E mapDtoToEntity(D entityDto);
-
-    /**
-     * Maps a list of entity objects to a list of DTO objects.
-     *
-     * @param entityList The list of entity objects to be mapped.
-     * @return The mapped list of DTO objects.
-     */
-    List<D> getDtoList(List<E> entityList);
 }
