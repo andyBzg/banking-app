@@ -13,8 +13,8 @@ import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.converter.CurrencyConverter;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.TransactionDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.transaction.TransactionDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +56,11 @@ class TransactionDatabaseServiceImplTest {
     UUID uuid;
     String strUuid;
     Transaction transaction;
+    Transaction transaction1;
+    Transaction transaction2;
     TransactionDto transactionDto;
+    TransactionDto transactionDto1;
+    TransactionDto transactionDto2;
     List<Transaction> transactions;
     List<TransactionDto> expected;
     AccountDto senderAccountDto;
@@ -73,6 +77,9 @@ class TransactionDatabaseServiceImplTest {
         transaction.setDebitAccountUuid(UUID.fromString("ed3a5e5a-cd77-4052-91fc-b042f2aa4dbe"));
         transaction.setCreditAccountUuid(UUID.fromString("b0e642b4-d957-4cee-b4ca-13839ad16a20"));
 
+        transaction1 = new Transaction();
+        transaction2 = new Transaction();
+
         sender = new Account();
         sender.setClientUuid(UUID.fromString("1989d4da-0f91-46d3-96c6-2b4a72950c89"));
         sender.setBalance(BigDecimal.valueOf(200));
@@ -86,8 +93,10 @@ class TransactionDatabaseServiceImplTest {
         recipient.setCurrencyCode(CurrencyCode.EUR);
 
         transactionDto = TransactionDto.builder().build();
-        transactions = List.of(new Transaction(), new Transaction());
-        expected = List.of(TransactionDto.builder().build(), TransactionDto.builder().build());
+        transactionDto1 = TransactionDto.builder().build();
+        transactionDto2 = TransactionDto.builder().build();
+        transactions = List.of(transaction1, transaction2);
+        expected = List.of(transactionDto1, transactionDto2);
         senderAccountDto = AccountDto.builder().build();
         recipientAccountDto = AccountDto.builder().build();
     }
@@ -109,7 +118,8 @@ class TransactionDatabaseServiceImplTest {
     void findAll_success() {
         // given
         when(transactionRepository.findAll()).thenReturn(transactions);
-        when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
+        when(transactionDtoMapper.mapEntityToDto(transaction1)).thenReturn(transactionDto1);
+        when(transactionDtoMapper.mapEntityToDto(transaction2)).thenReturn(transactionDto2);
 
         // when
         List<TransactionDto> actual = transactionDatabaseService.findAll();
@@ -117,7 +127,7 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(transactionRepository).findAll();
-        verify(transactionDtoMapper).getDtoList(transactions);
+        verify(transactionDtoMapper, times(2)).mapEntityToDto(any(Transaction.class));
     }
 
     @Test
@@ -177,7 +187,8 @@ class TransactionDatabaseServiceImplTest {
     void findOutgoingTransactions_success() {
         // given
         when(transactionRepository.findTransactionsByDebitAccountUuid(uuid)).thenReturn(transactions);
-        when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
+        when(transactionDtoMapper.mapEntityToDto(transaction1)).thenReturn(transactionDto1);
+        when(transactionDtoMapper.mapEntityToDto(transaction2)).thenReturn(transactionDto2);
 
         // when
         List<TransactionDto> actual = transactionDatabaseService.findOutgoingTransactions(String.valueOf(uuid));
@@ -185,7 +196,7 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsByDebitAccountUuid(uuid);
-        verify(transactionDtoMapper).getDtoList(transactions);
+        verify(transactionDtoMapper, times(2)).mapEntityToDto(any(Transaction.class));
     }
 
     @Test
@@ -206,7 +217,8 @@ class TransactionDatabaseServiceImplTest {
     void findIncomingTransactions_success() {
         /// given
         when(transactionRepository.findTransactionsByCreditAccountUuid(uuid)).thenReturn(transactions);
-        when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
+        when(transactionDtoMapper.mapEntityToDto(transaction1)).thenReturn(transactionDto1);
+        when(transactionDtoMapper.mapEntityToDto(transaction2)).thenReturn(transactionDto2);
 
         // when
         List<TransactionDto> actual = transactionDatabaseService.findIncomingTransactions(String.valueOf(uuid));
@@ -214,7 +226,7 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsByCreditAccountUuid(uuid);
-        verify(transactionDtoMapper).getDtoList(transactions);
+        verify(transactionDtoMapper, times(2)).mapEntityToDto(any(Transaction.class));
     }
 
     @Test
@@ -235,7 +247,8 @@ class TransactionDatabaseServiceImplTest {
     void findAllTransactionsByClientId_success() {
         // given
         when(transactionRepository.findAllTransactionsWhereClientIdIs(uuid)).thenReturn(transactions);
-        when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
+        when(transactionDtoMapper.mapEntityToDto(transaction1)).thenReturn(transactionDto1);
+        when(transactionDtoMapper.mapEntityToDto(transaction2)).thenReturn(transactionDto2);
 
         // when
         List<TransactionDto> actual = transactionDatabaseService.findAllTransactionsByClientId(String.valueOf(uuid));
@@ -243,7 +256,7 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(transactionRepository).findAllTransactionsWhereClientIdIs(uuid);
-        verify(transactionDtoMapper).getDtoList(transactions);
+        verify(transactionDtoMapper, times(2)).mapEntityToDto(any(Transaction.class));
     }
 
     @Test
@@ -469,7 +482,8 @@ class TransactionDatabaseServiceImplTest {
         when(transactionRepository
                 .findTransactionsByClientIdBetweenDates(uuid, start, end))
                 .thenReturn(transactions);
-        when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
+        when(transactionDtoMapper.mapEntityToDto(transaction1)).thenReturn(transactionDto1);
+        when(transactionDtoMapper.mapEntityToDto(transaction2)).thenReturn(transactionDto2);
 
         // when
         List<TransactionDto> actual = transactionDatabaseService
@@ -478,7 +492,7 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsByClientIdBetweenDates(uuid, start, end);
-        verify(transactionDtoMapper).getDtoList(transactions);
+        verify(transactionDtoMapper, times(2)).mapEntityToDto(any(Transaction.class));
     }
 
     @Test
@@ -529,7 +543,7 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertTrue(actual.isEmpty());
         verify(transactionRepository).findTransactionsByClientIdBetweenDates(uuid, start, end);
-        verify(transactionDtoMapper).getDtoList(anyList());
+        verify(transactionDtoMapper, never()).mapEntityToDto(any(Transaction.class));
     }
 
     @Test
@@ -540,7 +554,8 @@ class TransactionDatabaseServiceImplTest {
         Timestamp start = Timestamp.valueOf(LocalDate.parse(from).atStartOfDay());
         Timestamp end = Timestamp.valueOf(LocalDate.parse(to).atStartOfDay());
         when(transactionRepository.findTransactionsBetweenDates(start, end)).thenReturn(transactions);
-        when(transactionDtoMapper.getDtoList(transactions)).thenReturn(expected);
+        when(transactionDtoMapper.mapEntityToDto(transaction1)).thenReturn(transactionDto1);
+        when(transactionDtoMapper.mapEntityToDto(transaction2)).thenReturn(transactionDto2);
 
         // when
         List<TransactionDto> actual = transactionDatabaseService.findTransactionsBetweenDates(from, to);
@@ -548,6 +563,6 @@ class TransactionDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(transactionRepository).findTransactionsBetweenDates(start, end);
-        verify(transactionDtoMapper).getDtoList(transactions);
+        verify(transactionDtoMapper, times(2)).mapEntityToDto(any(Transaction.class));
     }
 }

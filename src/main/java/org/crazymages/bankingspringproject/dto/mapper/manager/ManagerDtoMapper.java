@@ -1,15 +1,10 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.manager;
 
 import org.crazymages.bankingspringproject.dto.ManagerDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.crazymages.bankingspringproject.service.utils.mapper.DtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.DtoMapper;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Component class that provides mapping functionality between Manager and ManagerDTO objects.
@@ -41,15 +36,5 @@ public class ManagerDtoMapper implements DtoMapper<Manager, ManagerDto> {
                 .status(managerDto.getStatus() != null ? ManagerStatus.valueOf(managerDto.getStatus()) : null)
                 .description(managerDto.getDescription())
                 .build();
-    }
-
-    @Override
-    public List<ManagerDto> getDtoList(List<Manager> managerList) {
-        return Optional.ofNullable(managerList)
-                .orElseThrow(() -> new DataNotFoundException("list is null"))
-                .stream()
-                .filter(Objects::nonNull)
-                .map(this::mapEntityToDto)
-                .toList();
     }
 }

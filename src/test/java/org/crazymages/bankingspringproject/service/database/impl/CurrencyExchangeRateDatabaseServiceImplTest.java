@@ -4,7 +4,7 @@ import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExchangeRateDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.exchange_rate.CurrencyExchangeRateDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,7 +107,8 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         List<CurrencyExchangeRateDto> expected = List.of(currencyExchangeRateDto1, currencyExchangeRateDto2);
         List<CurrencyExchangeRate> currencyExchangeRates = List.of(currencyExchangeRate1, currencyExchangeRate2);
         when(currencyExchangeRateRepository.findAllNotDeleted()).thenReturn(currencyExchangeRates);
-        when(currencyExchangeRateDTOMapper.getDtoList(currencyExchangeRates)).thenReturn(expected);
+        when(currencyExchangeRateDTOMapper.mapEntityToDto(currencyExchangeRate1)).thenReturn(currencyExchangeRateDto1);
+        when(currencyExchangeRateDTOMapper.mapEntityToDto(currencyExchangeRate2)).thenReturn(currencyExchangeRateDto2);
 
         // when
         List<CurrencyExchangeRateDto> actual = currencyExchangeRateDatabaseService.findAllRates();
@@ -115,7 +116,7 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(currencyExchangeRateRepository).findAllNotDeleted();
-        verify(currencyExchangeRateDTOMapper).getDtoList(currencyExchangeRates);
+        verify(currencyExchangeRateDTOMapper, times(2)).mapEntityToDto(any(CurrencyExchangeRate.class));
     }
 
     @Test

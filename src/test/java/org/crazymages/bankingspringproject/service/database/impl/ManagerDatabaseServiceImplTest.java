@@ -5,7 +5,7 @@ import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ManagerDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.manager.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,7 +78,8 @@ class ManagerDatabaseServiceImplTest {
         // given
         List<ManagerDto> expected = List.of(managerDto1, managerDto2);
         when(managerRepository.findAll()).thenReturn(managers);
-        when(managerDTOMapper.getDtoList(managers)).thenReturn(expected);
+        when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDto1);
+        when(managerDTOMapper.mapEntityToDto(manager2)).thenReturn(managerDto2);
 
         // when
         List<ManagerDto> actual = managerDatabaseService.findAll();
@@ -86,7 +87,7 @@ class ManagerDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAll();
-        verify(managerDTOMapper).getDtoList(managers);
+        verify(managerDTOMapper, times(2)).mapEntityToDto(any(Manager.class));
     }
 
     @Test
@@ -94,7 +95,8 @@ class ManagerDatabaseServiceImplTest {
         // given
         List<ManagerDto> expected = List.of(managerDto1, managerDto2);
         when(managerRepository.findAllNotDeleted()).thenReturn(managers);
-        when(managerDTOMapper.getDtoList(managers)).thenReturn(expected);
+        when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDto1);
+        when(managerDTOMapper.mapEntityToDto(manager2)).thenReturn(managerDto2);
 
         // when
         List<ManagerDto> actual = managerDatabaseService.findAllNotDeleted();
@@ -102,7 +104,7 @@ class ManagerDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAllNotDeleted();
-        verify(managerDTOMapper).getDtoList(managers);
+        verify(managerDTOMapper, times(2)).mapEntityToDto(any(Manager.class));
     }
 
     @Test
@@ -110,7 +112,8 @@ class ManagerDatabaseServiceImplTest {
         // given
         List<ManagerDto> expected = List.of(managerDto1, managerDto2);
         when(managerRepository.findAllDeleted()).thenReturn(managers);
-        when(managerDTOMapper.getDtoList(managers)).thenReturn(expected);
+        when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDto1);
+        when(managerDTOMapper.mapEntityToDto(manager2)).thenReturn(managerDto2);
 
         // when
         List<ManagerDto> actual = managerDatabaseService.findDeletedAccounts();
@@ -118,7 +121,7 @@ class ManagerDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAllDeleted();
-        verify(managerDTOMapper).getDtoList(managers);
+        verify(managerDTOMapper, times(2)).mapEntityToDto(any(Manager.class));
     }
 
     @Test

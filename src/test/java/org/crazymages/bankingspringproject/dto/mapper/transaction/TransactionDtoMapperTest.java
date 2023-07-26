@@ -1,16 +1,13 @@
-package org.crazymages.bankingspringproject.service.utils.mapper.impl;
+package org.crazymages.bankingspringproject.dto.mapper.transaction;
 
 import org.crazymages.bankingspringproject.dto.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.TransactionType;
-import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,50 +121,5 @@ class TransactionDtoMapperTest {
         assertNull(transaction.getCurrencyCode());
         assertNull(transaction.getAmount());
         assertNull(transaction.getDescription());
-    }
-
-    @Test
-    void getDtoList_validTransactionList_success() {
-        // given
-        List<Transaction> transactionList = List.of(transaction1, transaction2);
-
-        // when
-        List<TransactionDto> actual = transactionDtoMapper.getDtoList(transactionList);
-
-        // then
-        assertEquals(2, actual.size());
-
-        TransactionDto transactionDto1 = actual.get(0);
-        assertEquals(transaction1.getDebitAccountUuid().toString(), transactionDto1.getDebitAccountUuid());
-        assertEquals(transaction1.getCreditAccountUuid().toString(), transactionDto1.getCreditAccountUuid());
-        assertEquals(transaction1.getType().toString(), transactionDto1.getType());
-        assertEquals(transaction1.getCurrencyCode().toString(), transactionDto1.getCurrencyCode());
-        assertEquals(transaction1.getAmount(), transactionDto1.getAmount());
-        assertEquals(transaction1.getDescription(), transactionDto1.getDescription());
-
-        TransactionDto transactionDto2 = actual.get(1);
-        assertEquals(transaction2.getDebitAccountUuid().toString(), transactionDto2.getDebitAccountUuid());
-        assertEquals(transaction2.getCreditAccountUuid().toString(), transactionDto2.getCreditAccountUuid());
-        assertEquals(transaction2.getType().toString(), transactionDto2.getType());
-        assertEquals(transaction2.getCurrencyCode().toString(), transactionDto2.getCurrencyCode());
-        assertEquals(transaction2.getAmount(), transactionDto2.getAmount());
-        assertEquals(transaction2.getDescription(), transactionDto2.getDescription());
-    }
-
-    @Test
-    void getDtoList_nullTransactionList_throwsDataNotFoundException() {
-        assertThrows(DataNotFoundException.class, () -> transactionDtoMapper.getDtoList(null));
-    }
-
-    @Test
-    void getDtoList_emptyTransactionList_returnsEmptyList() {
-        // given
-        List<Transaction> transactionList = Collections.emptyList();
-
-        // when
-        List<TransactionDto> actual = transactionDtoMapper.getDtoList(transactionList);
-
-        // then
-        assertTrue(actual.isEmpty());
     }
 }

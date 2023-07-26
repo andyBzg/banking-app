@@ -7,11 +7,12 @@ import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
 import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExchangeRateDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.exchange_rate.CurrencyExchangeRateDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,8 +56,12 @@ public class CurrencyExchangeRateDatabaseServiceImpl implements CurrencyExchange
     @Transactional
     public List<CurrencyExchangeRateDto> findAllRates() {
         log.info("retrieving all currency exchange rates");
-        return currencyExchangeRateDtoMapper.getDtoList(
-                currencyExchangeRateRepository.findAllNotDeleted());
+        List<CurrencyExchangeRate> exchangeRates = currencyExchangeRateRepository.findAllNotDeleted();
+        return Optional.ofNullable(exchangeRates)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(currencyExchangeRateDtoMapper::mapEntityToDto)
+                .toList();
     }
 
     @Override
