@@ -22,15 +22,6 @@ public class CurrencyExchangeRate {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "currency_code", unique = true)
-    private String currencyCode;
-
-    @Column(name = "exchange_rate")
-    private BigDecimal exchangeRate;
-
-    @Column(name = "is_deleted", columnDefinition = "boolean default false")
-    private boolean isDeleted;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
@@ -38,4 +29,13 @@ public class CurrencyExchangeRate {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
+
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
+
+    @Column(name = "currency_code", unique = true)
+    private String currencyCode;
+
+    @Column(name = "exchange_rate")
+    private BigDecimal exchangeRate;
 }
