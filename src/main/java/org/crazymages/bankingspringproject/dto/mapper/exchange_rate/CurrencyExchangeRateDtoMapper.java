@@ -13,6 +13,9 @@ public class CurrencyExchangeRateDtoMapper implements DtoMapper<CurrencyExchange
 
     @Override
     public CurrencyExchangeRateDto mapEntityToDto(CurrencyExchangeRate currencyExchangeRate) {
+        if (currencyExchangeRate == null) {
+            throw new IllegalArgumentException("currencyExchangeRate cannot be null");
+        }
         return new CurrencyExchangeRateDto(
                 currencyExchangeRate.getCurrencyCode(),
                 currencyExchangeRate.getExchangeRate()
@@ -21,6 +24,9 @@ public class CurrencyExchangeRateDtoMapper implements DtoMapper<CurrencyExchange
 
     @Override
     public CurrencyExchangeRate mapDtoToEntity(CurrencyExchangeRateDto currencyExchangeRateDto) {
+        if (currencyExchangeRateDto == null) {
+            throw new IllegalArgumentException("currencyExchangeRateDto cannot be null");
+        }
         CurrencyExchangeRate currencyExchangeRate = new CurrencyExchangeRate();
         currencyExchangeRate.setCurrencyCode(currencyExchangeRateDto.getCurrencyCode());
         currencyExchangeRate.setExchangeRate(currencyExchangeRateDto.getExchangeRate());
