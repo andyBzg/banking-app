@@ -9,7 +9,7 @@ import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.entity.enums.Roles;
 import org.crazymages.bankingspringproject.exception.UserAlreadyExistsException;
-import org.crazymages.bankingspringproject.repository.ClientRepository;
+import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.registration.RegistrationService;
 import org.springframework.security.core.userdetails.User;
@@ -28,7 +28,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final JdbcUserDetailsManager userDetailsManager;
     private final PasswordEncoder passwordEncoder;
     private final ManagerDatabaseService managerDatabaseService;
-    private final ClientRepository clientRepository;
+    private final ClientDatabaseService clientDatabaseService;
 
     @Override
     @Transactional
@@ -45,18 +45,18 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
         Manager firstManager = managerDatabaseService.getFirstManager(activeManagers);
 
-        Client client = mapRegistrationToClient(registrationDto);
+        Client client = initializeNewClientInstance(registrationDto);
         client.setManagerUuid(firstManager.getUuid());
-        client.setStatus(ClientStatus.ACTIVE);
-        clientRepository.save(client);
+        clientDatabaseService.save(client);
         log.info("client created");
     }
 
-    private Client mapRegistrationToClient(RegistrationDto registration) {
+    private Client initializeNewClientInstance(RegistrationDto registration) {
         if (registration == null) {
             throw new IllegalArgumentException("registrationDto cannot be null");
         }
         return Client.builder()
+                .status(ClientStatus.ACTIVE)
                 .taxCode(registration.getTaxCode())
                 .firstName(registration.getFirstName())
                 .lastName(registration.getLastName())
