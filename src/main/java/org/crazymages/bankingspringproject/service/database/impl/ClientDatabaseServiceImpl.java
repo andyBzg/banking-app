@@ -58,6 +58,12 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     }
 
     @Override
+    public void save(Client client) {
+        log.info("saving client into db");
+        clientRepository.save(client);
+    }
+
+    @Override
     @Transactional
     public List<ClientDto> findAll() {
         log.info("retrieving list of clients");
