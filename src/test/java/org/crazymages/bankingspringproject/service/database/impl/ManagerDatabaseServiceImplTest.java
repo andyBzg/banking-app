@@ -76,18 +76,15 @@ class ManagerDatabaseServiceImplTest {
     @Test
     void findAll_success() {
         // given
-        List<ManagerDto> expected = List.of(managerDto1, managerDto2);
+        List<Manager> expected = List.of(manager1, manager2);
         when(managerRepository.findAll()).thenReturn(managers);
-        when(managerDTOMapper.mapEntityToDto(manager1)).thenReturn(managerDto1);
-        when(managerDTOMapper.mapEntityToDto(manager2)).thenReturn(managerDto2);
 
         // when
-        List<ManagerDto> actual = managerDatabaseService.findAll();
+        List<Manager> actual = managerDatabaseService.findAll();
 
         // then
         assertEquals(expected, actual);
         verify(managerRepository).findAll();
-        verify(managerDTOMapper, times(2)).mapEntityToDto(any(Manager.class));
     }
 
     @Test
