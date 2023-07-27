@@ -24,7 +24,7 @@ public interface ManagerDatabaseService {
      *
      * @return A list of all Manager entities.
      */
-    List<ManagerDto> findAll();
+    List<Manager> findAll();
 
     /**
      * Retrieves all non-deleted Manager entities from the database.

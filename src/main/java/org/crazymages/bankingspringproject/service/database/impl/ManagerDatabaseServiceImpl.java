@@ -41,10 +41,9 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     @Override
     @Transactional
-    public List<ManagerDto> findAll() {
+    public List<Manager> findAll() {
         log.info("retrieving list of managers");
-        List<Manager> managers = managerRepository.findAll();
-        return getDtoList(managers);
+        return managerRepository.findAll();
     }
 
     @Override
