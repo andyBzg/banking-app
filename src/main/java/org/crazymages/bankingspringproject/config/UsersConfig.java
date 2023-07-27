@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.Roles;
-import org.crazymages.bankingspringproject.repository.ManagerRepository;
+import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.User;
@@ -19,7 +19,7 @@ public class UsersConfig {
 
     private final JdbcUserDetailsManager userDetailsManager;
     private final PasswordEncoder passwordEncoder;
-    private final ManagerRepository managerRepository;
+    private final ManagerDatabaseService managerDatabaseService;
 
     @Value("${admin.username}")
     private String adminUsername;
@@ -38,7 +38,10 @@ public class UsersConfig {
                     .build());
         }
 
-        List<Manager> managers = managerRepository.findAllNotDeleted();
+        List<Manager> managers = managerDatabaseService.findAll()
+                .stream()
+                .filter(m -> !m.isDeleted())
+                .toList();
         for (Manager manager : managers) {
             if (!userDetailsManager.userExists(manager.getLastName())) {
                 String encodedManagerPassword = passwordEncoder.encode(managerPassword);
