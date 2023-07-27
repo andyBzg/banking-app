@@ -18,12 +18,12 @@ import javax.sql.DataSource;
 public class WebSecurityConfig {
 
     @Bean
-    JdbcUserDetailsManager userDetailsManager(DataSource dataSource) {
+    public JdbcUserDetailsManager userDetailsManager(DataSource dataSource) {
         return new JdbcUserDetailsManager(dataSource);
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -37,12 +37,12 @@ public class WebSecurityConfig {
                     auth.requestMatchers("/swagger-ui.html").permitAll();
 
                     auth.requestMatchers("/exchange/get-rates").permitAll();
+                    auth.requestMatchers("/registration").permitAll();
 
                     auth.requestMatchers("/account/create/with-client-id/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/account/find/all/by-client-id/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/agreement/find/all-by-client-id/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/client/find/{uuid}").hasRole(Roles.USER.name());
-                    auth.requestMatchers("/client/create").hasRole(Roles.USER.name());
                     auth.requestMatchers("/client/update/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/client/total-balance-of-accounts/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/product/find/{uuid}").hasRole(Roles.USER.name());
