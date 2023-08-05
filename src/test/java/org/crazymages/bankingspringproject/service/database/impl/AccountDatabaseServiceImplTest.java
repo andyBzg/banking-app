@@ -10,7 +10,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.AgreementInitializer;
+import org.crazymages.bankingspringproject.service.utils.initializer.AgreementInitializer;
 import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
 import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;

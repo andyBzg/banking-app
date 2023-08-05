@@ -9,7 +9,7 @@ import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.*;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.service.database.*;
-import org.crazymages.bankingspringproject.service.utils.creator.TransactionInitializer;
+import org.crazymages.bankingspringproject.service.utils.initializer.TransactionInitializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

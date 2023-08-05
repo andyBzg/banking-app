@@ -12,7 +12,7 @@ import org.crazymages.bankingspringproject.service.database.AccountDatabaseServi
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.TransactionInitializer;
+import org.crazymages.bankingspringproject.service.utils.initializer.TransactionInitializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
