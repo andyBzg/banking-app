@@ -10,9 +10,9 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.creator.AgreementInitializer;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AccountDtoMapper;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.AgreementDtoMapper;
+import org.crazymages.bankingspringproject.service.utils.initializer.AgreementInitializer;
+import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,7 +138,8 @@ class AccountDatabaseServiceImplTest {
         List<AccountDto> expected = List.of(accountDto1, accountDto2);
 
         when(accountRepository.findAllNotDeleted()).thenReturn(accounts);
-        when(accountDtoMapper.getDtoList(anyList())).thenReturn(expected);
+        when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
+        when(accountDtoMapper.mapEntityToDto(account2)).thenReturn(accountDto2);
 
 
         // when
@@ -148,7 +149,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAllNotDeleted();
-        verify(accountDtoMapper).getDtoList(anyList());
+        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
     }
 
     @Test
@@ -158,7 +159,8 @@ class AccountDatabaseServiceImplTest {
         List<AccountDto> expected = List.of(accountDto1, accountDto2);
 
         when(accountRepository.findAllDeleted()).thenReturn(accounts);
-        when(accountDtoMapper.getDtoList(anyList())).thenReturn(expected);
+        when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
+        when(accountDtoMapper.mapEntityToDto(account2)).thenReturn(accountDto2);
 
 
         // when
@@ -168,7 +170,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAllDeleted();
-        verify(accountDtoMapper).getDtoList(anyList());
+        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
     }
 
     @Test
@@ -222,7 +224,8 @@ class AccountDatabaseServiceImplTest {
         String status = "ACTIVE";
 
         when(accountRepository.findAccountsByStatus(AccountStatus.valueOf(status))).thenReturn(accounts);
-        when(accountDtoMapper.getDtoList(accounts)).thenReturn(expected);
+        when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
+        when(accountDtoMapper.mapEntityToDto(account2)).thenReturn(accountDto2);
 
 
         // when
@@ -232,7 +235,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsByStatus(AccountStatus.valueOf(status));
-        verify(accountDtoMapper).getDtoList(accounts);
+        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
         verifyNoMoreInteractions(accountRepository);
     }
 
@@ -301,7 +304,8 @@ class AccountDatabaseServiceImplTest {
         ProductStatus status = ProductStatus.ACTIVE;
 
         when(accountRepository.findAccountsWhereProductIdAndStatusIs(productUuid, status)).thenReturn(accounts);
-        when(accountDtoMapper.getDtoList(accounts)).thenReturn(expected);
+        when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
+        when(accountDtoMapper.mapEntityToDto(account2)).thenReturn(accountDto2);
 
 
         // when
@@ -312,7 +316,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsWhereProductIdAndStatusIs(productUuid, status);
-        verify(accountDtoMapper).getDtoList(accounts);
+        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
     }
 
     @Test
@@ -321,7 +325,8 @@ class AccountDatabaseServiceImplTest {
         List<Account> accounts = List.of(account1, account2);
         List<AccountDto> expected = List.of(accountDto1, accountDto2);
         when(accountRepository.findAccountsByClientUuid(clientUuid)).thenReturn(accounts);
-        when(accountDtoMapper.getDtoList(accounts)).thenReturn(expected);
+        when(accountDtoMapper.mapEntityToDto(account1)).thenReturn(accountDto1);
+        when(accountDtoMapper.mapEntityToDto(account2)).thenReturn(accountDto2);
 
         // when
         List<AccountDto> actual = accountDatabaseService.findAllDtoByClientId(String.valueOf(clientUuid));
@@ -329,7 +334,7 @@ class AccountDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(accountRepository).findAccountsByClientUuid(clientUuid);
-        verify(accountDtoMapper).getDtoList(accounts);
+        verify(accountDtoMapper, times(2)).mapEntityToDto(any(Account.class));
     }
 
     @Test

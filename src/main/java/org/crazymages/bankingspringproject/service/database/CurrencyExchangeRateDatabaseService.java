@@ -35,23 +35,31 @@ public interface CurrencyExchangeRateDatabaseService {
     /**
      * Retrieves a currency exchange rate from the database by its currency code.
      *
+     * @param id The id of the currency exchange rate to retrieve.
+     * @return The currency exchange rate with the specified currency code, or null if not found.
+     */
+    CurrencyExchangeRate findById(Integer id);
+
+    /**
+     * Retrieves a currency exchange rate from the database by its currency code.
+     *
      * @param currencyCode The currency code of the currency exchange rate to retrieve.
      * @return The currency exchange rate with the specified currency code, or null if not found.
      */
-    CurrencyExchangeRate findById(String currencyCode);
+    CurrencyExchangeRate findByCurrencyCode(String currencyCode);
 
     /**
      * Updates a currency exchange rate in the database with the specified currency code.
      *
-     * @param currencyCode         The currency code of the currency exchange rate to update.
+     * @param id                   The id of the currency exchange rate to update.
      * @param currencyExchangeRate The updated currency exchange rate.
      */
-    void update(String currencyCode, CurrencyExchangeRate currencyExchangeRate);
+    void update(Integer id, CurrencyExchangeRate currencyExchangeRate);
 
     /**
      * Deletes a currency exchange rate from the database with the specified currency code.
      *
-     * @param currencyCode The currency code of the currency exchange rate to delete.
+     * @param id The id of the currency exchange rate to delete.
      */
-    void delete(String currencyCode);
+    void delete(Integer id);
 }

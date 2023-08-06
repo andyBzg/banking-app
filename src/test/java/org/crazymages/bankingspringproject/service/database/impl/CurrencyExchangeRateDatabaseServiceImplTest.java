@@ -4,14 +4,17 @@ import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.CurrencyExchangeRateDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.exchange_rate.CurrencyExchangeRateDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,11 +32,15 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
     @InjectMocks
     CurrencyExchangeRateDatabaseServiceImpl currencyExchangeRateDatabaseService;
 
+    @Captor
+    private ArgumentCaptor<CurrencyExchangeRate> argumentCaptor;
+
     CurrencyExchangeRate currencyExchangeRate1;
     CurrencyExchangeRate currencyExchangeRate2;
     CurrencyExchangeRateDto currencyExchangeRateDto1;
     CurrencyExchangeRateDto currencyExchangeRateDto2;
     String currencyCode;
+    Integer id;
 
     @BeforeEach
     void setUp() {
@@ -42,15 +49,42 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         currencyExchangeRateDto1 = new CurrencyExchangeRateDto();
         currencyExchangeRateDto2 = new CurrencyExchangeRateDto();
         currencyCode = "EUR";
+        id = 1;
     }
 
     @Test
-    void create_success() {
+    void create_currencyIsNotPresentInDatabase_success() {
+        // given
+        currencyExchangeRate1.setCurrencyCode("EUR");
+        currencyExchangeRate1.setExchangeRate(BigDecimal.valueOf(1.2));
+        when(currencyExchangeRateRepository.findByCurrencyCode(currencyCode)).thenReturn(Optional.empty());
+
         // when
         currencyExchangeRateDatabaseService.create(currencyExchangeRate1);
 
         // then
-        verify(currencyExchangeRateRepository).save(currencyExchangeRate1);
+        verify(currencyExchangeRateRepository, times(1)).save(currencyExchangeRate1);
+    }
+
+    @Test
+    void create_currencyAlreadyPresentInDatabase_performEntityUpdate() {
+        // given
+        currencyExchangeRate1.setCurrencyCode(currencyCode);
+        currencyExchangeRate1.setExchangeRate(BigDecimal.valueOf(1.2));
+        currencyExchangeRate2.setCurrencyCode(currencyCode);
+        currencyExchangeRate2.setExchangeRate(BigDecimal.valueOf(2.5));
+        when(currencyExchangeRateRepository.findByCurrencyCode(currencyCode))
+                .thenReturn(Optional.ofNullable(currencyExchangeRate1));
+
+        // when
+        currencyExchangeRateDatabaseService.create(currencyExchangeRate2);
+
+        // then
+        verify(currencyExchangeRateRepository).save(currencyExchangeRate2);
+        verify(currencyExchangeRateRepository).save(argumentCaptor.capture());
+        verifyNoMoreInteractions(currencyExchangeRateRepository);
+        CurrencyExchangeRate expectedArgument = argumentCaptor.getValue();
+        assertEquals(expectedArgument.getExchangeRate(), currencyExchangeRate2.getExchangeRate());
     }
 
     @Test
@@ -73,7 +107,8 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         List<CurrencyExchangeRateDto> expected = List.of(currencyExchangeRateDto1, currencyExchangeRateDto2);
         List<CurrencyExchangeRate> currencyExchangeRates = List.of(currencyExchangeRate1, currencyExchangeRate2);
         when(currencyExchangeRateRepository.findAllNotDeleted()).thenReturn(currencyExchangeRates);
-        when(currencyExchangeRateDTOMapper.getDtoList(currencyExchangeRates)).thenReturn(expected);
+        when(currencyExchangeRateDTOMapper.mapEntityToDto(currencyExchangeRate1)).thenReturn(currencyExchangeRateDto1);
+        when(currencyExchangeRateDTOMapper.mapEntityToDto(currencyExchangeRate2)).thenReturn(currencyExchangeRateDto2);
 
         // when
         List<CurrencyExchangeRateDto> actual = currencyExchangeRateDatabaseService.findAllRates();
@@ -81,32 +116,32 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         // then
         assertEquals(expected, actual);
         verify(currencyExchangeRateRepository).findAllNotDeleted();
-        verify(currencyExchangeRateDTOMapper).getDtoList(currencyExchangeRates);
+        verify(currencyExchangeRateDTOMapper, times(2)).mapEntityToDto(any(CurrencyExchangeRate.class));
     }
 
     @Test
     void findById_success() {
         // given
         CurrencyExchangeRate expected = currencyExchangeRate1;
-        when(currencyExchangeRateRepository.findById(currencyCode))
+        when(currencyExchangeRateRepository.findById(id))
                 .thenReturn(Optional.ofNullable(currencyExchangeRate1));
 
         // when
-        CurrencyExchangeRate actual = currencyExchangeRateDatabaseService.findById(currencyCode);
+        CurrencyExchangeRate actual = currencyExchangeRateDatabaseService.findById(id);
 
         // then
         assertEquals(expected, actual);
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+        verify(currencyExchangeRateRepository).findById(id);
     }
 
     @Test
     void findById_currencyCodeNotFound_throwsDataNotFoundException() {
         // given
-        when(currencyExchangeRateRepository.findById(currencyCode)).thenReturn(Optional.empty());
+        when(currencyExchangeRateRepository.findById(id)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> currencyExchangeRateDatabaseService.findById(currencyCode));
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+        assertThrows(DataNotFoundException.class, () -> currencyExchangeRateDatabaseService.findById(id));
+        verify(currencyExchangeRateRepository).findById(id);
     }
 
     @Test
@@ -114,13 +149,13 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         // given
         CurrencyExchangeRate rateToUpdate = currencyExchangeRate1;
         CurrencyExchangeRate updatedRate = currencyExchangeRate2;
-        when(currencyExchangeRateRepository.findById(currencyCode)).thenReturn(Optional.ofNullable(rateToUpdate));
+        when(currencyExchangeRateRepository.findById(id)).thenReturn(Optional.ofNullable(rateToUpdate));
 
         // when
-        currencyExchangeRateDatabaseService.update(currencyCode, updatedRate);
+        currencyExchangeRateDatabaseService.update(id, updatedRate);
 
         // then
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+        verify(currencyExchangeRateRepository).findById(id);
         verify(currencyExchangeRateRepository).save(updatedRate);
     }
 
@@ -130,13 +165,13 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
         CurrencyExchangeRate rateToUpdate = currencyExchangeRate1;
         CurrencyExchangeRate updatedRate = currencyExchangeRate2;
         rateToUpdate.setDeleted(true);
-        when(currencyExchangeRateRepository.findById(currencyCode)).thenReturn(Optional.of(rateToUpdate));
+        when(currencyExchangeRateRepository.findById(id)).thenReturn(Optional.of(rateToUpdate));
 
         // when
-        currencyExchangeRateDatabaseService.update(currencyCode, updatedRate);
+        currencyExchangeRateDatabaseService.update(id, updatedRate);
 
         // then
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+        verify(currencyExchangeRateRepository).findById(id);
         verify(currencyExchangeRateRepository, times(0)).save(any(CurrencyExchangeRate.class));
     }
 
@@ -144,36 +179,36 @@ class CurrencyExchangeRateDatabaseServiceImplTest {
     void update_currencyCodeNotFound_throwsDataNotFoundException() {
         // given
         CurrencyExchangeRate updatedRate = currencyExchangeRate2;
-        when(currencyExchangeRateRepository.findById(currencyCode)).thenReturn(Optional.empty());
+        when(currencyExchangeRateRepository.findById(id)).thenReturn(Optional.empty());
 
         // when, then
         assertThrows(DataNotFoundException.class,
-                () -> currencyExchangeRateDatabaseService.update(currencyCode, updatedRate));
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+                () -> currencyExchangeRateDatabaseService.update(id, updatedRate));
+        verify(currencyExchangeRateRepository).findById(id);
     }
 
     @Test
     void delete_success() {
         // given
-        when(currencyExchangeRateRepository.findById(currencyCode))
+        when(currencyExchangeRateRepository.findById(id))
                 .thenReturn(Optional.ofNullable(currencyExchangeRate1));
 
         // when
-        currencyExchangeRateDatabaseService.delete(currencyCode);
+        currencyExchangeRateDatabaseService.delete(id);
 
         // then
         assertTrue(currencyExchangeRate1.isDeleted());
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+        verify(currencyExchangeRateRepository).findById(id);
         verify(currencyExchangeRateRepository).save(currencyExchangeRate1);
     }
 
     @Test
     void delete_currencyCodeNotFound_throwsDataNotFoundException() {
         // given
-        when(currencyExchangeRateRepository.findById(currencyCode)).thenReturn(Optional.empty());
+        when(currencyExchangeRateRepository.findById(id)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(DataNotFoundException.class, () -> currencyExchangeRateDatabaseService.delete(currencyCode));
-        verify(currencyExchangeRateRepository).findById(currencyCode);
+        assertThrows(DataNotFoundException.class, () -> currencyExchangeRateDatabaseService.delete(id));
+        verify(currencyExchangeRateRepository).findById(id);
     }
 }

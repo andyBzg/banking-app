@@ -8,13 +8,14 @@ import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.utils.mapper.impl.ManagerDtoMapper;
+import org.crazymages.bankingspringproject.dto.mapper.manager.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -43,10 +44,16 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
 
     @Override
     @Transactional
-    public List<ManagerDto> findAll() {
+    public void save(Manager manager) {
+        log.info("saving manager into db");
+        managerRepository.save(manager);
+    }
+
+    @Override
+    @Transactional
+    public List<Manager> findAll() {
         log.info("retrieving list of managers");
-        List<Manager> managers = managerRepository.findAll();
-        return managerDtoMapper.getDtoList(managers);
+        return managerRepository.findAll();
     }
 
     @Override
@@ -54,15 +61,15 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
     public List<ManagerDto> findAllNotDeleted() {
         log.info("retrieving list of managers");
         List<Manager> managers = managerRepository.findAllNotDeleted();
-        return managerDtoMapper.getDtoList(managers);
+        return getDtoList(managers);
     }
 
     @Override
     @Transactional
     public List<ManagerDto> findDeletedAccounts() {
         log.info("retrieving list of deleted managers");
-        List<Manager> deletedManagers = managerRepository.findAllDeleted();
-        return managerDtoMapper.getDtoList(deletedManagers);
+        List<Manager> managers = managerRepository.findAllDeleted();
+        return getDtoList(managers);
     }
 
     @Override
@@ -129,5 +136,13 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new DataNotFoundException("null"));
+    }
+
+    private List<ManagerDto> getDtoList(List<Manager> managers) {
+        return Optional.ofNullable(managers)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(managerDtoMapper::mapEntityToDto)
+                .toList();
     }
 }

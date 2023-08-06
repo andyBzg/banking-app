@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.exception.TransactionNotAllowedException;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.exception.InsufficientFundsException;
+import org.crazymages.bankingspringproject.exception.UserAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,8 @@ public class CustomExceptionHandler {
     private String illegalArgumentLogMessage;
     @Value("${log.date.time.parse}")
     private String dateTimeParseLogMessage;
+    @Value("${log.username.already.taken}")
+    private String registrationWithExistingUsernameLogMessage;
 
     /**
      * Handles the {@link DataNotFoundException} exception.
@@ -85,5 +88,11 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> handleDateTimeParseException() {
         log.error(dateTimeParseLogMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<String> handleUserAlreadyExistsException() {
+        log.error(registrationWithExistingUsernameLogMessage);
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 }

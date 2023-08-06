@@ -19,12 +19,14 @@ public interface ManagerDatabaseService {
      */
     void create(ManagerDto managerDto);
 
+    void save(Manager manager);
+
     /**
      * Retrieves all Manager entities from the database.
      *
      * @return A list of all Manager entities.
      */
-    List<ManagerDto> findAll();
+    List<Manager> findAll();
 
     /**
      * Retrieves all non-deleted Manager entities from the database.

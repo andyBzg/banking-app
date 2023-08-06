@@ -18,14 +18,9 @@ import java.sql.Timestamp;
 public class CurrencyExchangeRate {
 
     @Id
-    @Column(name = "currency_code") //unique
-    private String currencyCode;
-
-    @Column(name = "exchange_rate")
-    private BigDecimal exchangeRate;
-
-    @Column(name = "is_deleted", columnDefinition = "boolean default false")
-    private boolean isDeleted;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -34,4 +29,13 @@ public class CurrencyExchangeRate {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
+
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
+
+    @Column(name = "currency_code", unique = true)
+    private String currencyCode;
+
+    @Column(name = "exchange_rate")
+    private BigDecimal exchangeRate;
 }
