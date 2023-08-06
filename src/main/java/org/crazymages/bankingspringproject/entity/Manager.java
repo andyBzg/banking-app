@@ -1,16 +1,25 @@
 package org.crazymages.bankingspringproject.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * A class representing a manager.
+ * It stores information about a manager entity.
+ */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "managers")
 public class Manager {
@@ -43,11 +52,4 @@ public class Manager {
 
     @Column(name = "description")
     private String description;
-
-
-//    @OneToMany(mappedBy = "manager")
-//    private List<Product> products;
-//
-//    @OneToMany(mappedBy = "manager")
-//    private List<Client> clients;
 }

@@ -1,18 +1,28 @@
 package org.crazymages.bankingspringproject.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
+import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * A class representing a product.
+ * It stores information about a product entity.
+ */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "products")
 public class Product {
@@ -33,7 +43,6 @@ public class Product {
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-//    @ManyToOne
     @JoinColumn(name = "manager_uuid")
     private UUID managerUuid;
 
@@ -45,16 +54,16 @@ public class Product {
     private ProductStatus status;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private ProductType type;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
 
-    @Column(name = "interest_rate", precision = 6, scale = 4)
+    @Column(name = "interest_rate", precision = 6, scale = 4, columnDefinition = "default 0.00")
     private BigDecimal interestRate;
 
-    @Column(name = "limitation", precision = 15, scale = 2)
+    @Column(name = "limitation", precision = 15, scale = 2, columnDefinition = "default 0.00")
     private BigDecimal limitation;
-
-
-//    @OneToMany(mappedBy = "product")
-//    private List<Agreement> agreements;
 }

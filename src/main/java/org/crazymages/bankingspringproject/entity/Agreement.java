@@ -1,7 +1,10 @@
 package org.crazymages.bankingspringproject.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -10,7 +13,14 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+/**
+ * A class representing an agreement.
+ * It stores information about an agreement entity.
+ */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "agreements")
 public class Agreement {
@@ -31,12 +41,10 @@ public class Agreement {
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-//    @ManyToOne
-    @JoinColumn(name = "account_uuid")
+    @Column(name = "account_uuid")
     private UUID accountUuid;
 
-//    @ManyToOne
-    @JoinColumn(name = "product_uuid")
+    @Column(name = "product_uuid")
     private UUID productUuid;
 
     @Column(name = "interest_rate", precision = 6, scale = 4)
@@ -46,6 +54,6 @@ public class Agreement {
     @Column(name = "status")
     private AgreementStatus status;
 
-    @Column(name = "sum", precision = 15, scale = 2)
-    private BigDecimal sum;
+    @Column(name = "amount", precision = 12, columnDefinition = "default 0.00")
+    private BigDecimal amount;
 }

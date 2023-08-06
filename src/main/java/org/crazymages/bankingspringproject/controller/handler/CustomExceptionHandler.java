@@ -4,37 +4,95 @@ import lombok.extern.slf4j.Slf4j;
 import org.crazymages.bankingspringproject.exception.TransactionNotAllowedException;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.exception.InsufficientFundsException;
+import org.crazymages.bankingspringproject.exception.UserAlreadyExistsException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.format.DateTimeParseException;
+
+/**
+ * Global exception handler for handling custom exceptions.
+ */
 @Slf4j
 @ControllerAdvice
 public class CustomExceptionHandler {
 
+    @Value("${log.data.not.found}")
+    private String dataNotFoundLogMessage;
+    @Value("${log.insufficient.funds}")
+    private String insufficientFundsLogMessage;
+    @Value("${log.transaction.not.allowed}")
+    private String transactionNotAllowedLogMessage;
+    @Value("${log.illegal.argument}")
+    private String illegalArgumentLogMessage;
+    @Value("${log.date.time.parse}")
+    private String dateTimeParseLogMessage;
+    @Value("${log.username.already.taken}")
+    private String registrationWithExistingUsernameLogMessage;
+
+    /**
+     * Handles the {@link DataNotFoundException} exception.
+     *
+     * @param e the exception
+     * @return the ResponseEntity with HTTP status 404
+     */
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<String> handleDataNotFoundException(Exception e) {
-        log.error("Entity with id {} not found", e.getMessage());
+        log.error(dataNotFoundLogMessage, e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * Handles the {@link InsufficientFundsException} exception.
+     *
+     * @param e the exception
+     * @return the ResponseEntity with HTTP status 400
+     */
     @ExceptionHandler(InsufficientFundsException.class)
     public ResponseEntity<String> handleInsufficientFundsExceptionException(Exception e) {
-        log.error("Insufficient funds in sender's account id {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        log.error(insufficientFundsLogMessage, e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    /**
+     * Handles the {@link TransactionNotAllowedException} exception.
+     *
+     * @return the ResponseEntity with HTTP status 400
+     */
     @ExceptionHandler(TransactionNotAllowedException.class)
     public ResponseEntity<String> handleTransactionNotAllowedException() {
-        log.error("Not allowed to execute transaction");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        log.error(transactionNotAllowedLogMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    /**
+     * Handles the {@link IllegalArgumentException} exception.
+     *
+     * @return the ResponseEntity with HTTP status 400
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException() {
-        log.error("One or more fields are 'null'");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        log.error(illegalArgumentLogMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-    //Сообщения можно убрать в файл .properties
+
+    /**
+     * Handles the {@link DateTimeParseException} exception.
+     *
+     * @return the ResponseEntity with HTTP status 400
+     */
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<String> handleDateTimeParseException() {
+        log.error(dateTimeParseLogMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<String> handleUserAlreadyExistsException() {
+        log.error(registrationWithExistingUsernameLogMessage);
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 }

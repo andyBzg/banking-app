@@ -1,23 +1,91 @@
 package org.crazymages.bankingspringproject.service.database;
 
+import org.crazymages.bankingspringproject.dto.AgreementDto;
 import org.crazymages.bankingspringproject.entity.Agreement;
 
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A service interface for managing Agreement entities in the database.
+ * It provides methods for creating, retrieving, updating, and deleting Agreement entities.
+ */
 public interface AgreementDatabaseService {
 
-    void create(Agreement agreement);
+    /**
+     * Creates a new Agreement entity in the database.
+     *
+     * @param agreementDto The Agreement entity to be created.
+     */
+    void create(AgreementDto agreementDto);
 
-    List<Agreement> findAll();
+    /**
+     * Retrieves all non-deleted Agreement entities from the database.
+     *
+     * @return A list of all non-deleted Agreement entities.
+     */
+    List<AgreementDto> findAllNotDeleted();
 
-    Agreement findById(UUID uuid);
+    /**
+     * Retrieves all deleted Agreement entities from the database.
+     *
+     * @return A list of all deleted Agreement entities.
+     */
+    List<AgreementDto> findDeletedAgreements();
 
-    void update(UUID uuid, Agreement agreement);
+    /**
+     * Retrieves an Agreement entity from the database by its UUID.
+     *
+     * @param uuid The UUID of the Agreement to retrieve.
+     * @return The Agreement entity with the specified UUID, or null if not found.
+     */
+    AgreementDto findById(String uuid);
 
-    void delete(UUID uuid);
+    /**
+     * Retrieves the savings Agreement entity from the database associated with the specified client UUID.
+     *
+     * @param clientUuid The UUID of the client to filter by.
+     * @return The savings Agreement entity associated with the specified client UUID, or null if not found.
+     */
+    Agreement findSavingsAgreementByClientId(UUID clientUuid);
 
-    List<Agreement> findAgreementsByManagerUuid(UUID uuid);
+    /**
+     * Updates an Agreement entity in the database with the specified UUID.
+     *
+     * @param uuid                The UUID of the Agreement to update.
+     * @param updatedAgreementDto The updated Agreement entity.
+     */
+    void update(String uuid, AgreementDto updatedAgreementDto);
 
-    List<Agreement> findAgreementsByClientUuid(UUID uuid);
+    /**
+     * Deletes an Agreement entity from the database with the specified UUID.
+     *
+     * @param uuid The UUID of the Agreement to delete.
+     */
+    void delete(String uuid);
+
+    /**
+     * Retrieves all Agreement DTOs from the database associated with the specified manager UUID.
+     *
+     * @param managerUuid The UUID of the manager to filter by.
+     * @return A list of Agreement entities associated with the specified manager UUID.
+     */
+    List<AgreementDto> findAgreementsByManagerUuid(String managerUuid);
+
+    /**
+     * Retrieves all AgreementDTOs from the database associated with the specified client UUID.
+     *
+     * @param clientUuid The UUID of the client to filter by.
+     * @return A list of AgreementDTOs associated with the specified client UUID.
+     */
+    List<AgreementDto> findAgreementDtoListByClientUuid(String clientUuid);
+
+    /**
+     * Retrieves all Agreement entities from the database associated with the specified client UUID.
+     *
+     * @param clientUuid The UUID of the client to filter by.
+     * @return A list of Agreement entities associated with the specified client UUID.
+     */
+    List<Agreement> findAgreementsByClientUuid(UUID clientUuid);
+
 }
