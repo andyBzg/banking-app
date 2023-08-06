@@ -37,7 +37,7 @@ public class WebSecurityConfig {
                     auth.requestMatchers("/swagger-ui.html").permitAll();
 
                     auth.requestMatchers("/exchange/get-rates").permitAll();
-                    auth.requestMatchers("/registration").permitAll();
+                    auth.requestMatchers("/registration/new-client").permitAll();
 
                     auth.requestMatchers("/account/create/with-client-id/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/account/find/all/by-client-id/{uuid}").hasRole(Roles.USER.name());
