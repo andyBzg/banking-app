@@ -19,6 +19,8 @@ public interface ManagerDatabaseService {
      */
     void create(ManagerDto managerDto);
 
+    void save(Manager manager);
+
     /**
      * Retrieves all Manager entities from the database.
      *
