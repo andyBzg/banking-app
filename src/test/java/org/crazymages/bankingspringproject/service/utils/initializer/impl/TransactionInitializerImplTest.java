@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.utils.creator;
+package org.crazymages.bankingspringproject.service.utils.initializer.impl;
 
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Transaction;
@@ -10,15 +10,15 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TransactionInitializerTest {
+class TransactionInitializerImplTest {
 
-    TransactionInitializer transactionInitializer;
+    TransactionInitializerImpl transactionInitializer;
     Account sender;
     Account recipient;
 
     @BeforeEach
     void setUp() {
-        transactionInitializer = new TransactionInitializer();
+        transactionInitializer = new TransactionInitializerImpl();
 
         sender = new Account();
         sender.setUuid(UUID.randomUUID());

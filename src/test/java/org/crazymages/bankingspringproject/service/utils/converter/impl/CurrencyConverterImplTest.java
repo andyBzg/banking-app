@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.utils.converter;
+package org.crazymages.bankingspringproject.service.utils.converter.impl;
 
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
@@ -19,13 +19,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CurrencyConverterTest {
+class CurrencyConverterImplTest {
 
     @Mock
     CurrencyExchangeRateDatabaseService currencyExchangeRateDatabaseService;
 
     @InjectMocks
-    CurrencyConverter currencyConverter;
+    CurrencyConverterImpl currencyConverter;
 
     @BeforeEach
     void setUp() {

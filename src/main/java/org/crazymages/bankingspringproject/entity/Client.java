@@ -56,7 +56,7 @@ public class Client {
     @Column(name = "last_name", length = 50)
     private String lastName;
 
-    @Column(name = "email", length = 60)
+    @Column(name = "email", length = 60, unique = true)
     private String email;
 
     @Column(name = "address", length = 80)

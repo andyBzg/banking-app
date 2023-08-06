@@ -21,6 +21,8 @@ public interface ClientDatabaseService {
      */
     void create(ClientDto clientDTO);
 
+    void save(Client client);
+
     /**
      * Retrieves all Client entities from the database.
      *

@@ -1,4 +1,4 @@
-package org.crazymages.bankingspringproject.service.utils.creator;
+package org.crazymages.bankingspringproject.service.utils.initializer.impl;
 
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Product;
@@ -11,15 +11,15 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AgreementInitializerTest {
+class AgreementInitializerImplTest {
 
-    AgreementInitializer agreementInitializer;
+    AgreementInitializerImpl agreementInitializer;
     UUID accountUuid;
     Product product;
 
     @BeforeEach
     void SetUp() {
-        agreementInitializer = new AgreementInitializer();
+        agreementInitializer = new AgreementInitializerImpl();
         accountUuid = UUID.randomUUID();
         product = new Product();
         product.setUuid(accountUuid);
