@@ -58,6 +58,7 @@ public class ClientDatabaseServiceImpl implements ClientDatabaseService {
     }
 
     @Override
+    @Transactional
     public void save(Client client) {
         log.info("saving client into db");
         clientRepository.save(client);

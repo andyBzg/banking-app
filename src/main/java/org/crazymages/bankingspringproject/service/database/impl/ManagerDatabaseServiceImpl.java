@@ -13,7 +13,10 @@ import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateSer
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A service implementation for managing Manager entities in the database.
@@ -37,6 +40,13 @@ public class ManagerDatabaseServiceImpl implements ManagerDatabaseService {
         Manager manager = managerDtoMapper.mapDtoToEntity(managerDto);
         managerRepository.save(manager);
         log.info("manager created");
+    }
+
+    @Override
+    @Transactional
+    public void save(Manager manager) {
+        log.info("saving manager into db");
+        managerRepository.save(manager);
     }
 
     @Override

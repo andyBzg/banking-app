@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.service.registration.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.RegistrationDto;
+import org.crazymages.bankingspringproject.dto.ClientRegistrationDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
@@ -11,7 +11,7 @@ import org.crazymages.bankingspringproject.entity.enums.Roles;
 import org.crazymages.bankingspringproject.exception.UserAlreadyExistsException;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.service.registration.RegistrationService;
+import org.crazymages.bankingspringproject.service.registration.ClientRegistrationService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RegistrationServiceImpl implements RegistrationService {
+public class ClientRegistrationServiceImpl implements ClientRegistrationService {
 
     private final JdbcUserDetailsManager userDetailsManager;
     private final PasswordEncoder passwordEncoder;
@@ -32,9 +32,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional
-    public void registerNewClient(RegistrationDto registrationDto) {
-        String email = registrationDto.getEmail();
-        String encodedPassword = passwordEncoder.encode(registrationDto.getPassword());
+    public void registerNewClient(ClientRegistrationDto clientRegistrationDto) {
+        String email = clientRegistrationDto.getEmail();
+        String encodedPassword = passwordEncoder.encode(clientRegistrationDto.getPassword());
 
         if (userDetailsManager.userExists(email)) {
             throw new UserAlreadyExistsException("Unable to register username, already exists in DB");
@@ -45,13 +45,13 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
         Manager firstManager = managerDatabaseService.getFirstManager(activeManagers);
 
-        Client client = initializeNewClientInstance(registrationDto);
+        Client client = initializeNewClientInstance(clientRegistrationDto);
         client.setManagerUuid(firstManager.getUuid());
         clientDatabaseService.save(client);
         log.info("client created");
     }
 
-    private Client initializeNewClientInstance(RegistrationDto registration) {
+    private Client initializeNewClientInstance(ClientRegistrationDto registration) {
         if (registration == null) {
             throw new IllegalArgumentException("registrationDto cannot be null");
         }
