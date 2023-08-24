@@ -21,7 +21,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A service implementation for managing Product entities in the database.
@@ -71,7 +74,6 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     @Override
     @Transactional
-    @Cacheable(value = "deletedProducts")
     public List<ProductDto> findDeletedProducts() {
         log.info("retrieving list of deleted products");
         List<Product> products = productRepository.findAllDeleted();
@@ -120,7 +122,6 @@ public class ProductDatabaseServiceImpl implements ProductDatabaseService {
 
     @Override
     @Transactional
-    @CachePut(value = "deletedProducts", key = "#productUuid")
     @CacheEvict(value = {"productsList", "productsCache"}, allEntries = true)
     public void delete(String productUuid) {
         if (productUuid == null) {

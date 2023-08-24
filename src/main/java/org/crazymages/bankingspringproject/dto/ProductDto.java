@@ -3,6 +3,7 @@ package org.crazymages.bankingspringproject.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
  */
 @Data
 @Builder
-public class ProductDto {
+public class ProductDto implements Serializable {
     private String managerUuid;
     private String name;
     private String status;
