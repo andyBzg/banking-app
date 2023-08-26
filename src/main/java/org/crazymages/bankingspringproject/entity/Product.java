@@ -1,6 +1,13 @@
 package org.crazymages.bankingspringproject.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,7 +50,7 @@ public class Product {
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-    @JoinColumn(name = "manager_uuid")
+    @Column(name = "manager_uuid")
     private UUID managerUuid;
 
     @Column(name = "name", length = 70)
@@ -61,9 +68,9 @@ public class Product {
     @Column(name = "currency_code")
     private CurrencyCode currencyCode;
 
-    @Column(name = "interest_rate", precision = 6, scale = 4, columnDefinition = "default 0.00")
+    @Column(name = "interest_rate", precision = 6, scale = 4, columnDefinition = "numeric(6, 4) default 0.00")
     private BigDecimal interestRate;
 
-    @Column(name = "limitation", precision = 15, scale = 2, columnDefinition = "default 0.00")
+    @Column(name = "limitation", precision = 15, scale = 2, columnDefinition = "numeric(15, 2) default 0.00")
     private BigDecimal limitation;
 }

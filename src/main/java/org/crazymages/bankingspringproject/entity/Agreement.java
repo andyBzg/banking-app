@@ -1,6 +1,13 @@
 package org.crazymages.bankingspringproject.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,6 +61,6 @@ public class Agreement {
     @Column(name = "status")
     private AgreementStatus status;
 
-    @Column(name = "amount", precision = 12, columnDefinition = "default 0.00")
+    @Column(name = "amount", precision = 12, columnDefinition = "numeric(12) default 0.00")
     private BigDecimal amount;
 }
