@@ -2,13 +2,23 @@ package org.crazymages.bankingspringproject.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.dto.TransactionDto;
+import org.crazymages.bankingspringproject.dto.mapper.transaction.TransactionDtoMapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Transaction;
-import org.crazymages.bankingspringproject.entity.enums.*;
+import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
+import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
+import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
+import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
+import org.crazymages.bankingspringproject.entity.enums.ProductType;
+import org.crazymages.bankingspringproject.entity.enums.TransactionType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
-import org.crazymages.bankingspringproject.service.database.*;
+import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
+import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
+import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.initializer.TransactionInitializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -32,6 +42,7 @@ public class DepositScheduler {
     private final ClientDatabaseService clientDatabaseService;
     private final TransactionDatabaseService transactionDatabaseService;
     private final TransactionInitializer transactionInitializer;
+    private final TransactionDtoMapper transactionDtoMapper;
 
     /**
      * Executes deposit interest payments based on a scheduled cron expression.
@@ -150,6 +161,7 @@ public class DepositScheduler {
         transaction.setType(TransactionType.DEPOSIT);
         transaction.setAmount(updatedBalance);
         transaction.setDescription("Deposit Interest Payment");
-        transactionDatabaseService.transferFunds(transaction);
+        TransactionDto transactionDto = transactionDtoMapper.mapEntityToDto(transaction);
+        transactionDatabaseService.transferFunds(transactionDto);
     }
 }

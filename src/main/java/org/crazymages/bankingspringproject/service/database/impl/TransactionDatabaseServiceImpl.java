@@ -22,7 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A service implementation for managing Transaction entities in the database.
@@ -106,7 +109,8 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
 
     @Override
     @Transactional
-    public void transferFunds(Transaction transaction) {
+    public void transferFunds(TransactionDto transactionDto) {
+        Transaction transaction = transactionDtoMapper.mapDtoToEntity(transactionDto);
         BigDecimal amount = transaction.getAmount();
         Account senderAccount = accountDatabaseService.findById(transaction.getDebitAccountUuid());
         Account recipientAccount = accountDatabaseService.findById(transaction.getCreditAccountUuid());

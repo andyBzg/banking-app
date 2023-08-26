@@ -1,7 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
 import org.crazymages.bankingspringproject.dto.TransactionDto;
-import org.crazymages.bankingspringproject.entity.Transaction;
 
 import java.util.List;
 
@@ -60,9 +59,9 @@ public interface TransactionDatabaseService {
     /**
      * Transfers funds between accounts based on the provided Transaction entity.
      *
-     * @param transaction The Transaction entity representing the fund transfer.
+     * @param transactionDto The Transaction entity representing the fund transfer.
      */
-    void transferFunds(Transaction transaction);
+    void transferFunds(TransactionDto transactionDto);
 
     /**
      * Retrieves all Transaction entities associated with the specified client UUID between the specified dates.
