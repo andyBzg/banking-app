@@ -1,7 +1,6 @@
 package org.crazymages.bankingspringproject.controller;
 
 import org.crazymages.bankingspringproject.dto.TransactionDto;
-import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionControllerTest {
@@ -156,7 +157,7 @@ class TransactionControllerTest {
     @Test
     void transferFunds_success() {
         // given
-        Transaction transaction = new Transaction();
+        TransactionDto transaction = TransactionDto.builder().build();
 
         // when
         ResponseEntity<String> actual = transactionController.transferFunds(transaction);
