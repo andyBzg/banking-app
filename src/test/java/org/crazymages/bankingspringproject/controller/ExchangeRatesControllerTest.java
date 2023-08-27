@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.controller;
 
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

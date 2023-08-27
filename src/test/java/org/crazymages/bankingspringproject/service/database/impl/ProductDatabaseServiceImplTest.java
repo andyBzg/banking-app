@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.ProductDto;
+import org.crazymages.bankingspringproject.dto.product.ProductDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -10,7 +10,7 @@ import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.dto.mapper.product.ProductDtoMapper;
+import org.crazymages.bankingspringproject.dto.product.mapper.ProductDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

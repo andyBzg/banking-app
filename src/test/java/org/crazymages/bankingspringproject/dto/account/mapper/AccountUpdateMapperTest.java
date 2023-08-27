@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.dto.mapper.account;
+package org.crazymages.bankingspringproject.dto.account.mapper;
 
-import org.crazymages.bankingspringproject.dto.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.mapper.AccountUpdateMapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.dto.mapper.transaction;
+package org.crazymages.bankingspringproject.dto.transaction.mapper;
 
-import org.crazymages.bankingspringproject.dto.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.mapper.TransactionCreationDtoMapper;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

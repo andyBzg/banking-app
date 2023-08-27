@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.dto.mapper.exchange_rate;
+package org.crazymages.bankingspringproject.dto.exchange_rate.mapper;
 
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.mapper.CurrencyExchangeRateDtoMapper;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

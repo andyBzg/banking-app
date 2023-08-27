@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.dto.mapper.agreement;
+package org.crazymages.bankingspringproject.dto.agreement.mapper;
 
-import org.crazymages.bankingspringproject.dto.AgreementDto;
+import org.crazymages.bankingspringproject.dto.agreement.AgreementDto;
+import org.crazymages.bankingspringproject.dto.agreement.mapper.AgreementWithProductDtoMapper;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.enums.AgreementStatus;
 import org.junit.jupiter.api.BeforeEach;

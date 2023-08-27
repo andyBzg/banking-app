@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.scheduler;
 
-import org.crazymages.bankingspringproject.dto.TransactionDto;
-import org.crazymages.bankingspringproject.dto.mapper.transaction.TransactionDtoMapper;
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.mapper.TransactionDtoMapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;

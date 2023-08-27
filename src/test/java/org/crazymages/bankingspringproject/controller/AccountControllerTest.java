@@ -1,9 +1,12 @@
 package org.crazymages.bankingspringproject.controller;
 
-import org.crazymages.bankingspringproject.dto.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.AccountCreationDto;
+import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
+import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +19,20 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AccountControllerTest {
 
     @Mock
     AccountDatabaseService accountDatabaseService;
+    @Mock
+    ClientDatabaseService clientDatabaseService;
 
     @InjectMocks
     AccountController accountController;
@@ -38,41 +47,30 @@ class AccountControllerTest {
     @Test
     void createAccount_success() {
         // when
-        AccountDto accountDto = AccountDto.builder().build();
-        AccountDto createdAccountDto = AccountDto.builder().build();
+        AccountCreationDto accountDto = AccountCreationDto.builder().build();
+        AccountCreationDto createdAccountDto = AccountCreationDto.builder().build();
+        when(clientDatabaseService.findAuthenticatedClient()).thenReturn(new Client());
 
         // when
-        ResponseEntity<AccountDto> actual = accountController.createAccount(accountDto);
+        ResponseEntity<AccountCreationDto> actual = accountController.createAccount(accountDto);
 
         // then
         assertEquals(HttpStatus.CREATED, actual.getStatusCode());
         assertEquals(createdAccountDto, actual.getBody());
-        verify(accountDatabaseService).create(accountDto);
+        verify(accountDatabaseService).create(any(AccountCreationDto.class), any(String.class));
     }
 
     @Test
     void createAccount_emptyAccountDto_savesNoData() {
+        // given
+        when(clientDatabaseService.findAuthenticatedClient()).thenReturn(new Client());
+
         // when
-        ResponseEntity<AccountDto> actual = accountController.createAccount(null);
+        ResponseEntity<AccountCreationDto> actual = accountController.createAccount(null);
 
         // then
         assertNull(actual.getBody());
-        verify(accountDatabaseService, never()).create(any(AccountDto.class));
-    }
-
-    @Test
-    void createAccount_withClientUuid_success() {
-        // when
-        AccountDto accountDto = AccountDto.builder().build();
-        AccountDto createdAccountDto = AccountDto.builder().build();
-
-        // when
-        ResponseEntity<AccountDto> actual = accountController.createAccount(accountDto, uuid);
-
-        // then
-        assertEquals(HttpStatus.CREATED, actual.getStatusCode());
-        assertEquals(createdAccountDto, actual.getBody());
-        verify(accountDatabaseService).create(accountDto, uuid);
+        verify(accountDatabaseService, never()).create(any(AccountCreationDto.class), any(String.class));
     }
 
     @Test

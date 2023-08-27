@@ -1,6 +1,7 @@
-package org.crazymages.bankingspringproject.dto.mapper.manager;
+package org.crazymages.bankingspringproject.dto.manager.mapper;
 
-import org.crazymages.bankingspringproject.dto.ManagerDto;
+import org.crazymages.bankingspringproject.dto.manager.ManagerDto;
+import org.crazymages.bankingspringproject.dto.manager.mapper.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.junit.jupiter.api.BeforeEach;
