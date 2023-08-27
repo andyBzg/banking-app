@@ -47,6 +47,7 @@ public class Transaction {
     @Column(name = "credit_account_uuid")
     private UUID creditAccountUuid;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private TransactionType type;
 
