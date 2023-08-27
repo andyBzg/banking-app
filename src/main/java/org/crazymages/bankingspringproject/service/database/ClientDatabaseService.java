@@ -21,6 +21,11 @@ public interface ClientDatabaseService {
      */
     void create(ClientDto clientDTO);
 
+    /**
+     * Saves a Client entity in the database.
+     *
+     * @param client The Client entity to be saved.
+     */
     void save(Client client);
 
     /**
@@ -51,6 +56,13 @@ public interface ClientDatabaseService {
      * @return The ClientDTO with the specified UUID, or null if not found.
      */
     ClientDto findById(String uuid);
+
+    /**
+     * Retrieves an authenticated Client entity from the database.
+     *
+     * @return The authenticated Client entity.
+     */
+    Client findAuthenticatedClient();
 
     /**
      * Updates a Client entity in the database with the specified UUID.
@@ -104,7 +116,7 @@ public interface ClientDatabaseService {
      * @param uuid The UUID of the client to check.
      * @return True if the Client has an active status, false otherwise.
      */
-    boolean isClientStatusActive(UUID uuid);
+    boolean isClientStatusBlocked(UUID uuid);
 
     /**
      * Retrieves all Client entities from the database that have both current and savings Accounts.
