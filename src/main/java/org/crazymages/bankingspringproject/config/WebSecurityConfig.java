@@ -39,7 +39,7 @@ public class WebSecurityConfig {
                     auth.requestMatchers("/exchange/get-rates").permitAll();
                     auth.requestMatchers("/registration/new-client").permitAll();
 
-                    auth.requestMatchers("/account/create/with-client-id/{uuid}").hasRole(Roles.USER.name());
+                    auth.requestMatchers("/account/create").hasRole(Roles.USER.name());
                     auth.requestMatchers("/account/find/all/by-client-id/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/agreement/find/all-by-client-id/{uuid}").hasRole(Roles.USER.name());
                     auth.requestMatchers("/client/find/{uuid}").hasRole(Roles.USER.name());
