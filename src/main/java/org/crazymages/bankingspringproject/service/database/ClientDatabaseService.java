@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.ClientDto;
+import org.crazymages.bankingspringproject.dto.client.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 
@@ -58,11 +58,12 @@ public interface ClientDatabaseService {
     ClientDto findById(String uuid);
 
     /**
-     * Retrieves an authenticated Client entity from the database.
+     * Retrieves a Client entity from the database by its email.
      *
-     * @return The authenticated Client entity.
+     * @param email The email of the Client to retrieve.
+     * @return The Client entity with the specified email, or null if not found.
      */
-    Client findAuthenticatedClient();
+    Client findClientByEmail(String email);
 
     /**
      * Updates a Client entity in the database with the specified UUID.
