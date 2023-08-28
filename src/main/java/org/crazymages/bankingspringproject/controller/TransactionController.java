@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

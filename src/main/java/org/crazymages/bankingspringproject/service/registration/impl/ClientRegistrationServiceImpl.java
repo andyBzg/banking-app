@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.service.registration.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.ClientRegistrationDto;
+import org.crazymages.bankingspringproject.dto.client.ClientRegistrationDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;

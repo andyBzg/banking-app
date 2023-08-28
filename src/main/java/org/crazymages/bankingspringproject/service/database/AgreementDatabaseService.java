@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.AgreementDto;
+import org.crazymages.bankingspringproject.dto.agreement.AgreementDto;
 import org.crazymages.bankingspringproject.entity.Agreement;
 
 import java.util.List;
