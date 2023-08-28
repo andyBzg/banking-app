@@ -56,11 +56,10 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     @Override
     @Transactional
-    public void create(AccountCreationDto accountDto, String uuid) {
-        if (uuid == null || accountDto == null) {
+    public void create(AccountCreationDto accountDto, UUID clientUuid) {
+        if (clientUuid == null || accountDto == null) {
             throw new IllegalArgumentException();
         }
-        UUID clientUuid = UUID.fromString(uuid);
         Account account = accountCreationMapper.mapDtoToEntity(accountDto);
         account.setClientUuid(clientUuid);
         account.setBalance(BigDecimal.ZERO);

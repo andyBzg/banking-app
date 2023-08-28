@@ -21,7 +21,7 @@ public interface AccountDatabaseService {
      * @param accountDto The Account entity to be created.
      * @param clientUuid The Client UUID to be assigned to the Account entity.
      */
-    void create(AccountCreationDto accountDto, String clientUuid);
+    void create(AccountCreationDto accountDto, UUID clientUuid);
 
     /**
      * Retrieves an AccountDto entity from the database by its UUID.
