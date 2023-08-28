@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 
 import java.util.List;

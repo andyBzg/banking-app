@@ -2,12 +2,12 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
 import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
-import org.crazymages.bankingspringproject.dto.mapper.exchange_rate.CurrencyExchangeRateDtoMapper;
+import org.crazymages.bankingspringproject.dto.exchange_rate.mapper.CurrencyExchangeRateDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

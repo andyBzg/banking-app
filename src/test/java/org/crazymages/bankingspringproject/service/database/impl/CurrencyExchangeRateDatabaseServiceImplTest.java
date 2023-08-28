@@ -1,10 +1,10 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.entity.CurrencyExchangeRate;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.CurrencyExchangeRateRepository;
-import org.crazymages.bankingspringproject.dto.mapper.exchange_rate.CurrencyExchangeRateDtoMapper;
+import org.crazymages.bankingspringproject.dto.exchange_rate.mapper.CurrencyExchangeRateDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

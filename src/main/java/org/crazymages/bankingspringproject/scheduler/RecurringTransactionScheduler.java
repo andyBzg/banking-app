@@ -2,6 +2,8 @@ package org.crazymages.bankingspringproject.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.mapper.TransactionDtoMapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;
@@ -32,6 +34,7 @@ public class RecurringTransactionScheduler {
     private final AccountDatabaseService accountDatabaseService;
     private final AgreementDatabaseService agreementDatabaseService;
     private final TransactionInitializer transactionInitializer;
+    private final TransactionDtoMapper transactionDtoMapper;
 
     /**
      * Executes recurring transactions based on a scheduled cron expression.
@@ -73,6 +76,7 @@ public class RecurringTransactionScheduler {
         transaction.setAmount(agreement.getAmount());
         transaction.setDescription("Recurring payment");
 
-        transactionDatabaseService.transferFunds(transaction);
+        TransactionDto transactionDto = transactionDtoMapper.mapEntityToDto(transaction);
+        transactionDatabaseService.transferFunds(transactionDto);
     }
 }

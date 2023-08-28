@@ -2,12 +2,13 @@ package org.crazymages.bankingspringproject.service.registration.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.ClientRegistrationDto;
+import org.crazymages.bankingspringproject.dto.client.ClientRegistrationDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.entity.enums.Roles;
+import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.exception.UserAlreadyExistsException;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
@@ -43,10 +44,21 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
         List<Manager> activeManagers = managerDatabaseService
                 .findManagersSortedByClientQuantityWhereManagerStatusIs(ManagerStatus.ACTIVE);
-        Manager firstManager = managerDatabaseService.getFirstManager(activeManagers);
+        Manager manager;
+        if (!activeManagers.isEmpty()) {
+            manager = managerDatabaseService.getFirstManager(activeManagers);
+        }
+        else {
+            manager = managerDatabaseService.findAll()
+                    .stream()
+                    .filter(mg -> !mg.isDeleted())
+                    .filter(mg -> mg.getStatus().equals(ManagerStatus.ACTIVE))
+                    .findFirst()
+                    .orElseThrow(() -> new DataNotFoundException("Manager not found"));
+        }
 
         Client client = initializeNewClientInstance(clientRegistrationDto);
-        client.setManagerUuid(firstManager.getUuid());
+        client.setManagerUuid(manager.getUuid());
         clientDatabaseService.save(client);
         log.info("client created");
     }

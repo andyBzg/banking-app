@@ -2,18 +2,19 @@ package org.crazymages.bankingspringproject.service.utils.matcher;
 
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
+import org.crazymages.bankingspringproject.service.utils.matcher.impl.ProductTypeMatcherImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProductTypeMatcherTest {
 
-    ProductTypeMatcher productTypeMatcher;
+    ProductTypeMatcherImpl productTypeMatcher;
 
     @BeforeEach
     void setUp() {
-        productTypeMatcher = new ProductTypeMatcher();
+        productTypeMatcher = new ProductTypeMatcherImpl();
     }
 
     @Test

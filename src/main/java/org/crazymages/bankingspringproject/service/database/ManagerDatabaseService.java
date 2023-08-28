@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.ManagerDto;
+import org.crazymages.bankingspringproject.dto.manager.ManagerDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 

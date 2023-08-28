@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.controller;
 
-import org.crazymages.bankingspringproject.dto.ProductDto;
+import org.crazymages.bankingspringproject.dto.product.ProductDto;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

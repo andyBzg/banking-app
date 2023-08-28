@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.ClientDto;
-import org.crazymages.bankingspringproject.dto.mapper.client.ClientCreationMapper;
+import org.crazymages.bankingspringproject.dto.client.ClientDto;
+import org.crazymages.bankingspringproject.dto.client.mapper.ClientCreationMapper;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.AccountType;
@@ -11,7 +11,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ClientRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
-import org.crazymages.bankingspringproject.dto.mapper.client.ClientDtoMapper;
+import org.crazymages.bankingspringproject.dto.client.mapper.ClientDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -332,7 +332,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.isClientStatusBlocked(uuid)).thenReturn(true);
 
         // when
-        Boolean actual = clientDatabaseService.isClientStatusActive(uuid);
+        Boolean actual = clientDatabaseService.isClientStatusBlocked(uuid);
 
         // then
         assertEquals(expected, actual);
@@ -346,7 +346,7 @@ class ClientDatabaseServiceImplTest {
         when(clientRepository.isClientStatusBlocked(uuid)).thenReturn(false);
 
         // when
-        Boolean actual = clientDatabaseService.isClientStatusActive(uuid);
+        Boolean actual = clientDatabaseService.isClientStatusBlocked(uuid);
 
         // then
         assertEquals(expected, actual);

@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.controller;
 
-import org.crazymages.bankingspringproject.dto.ManagerDto;
+import org.crazymages.bankingspringproject.dto.manager.ManagerDto;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

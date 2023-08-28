@@ -1,7 +1,7 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.AccountDto;
-import org.crazymages.bankingspringproject.dto.TransactionDto;
+import org.crazymages.bankingspringproject.dto.account.AccountDto;
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
@@ -13,8 +13,8 @@ import org.crazymages.bankingspringproject.repository.TransactionRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.converter.CurrencyConverter;
-import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
-import org.crazymages.bankingspringproject.dto.mapper.transaction.TransactionDtoMapper;
+import org.crazymages.bankingspringproject.dto.account.mapper.AccountDtoMapper;
+import org.crazymages.bankingspringproject.dto.transaction.mapper.TransactionDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionDatabaseServiceImplTest {
@@ -279,19 +285,21 @@ class TransactionDatabaseServiceImplTest {
         BigDecimal amount = BigDecimal.valueOf(100);
         transaction.setAmount(amount);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
-        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusBlocked(sender.getClientUuid())).thenReturn(false);
+        when(clientDatabaseService.isClientStatusBlocked(recipient.getClientUuid())).thenReturn(false);
 
         // when
-        transactionDatabaseService.transferFunds(transaction);
+        transactionDatabaseService.transferFunds(transactionDto);
 
         // then
+        verify(transactionDtoMapper).mapDtoToEntity(transactionDto);
         verify(accountDatabaseService).findById(transaction.getDebitAccountUuid());
         verify(accountDatabaseService).findById(transaction.getCreditAccountUuid());
-        verify(clientDatabaseService).isClientStatusActive(sender.getClientUuid());
-        verify(clientDatabaseService).isClientStatusActive(recipient.getClientUuid());
+        verify(clientDatabaseService).isClientStatusBlocked(sender.getClientUuid());
+        verify(clientDatabaseService).isClientStatusBlocked(recipient.getClientUuid());
         verify(accountDatabaseService).update(sender.getUuid(), sender);
         verify(accountDatabaseService).update(recipient.getUuid(), recipient);
         verify(transactionRepository).save(transaction);
@@ -307,20 +315,22 @@ class TransactionDatabaseServiceImplTest {
         sender.setCurrencyCode(CurrencyCode.GBP);
         recipient.setCurrencyCode(CurrencyCode.AUD);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
-        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(true);
-        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusBlocked(sender.getClientUuid())).thenReturn(false);
+        when(clientDatabaseService.isClientStatusBlocked(recipient.getClientUuid())).thenReturn(false);
         when(currencyConverter.performCurrencyConversion(amount, recipient, sender)).thenReturn(recipient);
 
         // when
-        transactionDatabaseService.transferFunds(transaction);
+        transactionDatabaseService.transferFunds(transactionDto);
 
         // then
+        verify(transactionDtoMapper).mapDtoToEntity(transactionDto);
         verify(accountDatabaseService).findById(transaction.getDebitAccountUuid());
         verify(accountDatabaseService).findById(transaction.getCreditAccountUuid());
-        verify(clientDatabaseService).isClientStatusActive(sender.getClientUuid());
-        verify(clientDatabaseService).isClientStatusActive(recipient.getClientUuid());
+        verify(clientDatabaseService).isClientStatusBlocked(sender.getClientUuid());
+        verify(clientDatabaseService).isClientStatusBlocked(recipient.getClientUuid());
         verify(accountDatabaseService).update(sender.getUuid(), sender);
         verify(accountDatabaseService).update(recipient.getUuid(), recipient);
         verify(transactionRepository).save(transaction);
@@ -332,11 +342,13 @@ class TransactionDatabaseServiceImplTest {
         BigDecimal amount = BigDecimal.valueOf(-100);
         transaction.setAmount(amount);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
+        verify(transactionDtoMapper).mapDtoToEntity(transactionDto);
         verify(accountDatabaseService, times(2)).findById(any(UUID.class));
         verifyNoInteractions(clientDatabaseService);
         verifyNoInteractions(currencyConverter);
@@ -351,11 +363,12 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         sender.setBalance(null);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
     }
 
     @Test
@@ -365,11 +378,12 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         recipient.setBalance(null);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
     }
 
     @Test
@@ -379,11 +393,12 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         sender.setStatus(null);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
     }
 
     @Test
@@ -393,11 +408,12 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         recipient.setStatus(null);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(IllegalArgumentException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
     }
 
     @Test
@@ -407,11 +423,13 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         sender.setBalance(BigDecimal.valueOf(50));
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(InsufficientFundsException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(InsufficientFundsException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
+        verify(transactionDtoMapper).mapDtoToEntity(transactionDto);
         verifyNoInteractions(currencyConverter);
         verifyNoInteractions(clientDatabaseService);
         verifyNoMoreInteractions(accountDtoMapper);
@@ -426,11 +444,13 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         sender.setStatus(AccountStatus.CLOSED);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(TransactionNotAllowedException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(TransactionNotAllowedException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
+        verify(transactionDtoMapper).mapDtoToEntity(transactionDto);
         verifyNoInteractions(currencyConverter);
         verifyNoInteractions(clientDatabaseService);
         verifyNoMoreInteractions(accountDtoMapper);
@@ -445,11 +465,13 @@ class TransactionDatabaseServiceImplTest {
         transaction.setAmount(amount);
         recipient.setStatus(AccountStatus.CLOSED);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
 
         // when, then
-        assertThrows(TransactionNotAllowedException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(TransactionNotAllowedException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
+        verify(transactionDtoMapper).mapDtoToEntity(transactionDto);
         verifyNoInteractions(currencyConverter);
         verifyNoInteractions(clientDatabaseService);
         verifyNoMoreInteractions(accountDtoMapper);
@@ -463,13 +485,14 @@ class TransactionDatabaseServiceImplTest {
         BigDecimal amount = BigDecimal.valueOf(100);
         transaction.setAmount(amount);
 
+        when(transactionDtoMapper.mapDtoToEntity(transactionDto)).thenReturn(transaction);
         when(accountDatabaseService.findById(transaction.getDebitAccountUuid())).thenReturn(sender);
         when(accountDatabaseService.findById(transaction.getCreditAccountUuid())).thenReturn(recipient);
-        when(clientDatabaseService.isClientStatusActive(sender.getClientUuid())).thenReturn(false);
-        when(clientDatabaseService.isClientStatusActive(recipient.getClientUuid())).thenReturn(true);
+        when(clientDatabaseService.isClientStatusBlocked(sender.getClientUuid())).thenReturn(false);
+        when(clientDatabaseService.isClientStatusBlocked(recipient.getClientUuid())).thenReturn(true);
 
         // when, then
-        assertThrows(TransactionNotAllowedException.class, () -> transactionDatabaseService.transferFunds(transaction));
+        assertThrows(TransactionNotAllowedException.class, () -> transactionDatabaseService.transferFunds(transactionDto));
     }
 
     @Test

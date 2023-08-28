@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -110,4 +111,12 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
      */
     @Query("UPDATE Client cl SET cl.status = 'BLOCKED' WHERE cl.uuid = :uuid")
     void blockClientById(@Param("uuid") UUID uuid);
+
+    /**
+     * Finds a client by their email.
+     *
+     * @param email The email of the client to find.
+     * @return An optional containing the found client, or empty if not found.
+     */
+    Optional<Client> findByEmail(String email);
 }

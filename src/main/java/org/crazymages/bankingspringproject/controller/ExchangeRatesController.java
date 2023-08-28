@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.CurrencyExchangeRateDto;
+import org.crazymages.bankingspringproject.dto.exchange_rate.CurrencyExchangeRateDto;
 import org.crazymages.bankingspringproject.service.database.CurrencyExchangeRateDatabaseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

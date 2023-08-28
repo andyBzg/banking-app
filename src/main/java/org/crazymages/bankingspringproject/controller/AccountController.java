@@ -2,13 +2,23 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.AccountCreationDto;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
+import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.session.CurrentUsernameFinder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Controller class for managing accounts.
@@ -19,6 +29,8 @@ import java.util.List;
 public class AccountController {
 
     private final AccountDatabaseService accountDatabaseService;
+    private final ClientDatabaseService clientDatabaseService;
+    private final CurrentUsernameFinder currentUsernameFinder;
 
     /**
      * Create a new account.
@@ -27,23 +39,11 @@ public class AccountController {
      * @return the created account
      */
     @PostMapping(value = "/account/create")
-    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
+    public ResponseEntity<AccountCreationDto> createAccount(@RequestBody AccountCreationDto accountDto) {
         log.info("endpoint request: create account");
-        accountDatabaseService.create(accountDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountDto);
-    }
-
-    /**
-     * Create a new account for a specific client.
-     *
-     * @param accountDto the account to create
-     * @param uuid       the UUID of the client
-     * @return the created account
-     */
-    @PostMapping(value = "/account/create/with-client-id/{uuid}")
-    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto, @PathVariable String uuid) {
-        log.info("endpoint request: create account");
-        accountDatabaseService.create(accountDto, uuid);
+        String currentUsername = currentUsernameFinder.getCurrentUsername();
+        UUID currentClientUuid = clientDatabaseService.findClientByEmail(currentUsername).getUuid();
+        accountDatabaseService.create(accountDto, currentClientUuid);
         return ResponseEntity.status(HttpStatus.CREATED).body(accountDto);
     }
 

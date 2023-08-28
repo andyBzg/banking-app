@@ -2,8 +2,8 @@ package org.crazymages.bankingspringproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.ManagerRegistrationDto;
-import org.crazymages.bankingspringproject.dto.ClientRegistrationDto;
+import org.crazymages.bankingspringproject.dto.manager.ManagerRegistrationDto;
+import org.crazymages.bankingspringproject.dto.client.ClientRegistrationDto;
 import org.crazymages.bankingspringproject.service.registration.ClientRegistrationService;
 import org.crazymages.bankingspringproject.service.registration.ManagerRegistrationService;
 import org.springframework.http.HttpStatus;

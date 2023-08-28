@@ -61,12 +61,15 @@ public class CurrencyExchangeRateUpdater {
      */
     public Map<String, BigDecimal> jsonToHashMap(JsonNode jsonNode) {
         Map<String, BigDecimal> currencyMap = new HashMap<>();
-        Iterator<String> currencyCodes = jsonNode.fieldNames();
 
-        while (currencyCodes.hasNext()) {
-            String currencyCode = currencyCodes.next();
-            BigDecimal exchangeRate = BigDecimal.valueOf(jsonNode.get(currencyCode).asDouble());
-            currencyMap.put(currencyCode, exchangeRate);
+        if (jsonNode != null && jsonNode.isObject()) {
+            Iterator<String> currencyCodes = jsonNode.fieldNames();
+
+            while (currencyCodes.hasNext()) {
+                String currencyCode = currencyCodes.next();
+                BigDecimal exchangeRate = BigDecimal.valueOf(jsonNode.get(currencyCode).asDouble());
+                currencyMap.put(currencyCode, exchangeRate);
+            }
         }
 
         return currencyMap;

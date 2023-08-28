@@ -1,6 +1,6 @@
 package org.crazymages.bankingspringproject.service.database;
 
-import org.crazymages.bankingspringproject.dto.ClientDto;
+import org.crazymages.bankingspringproject.dto.client.ClientDto;
 import org.crazymages.bankingspringproject.entity.Client;
 import org.crazymages.bankingspringproject.entity.enums.ClientStatus;
 
@@ -21,6 +21,11 @@ public interface ClientDatabaseService {
      */
     void create(ClientDto clientDTO);
 
+    /**
+     * Saves a Client entity in the database.
+     *
+     * @param client The Client entity to be saved.
+     */
     void save(Client client);
 
     /**
@@ -51,6 +56,14 @@ public interface ClientDatabaseService {
      * @return The ClientDTO with the specified UUID, or null if not found.
      */
     ClientDto findById(String uuid);
+
+    /**
+     * Retrieves a Client entity from the database by its email.
+     *
+     * @param email The email of the Client to retrieve.
+     * @return The Client entity with the specified email, or null if not found.
+     */
+    Client findClientByEmail(String email);
 
     /**
      * Updates a Client entity in the database with the specified UUID.
@@ -104,7 +117,7 @@ public interface ClientDatabaseService {
      * @param uuid The UUID of the client to check.
      * @return True if the Client has an active status, false otherwise.
      */
-    boolean isClientStatusActive(UUID uuid);
+    boolean isClientStatusBlocked(UUID uuid);
 
     /**
      * Retrieves all Client entities from the database that have both current and savings Accounts.

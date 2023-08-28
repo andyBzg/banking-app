@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.ProductDto;
+import org.crazymages.bankingspringproject.dto.product.ProductDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.Product;
 import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
@@ -13,7 +13,7 @@ import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ProductRepository;
 import org.crazymages.bankingspringproject.service.database.ManagerDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
-import org.crazymages.bankingspringproject.dto.mapper.product.ProductDtoMapper;
+import org.crazymages.bankingspringproject.dto.product.mapper.ProductDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;

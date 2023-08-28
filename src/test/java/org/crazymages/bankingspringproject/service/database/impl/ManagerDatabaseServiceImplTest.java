@@ -1,11 +1,11 @@
 package org.crazymages.bankingspringproject.service.database.impl;
 
-import org.crazymages.bankingspringproject.dto.ManagerDto;
+import org.crazymages.bankingspringproject.dto.manager.ManagerDto;
 import org.crazymages.bankingspringproject.entity.Manager;
 import org.crazymages.bankingspringproject.entity.enums.ManagerStatus;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.ManagerRepository;
-import org.crazymages.bankingspringproject.dto.mapper.manager.ManagerDtoMapper;
+import org.crazymages.bankingspringproject.dto.manager.mapper.ManagerDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

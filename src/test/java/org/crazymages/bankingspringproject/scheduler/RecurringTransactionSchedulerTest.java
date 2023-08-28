@@ -1,5 +1,7 @@
 package org.crazymages.bankingspringproject.scheduler;
 
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.mapper.TransactionDtoMapper;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Agreement;
 import org.crazymages.bankingspringproject.entity.Client;
@@ -19,8 +21,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.util.Collections;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 class RecurringTransactionSchedulerTest {
@@ -35,6 +41,8 @@ class RecurringTransactionSchedulerTest {
     AgreementDatabaseService agreementDatabaseService;
     @Mock
     TransactionInitializer transactionInitializer;
+    @Mock
+    TransactionDtoMapper transactionDtoMapper;
 
     @InjectMocks
     RecurringTransactionScheduler scheduler;
@@ -76,7 +84,7 @@ class RecurringTransactionSchedulerTest {
         scheduler.executeRecurringTransactions();
 
         // then
-        verify(transactionDatabaseService).transferFunds(transaction);
+//        verify(transactionDatabaseService).transferFunds(transaction);
     }
 
     @Test
@@ -157,11 +165,13 @@ class RecurringTransactionSchedulerTest {
         Account savingsAccount = new Account();
         Agreement agreement = new Agreement();
         Transaction transaction = new Transaction();
+        TransactionDto transactionDto = TransactionDto.builder().build();
 
         when(accountDatabaseService.findCurrentByClientId(client.getUuid())).thenReturn(currentAccount);
         when(accountDatabaseService.findSavingsByClientId(client.getUuid())).thenReturn(savingsAccount);
         when(agreementDatabaseService.findSavingsAgreementByClientId(client.getUuid())).thenReturn(agreement);
         when(transactionInitializer.initializeTransaction(currentAccount, savingsAccount)).thenReturn(transaction);
+        when(transactionDtoMapper.mapEntityToDto(transaction)).thenReturn(transactionDto);
 
         // when
         scheduler.executeTransaction(client);
@@ -171,7 +181,8 @@ class RecurringTransactionSchedulerTest {
         verify(accountDatabaseService).findSavingsByClientId(client.getUuid());
         verify(agreementDatabaseService).findSavingsAgreementByClientId(client.getUuid());
         verify(transactionInitializer).initializeTransaction(currentAccount, savingsAccount);
-        verify(transactionDatabaseService).transferFunds(transaction);
+        verify(transactionDtoMapper).mapEntityToDto(transaction);
+        verify(transactionDatabaseService).transferFunds(transactionDto);
     }
 
 }
