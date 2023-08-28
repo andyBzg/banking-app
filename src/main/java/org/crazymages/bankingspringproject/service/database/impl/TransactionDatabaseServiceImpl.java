@@ -2,7 +2,7 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.TransactionDto;
+import org.crazymages.bankingspringproject.dto.transaction.TransactionDto;
 import org.crazymages.bankingspringproject.entity.Account;
 import org.crazymages.bankingspringproject.entity.Transaction;
 import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
@@ -15,7 +15,7 @@ import org.crazymages.bankingspringproject.service.database.AccountDatabaseServi
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
 import org.crazymages.bankingspringproject.service.database.TransactionDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.converter.CurrencyConverter;
-import org.crazymages.bankingspringproject.dto.mapper.transaction.TransactionDtoMapper;
+import org.crazymages.bankingspringproject.dto.transaction.mapper.TransactionDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -177,9 +177,9 @@ public class TransactionDatabaseServiceImpl implements TransactionDatabaseServic
     }
 
     private void checkClientsStatusActive(Account senderAccount, Account recipientAccount) {
-        boolean isSenderActive = clientDatabaseService.isClientStatusActive(senderAccount.getClientUuid());
-        boolean isRecipientActive = clientDatabaseService.isClientStatusActive(recipientAccount.getClientUuid());
-        if (!isSenderActive || !isRecipientActive) {
+        boolean isSenderStatusBlocked = clientDatabaseService.isClientStatusBlocked(senderAccount.getClientUuid());
+        boolean isRecipientStatusBlocked = clientDatabaseService.isClientStatusBlocked(recipientAccount.getClientUuid());
+        if (isSenderStatusBlocked || isRecipientStatusBlocked) {
             throw new TransactionNotAllowedException();
         }
     }
