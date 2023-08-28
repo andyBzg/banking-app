@@ -2,27 +2,37 @@ package org.crazymages.bankingspringproject.service.database.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crazymages.bankingspringproject.dto.mapper.account.AccountCreationMapper;
-import org.crazymages.bankingspringproject.dto.AccountDto;
-import org.crazymages.bankingspringproject.dto.AgreementDto;
-import org.crazymages.bankingspringproject.dto.mapper.account.AccountUpdateMapper;
-import org.crazymages.bankingspringproject.entity.*;
-import org.crazymages.bankingspringproject.entity.enums.*;
+import org.crazymages.bankingspringproject.dto.account.AccountCreationDto;
+import org.crazymages.bankingspringproject.dto.account.mapper.AccountCreationMapper;
+import org.crazymages.bankingspringproject.dto.account.AccountDto;
+import org.crazymages.bankingspringproject.dto.agreement.AgreementDto;
+import org.crazymages.bankingspringproject.dto.account.mapper.AccountUpdateMapper;
+import org.crazymages.bankingspringproject.entity.Account;
+import org.crazymages.bankingspringproject.entity.Agreement;
+import org.crazymages.bankingspringproject.entity.Product;
+import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
+import org.crazymages.bankingspringproject.entity.enums.AccountType;
+import org.crazymages.bankingspringproject.entity.enums.CurrencyCode;
+import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
+import org.crazymages.bankingspringproject.entity.enums.ProductType;
 import org.crazymages.bankingspringproject.exception.DataNotFoundException;
 import org.crazymages.bankingspringproject.repository.AccountRepository;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.AgreementDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.crazymages.bankingspringproject.service.utils.initializer.AgreementInitializer;
-import org.crazymages.bankingspringproject.dto.mapper.account.AccountDtoMapper;
-import org.crazymages.bankingspringproject.dto.mapper.agreement.AgreementDtoMapper;
+import org.crazymages.bankingspringproject.dto.account.mapper.AccountDtoMapper;
+import org.crazymages.bankingspringproject.dto.agreement.mapper.AgreementDtoMapper;
 import org.crazymages.bankingspringproject.service.utils.matcher.ProductTypeMatcher;
 import org.crazymages.bankingspringproject.service.utils.updater.EntityUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A service implementation for managing Account entities in the database.
@@ -46,18 +56,7 @@ public class AccountDatabaseServiceImpl implements AccountDatabaseService {
 
     @Override
     @Transactional
-    public void create(AccountDto accountDto) {
-        if (accountDto == null) {
-            throw new IllegalArgumentException();
-        }
-        Account account = accountDtoMapper.mapDtoToEntity(accountDto);
-        accountRepository.save(account);
-        log.info("account created");
-    }
-
-    @Override
-    @Transactional
-    public void create(AccountDto accountDto, String uuid) {
+    public void create(AccountCreationDto accountDto, String uuid) {
         if (uuid == null || accountDto == null) {
             throw new IllegalArgumentException();
         }
