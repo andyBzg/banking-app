@@ -1,7 +1,8 @@
 package org.crazymages.bankingspringproject.service.database;
 
+import org.crazymages.bankingspringproject.dto.account.AccountCreationDto;
 import org.crazymages.bankingspringproject.entity.Account;
-import org.crazymages.bankingspringproject.dto.AccountDto;
+import org.crazymages.bankingspringproject.dto.account.AccountDto;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductType;
 
@@ -15,19 +16,12 @@ import java.util.UUID;
 public interface AccountDatabaseService {
 
     /**
-     * Creates a new Account entity in the database.
-     *
-     * @param accountDto The Account entity to be created.
-     */
-    void create(AccountDto accountDto);
-
-    /**
      * Creates a new Account entity in the database with the specified Client UUID.
      *
      * @param accountDto The Account entity to be created.
      * @param clientUuid The Client UUID to be assigned to the Account entity.
      */
-    void create(AccountDto accountDto, String clientUuid);
+    void create(AccountCreationDto accountDto, String clientUuid);
 
     /**
      * Retrieves an AccountDto entity from the database by its UUID.
