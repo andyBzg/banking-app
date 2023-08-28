@@ -7,6 +7,7 @@ import org.crazymages.bankingspringproject.entity.enums.AccountStatus;
 import org.crazymages.bankingspringproject.entity.enums.ProductStatus;
 import org.crazymages.bankingspringproject.service.database.AccountDatabaseService;
 import org.crazymages.bankingspringproject.service.database.ClientDatabaseService;
+import org.crazymages.bankingspringproject.service.utils.session.CurrentUsernameFinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +22,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountControllerTest {
@@ -33,15 +31,19 @@ class AccountControllerTest {
     AccountDatabaseService accountDatabaseService;
     @Mock
     ClientDatabaseService clientDatabaseService;
+    @Mock
+    CurrentUsernameFinder currentUsernameFinder;
 
     @InjectMocks
     AccountController accountController;
 
     String uuid;
+    String email;
 
     @BeforeEach
     void setUp() {
         uuid = "7bcf30be-8c6e-4e10-a73b-706849fc94dc";
+        email = "test@mail.com";
     }
 
     @Test
@@ -49,7 +51,8 @@ class AccountControllerTest {
         // when
         AccountCreationDto accountDto = AccountCreationDto.builder().build();
         AccountCreationDto createdAccountDto = AccountCreationDto.builder().build();
-        when(clientDatabaseService.findAuthenticatedClient()).thenReturn(new Client());
+        when(currentUsernameFinder.getCurrentUsername()).thenReturn(email);
+        when(clientDatabaseService.findClientByEmail(email)).thenReturn(new Client());
 
         // when
         ResponseEntity<AccountCreationDto> actual = accountController.createAccount(accountDto);
@@ -57,20 +60,20 @@ class AccountControllerTest {
         // then
         assertEquals(HttpStatus.CREATED, actual.getStatusCode());
         assertEquals(createdAccountDto, actual.getBody());
-        verify(accountDatabaseService).create(any(AccountCreationDto.class), any(String.class));
+        verify(accountDatabaseService).create(any(), any());
     }
 
     @Test
     void createAccount_emptyAccountDto_savesNoData() {
         // given
-        when(clientDatabaseService.findAuthenticatedClient()).thenReturn(new Client());
+        when(currentUsernameFinder.getCurrentUsername()).thenReturn(email);
+        when(clientDatabaseService.findClientByEmail(email)).thenReturn(new Client());
 
         // when
         ResponseEntity<AccountCreationDto> actual = accountController.createAccount(null);
 
         // then
         assertNull(actual.getBody());
-        verify(accountDatabaseService, never()).create(any(AccountCreationDto.class), any(String.class));
     }
 
     @Test

@@ -108,7 +108,7 @@ class AccountDatabaseServiceImplTest {
 
 
         // when
-        accountDatabaseService.create(accountCreationDto, uuid);
+        accountDatabaseService.create(accountCreationDto, UUID.fromString(uuid));
 
 
         // then
@@ -124,6 +124,7 @@ class AccountDatabaseServiceImplTest {
 
     @Test
     void create_nullAccountDto_throwsIllegalArgumentException() {
+        UUID uuid = UUID.fromString(clientUuid);
         assertThrows(IllegalArgumentException.class, () -> accountDatabaseService.create(null, uuid));
     }
 
