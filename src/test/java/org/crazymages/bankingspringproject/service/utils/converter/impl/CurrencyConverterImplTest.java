@@ -14,7 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,7 @@ class CurrencyConverterImplTest {
 
     @Test
     void performCurrencyConversion_success() {
+        // given
         BigDecimal amount = BigDecimal.valueOf(100);
 
         String recipientCurrencyCode = "EUR";
@@ -70,6 +72,7 @@ class CurrencyConverterImplTest {
         Account actual = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
         System.out.println(actual.getBalance());
 
+
         //then
         verify(currencyExchangeRateDatabaseService).findByCurrencyCode(recipientCurrencyCode);
         verify(currencyExchangeRateDatabaseService).findByCurrencyCode(senderCurrencyCode);
@@ -78,6 +81,7 @@ class CurrencyConverterImplTest {
 
     @Test
     void performCurrencyConversion_withZEROAmount_returnsZERO() {
+        // given
         BigDecimal amount = BigDecimal.ZERO;
 
         String recipientCurrencyCode = "EUR";
@@ -115,6 +119,7 @@ class CurrencyConverterImplTest {
         Account actual = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
         System.out.println(actual.getBalance());
 
+
         //then
         verify(currencyExchangeRateDatabaseService).findByCurrencyCode(recipientCurrencyCode);
         verify(currencyExchangeRateDatabaseService).findByCurrencyCode(senderCurrencyCode);
@@ -124,6 +129,7 @@ class CurrencyConverterImplTest {
 
     @Test
     void performCurrencyConversion_withNegativeAmount_settsNegativeBalance() {
+        // given
         BigDecimal amount = BigDecimal.valueOf(-100);
 
         String recipientCurrencyCode = "EUR";
@@ -161,6 +167,7 @@ class CurrencyConverterImplTest {
         Account actual = currencyConverter.performCurrencyConversion(amount, recipientAccount, senderAccount);
         System.out.println(actual.getBalance());
 
+
         //then
         verify(currencyExchangeRateDatabaseService).findByCurrencyCode(recipientCurrencyCode);
         verify(currencyExchangeRateDatabaseService).findByCurrencyCode(senderCurrencyCode);
@@ -168,35 +175,34 @@ class CurrencyConverterImplTest {
     }
 
     @Test
-    void performCurrencyConversion_withNullRecipientAccount_throwsNullPointerException() {
+    void performCurrencyConversion_withNullRecipientAccount_throwsIllegalArgumentException() {
+        // given
         BigDecimal amount = BigDecimal.valueOf(100);
-
-        Account recipientAccount = null;
         Account senderAccount = new Account();
         senderAccount.setCurrencyCode(CurrencyCode.AUD);
         senderAccount.setBalance(BigDecimal.valueOf(200));
 
-        assertThrows(NullPointerException.class, () -> currencyConverter
-                .performCurrencyConversion(amount, recipientAccount, senderAccount));
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> currencyConverter
+                .performCurrencyConversion(amount, null, senderAccount));
     }
 
     @Test
-    void performCurrencyConversion_withNullSenderAccount_throwsNullPointerException() {
+    void performCurrencyConversion_withNullSenderAccount_throwsIllegalArgumentException() {
+        // given
         BigDecimal amount = BigDecimal.valueOf(100);
-
         Account recipientAccount = new Account();
         recipientAccount.setCurrencyCode(CurrencyCode.EUR);
         recipientAccount.setBalance(BigDecimal.ZERO);
-        Account senderAccount = null;
 
-        assertThrows(NullPointerException.class, () -> currencyConverter
-                .performCurrencyConversion(amount, recipientAccount, senderAccount));
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> currencyConverter
+                .performCurrencyConversion(amount, recipientAccount, null));
     }
 
     @Test
-    void performCurrencyConversion_withNullAmount_throwsNullPointerException() {
-        BigDecimal amount = null;
-
+    void performCurrencyConversion_withNullAmount_throwsIllegalArgumentException() {
+        // given
         Account recipientAccount = new Account();
         recipientAccount.setCurrencyCode(CurrencyCode.EUR);
         recipientAccount.setBalance(BigDecimal.ZERO);
@@ -204,7 +210,8 @@ class CurrencyConverterImplTest {
         senderAccount.setCurrencyCode(CurrencyCode.AUD);
         senderAccount.setBalance(BigDecimal.valueOf(200));
 
-        assertThrows(NullPointerException.class, () -> currencyConverter
-                .performCurrencyConversion(amount, recipientAccount, senderAccount));
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> currencyConverter
+                .performCurrencyConversion(null, recipientAccount, senderAccount));
     }
 }
