@@ -23,23 +23,26 @@ public class CurrencyConverterImpl implements CurrencyConverter {
 
     @Override
     public Account performCurrencyConversion(BigDecimal amount, Account recipientAccount, Account senderAccount) {
+        if (amount == null || recipientAccount == null || senderAccount == null) {
+            throw new IllegalArgumentException("Argument can not be null");
+        }
         String recipientCurrencyCode = recipientAccount.getCurrencyCode().name();
         CurrencyExchangeRate recipientToBaseCurrencyRate = currencyExchangeRateDatabaseService
                 .findByCurrencyCode(recipientCurrencyCode);
         BigDecimal recipientCurrencyRate = recipientToBaseCurrencyRate.getExchangeRate();
-        log.info("Курс валюты получателя к доллару {}", recipientCurrencyRate);
+        log.info("Exchange rate of recipient's currency to USD: {}", recipientCurrencyRate);
 
         String senderCurrencyCode = senderAccount.getCurrencyCode().name();
         CurrencyExchangeRate senderToBaseCurrencyRate = currencyExchangeRateDatabaseService
                 .findByCurrencyCode(senderCurrencyCode);
         BigDecimal senderCurrencyRate = senderToBaseCurrencyRate.getExchangeRate();
-        log.info("Курс валюты отправителя к доллару {}", senderCurrencyRate);
+        log.info("Exchange rate of sender's currency to USD: {}", senderCurrencyRate);
 
         BigDecimal baseCurrencyAmount = amount.divide(senderCurrencyRate, 2, RoundingMode.HALF_UP);
-        log.info("сумма в долларах: {}", baseCurrencyAmount);
+        log.info("Amount in USD: {}", baseCurrencyAmount);
 
         BigDecimal recipientAmount = baseCurrencyAmount.multiply(recipientCurrencyRate);
-        log.info("сумма в валюте получателя: {}", recipientAmount);
+        log.info("Amount in recipient's currency: {}", recipientAmount);
 
         BigDecimal recipientBalance = recipientAccount.getBalance();
         recipientAccount.setBalance(recipientBalance.add(recipientAmount));
