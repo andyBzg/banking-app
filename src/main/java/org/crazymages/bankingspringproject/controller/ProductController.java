@@ -6,7 +6,14 @@ import org.crazymages.bankingspringproject.dto.ProductDto;
 import org.crazymages.bankingspringproject.service.database.ProductDatabaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -14,6 +21,7 @@ import java.util.List;
  * Controller class for managing products.
  */
 @RestController
+@RequestMapping("/api/product")
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
@@ -26,7 +34,7 @@ public class ProductController {
      * @param productDto The product to create.
      * @return The created product.
      */
-    @PostMapping(value = "/product/create")
+    @PostMapping(value = "/create")
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
         log.info("endpoint request: create new product");
         productDatabaseService.create(productDto);
@@ -38,7 +46,7 @@ public class ProductController {
      *
      * @return The list of products.
      */
-    @GetMapping(value = "/product/find/all")
+    @GetMapping(value = "/find/all")
     public ResponseEntity<List<ProductDto>> findAllProducts() {
         log.info("endpoint request: find all products");
         List<ProductDto> productDtoList = productDatabaseService.findAllNotDeleted();
@@ -51,7 +59,7 @@ public class ProductController {
      * @param uuid The UUID of the product.
      * @return The product.
      */
-    @GetMapping(value = "/product/find/{uuid}")
+    @GetMapping(value = "/find/{uuid}")
     public ResponseEntity<ProductDto> findProductByUuid(@PathVariable String uuid) {
         log.info("endpoint request: find product by id");
         ProductDto productDto = productDatabaseService.findById(uuid);
@@ -65,7 +73,7 @@ public class ProductController {
      * @param updatedProductDto The updated product.
      * @return The updated product.
      */
-    @PutMapping(value = "/product/update/{uuid}")
+    @PutMapping(value = "/update/{uuid}")
     public ResponseEntity<ProductDto> updateProduct(
             @PathVariable String uuid, @RequestBody ProductDto updatedProductDto) {
         log.info("endpoint request: update product");
@@ -79,7 +87,7 @@ public class ProductController {
      * @param uuid The UUID of the product to delete.
      * @return A response indicating the success of the operation.
      */
-    @DeleteMapping(value = "/product/delete/{uuid}")
+    @DeleteMapping(value = "/delete/{uuid}")
     public ResponseEntity<String> deleteProduct(@PathVariable String uuid) {
         log.info("endpoint request: delete product");
         productDatabaseService.delete(uuid);
